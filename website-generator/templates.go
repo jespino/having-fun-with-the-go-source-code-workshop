@@ -220,7 +220,7 @@ section h2:first-child {
 
 /* Code Blocks */
 pre {
-    background: linear-gradient(145deg, #1e1e1e 0%, #2d2d2d 100%);
+    background: #282c34 !important;
     border: 2px solid #00ADD8;
     border-radius: 12px;
     padding: 1.5rem;
