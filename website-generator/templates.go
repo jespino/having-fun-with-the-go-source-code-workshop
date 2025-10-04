@@ -495,6 +495,40 @@ strong {
     }
 }
 
+/* Video Grid */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.video-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.video-container h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.video-container iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.video-container p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
 /* Utility Classes */
 .text-center {
     text-align: center;

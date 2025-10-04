@@ -427,10 +427,18 @@ const indexTemplate = `<!DOCTYPE html>
 
             <h3>🎥 Video References</h3>
             <p>These workshop exercises are based on insights from my talks:</p>
-            <ul>
-                <li>🎬 <a href="https://www.youtube.com/watch?v=qnmoAA0WRgE">Understanding the Go Compiler</a> - Deep dive into Go's compilation process</li>
-                <li>🎬 <a href="https://www.youtube.com/watch?v=YpRNFNFaLGY">Understanding the Go Runtime</a> - Exploration of Go's runtime system</li>
-            </ul>
+            <div class="video-grid">
+                <div class="video-container">
+                    <h4>Understanding the Go Compiler</h4>
+                    <iframe src="https://www.youtube.com/embed/qnmoAA0WRgE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <p>Deep dive into Go's compilation process</p>
+                </div>
+                <div class="video-container">
+                    <h4>Understanding the Go Runtime</h4>
+                    <iframe src="https://www.youtube.com/embed/YpRNFNFaLGY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <p>Exploration of Go's runtime system</p>
+                </div>
+            </div>
         </section>
 
         <section class="completion">
