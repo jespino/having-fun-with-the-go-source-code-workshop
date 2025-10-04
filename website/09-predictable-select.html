@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 9: Predictable Select - Removing Randomness from Go&#39;s Select Statement - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>🎯 Exercise 9: Predictable Select - Making Select Statements Deterministic</h1>
+
+<p>In this exercise, you&rsquo;ll modify Go&rsquo;s <code>select</code> statement to be deterministic instead of random! 🎲➡️📏 By default, Go randomizes which case is chosen when multiple channels are ready. We&rsquo;ll change it to always choose cases in the same order.</p>
+
+<h2>🎯 Learning Objectives</h2>
+
+<p>By the end of this exercise, you will:</p>
+
+<ul>
+<li>✅ Understand how Go&rsquo;s <code>select</code> statement is implemented</li>
+<li>✅ Know why Go uses randomization (fairness vs. starvation)</li>
+<li>✅ Modify the runtime&rsquo;s channel selection algorithm</li>
+<li>✅ Test deterministic vs. random selection behavior</li>
+</ul>
+
+<h2>🧠 Background: Go Randomizes Select</h2>
+
+<p>By default, when multiple channels are ready, Go randomizes which case executes:</p>
+
+<pre><code class="language-go">select {
+case v := &lt;-ch1:  // Sometimes chosen
+case v := &lt;-ch2:  // Sometimes chosen
+case v := &lt;-ch3:  // Sometimes chosen
+}
+// Random selection prevents starvation
+</code></pre>
+
+<p>We&rsquo;ll make it deterministic:</p>
+
+<pre><code class="language-go">select {
+case v := &lt;-ch1:  // ALWAYS chosen first when ready
+case v := &lt;-ch2:  // Only if ch1 not ready
+case v := &lt;-ch3:  // Only if ch1 and ch2 not ready
+}
+// Predictable, source-order selection
+</code></pre>
+
+<h2>🔍 Step 1: Create a Test to See Current Randomization</h2>
+
+<p>Create a <code>random_select_demo.go</code> file:</p>
+
+<pre><code class="language-go">package main
+
+func main() {
+    ch1 := make(chan int, 1)
+    ch2 := make(chan int, 1)
+    ch3 := make(chan int, 1)
+
+    // Fill all channels so they're all ready
+    ch1 &lt;- 1
+    ch2 &lt;- 2
+    ch3 &lt;- 3
+
+    // Run select 10 times to see randomization
+    for i := 0; i &lt; 10; i++ {
+        select {
+        case v := &lt;-ch1:
+            println(&quot;Round&quot;, i, &quot;: Selected ch1 (value&quot;, v, &quot;)&quot;)
+            ch1 &lt;- 1 // Refill
+        case v := &lt;-ch2:
+            println(&quot;Round&quot;, i, &quot;: Selected ch2 (value&quot;, v, &quot;)&quot;)
+            ch2 &lt;- 2 // Refill
+        case v := &lt;-ch3:
+            println(&quot;Round&quot;, i, &quot;: Selected ch3 (value&quot;, v, &quot;)&quot;)
+            ch3 &lt;- 3 // Refill
+        }
+    }
+}
+</code></pre>
+
+<p>Run with current Go to see random selection:</p>
+
+<pre><code class="language-bash">go run random_select_demo.go
+</code></pre>
+
+<p>Output shows random selection:</p>
+
+<pre><code>Round 0: Selected ch3 (value 3)
+Round 1: Selected ch1 (value 1)
+Round 2: Selected ch2 (value 2)
+...
+</code></pre>
+
+<h2>Step 2: Navigate to the Select Implementation</h2>
+
+<pre><code class="language-bash">cd go/src/runtime
+</code></pre>
+
+<p>The <code>select.go</code> file contains the entire select statement implementation. The key function is <code>selectgo()</code> which handles case selection.</p>
+
+<h2>Step 3: Understand the Randomization Code</h2>
+
+<p>Look around line 191 in <code>select.go</code>:</p>
+
+<pre><code class="language-go">// go/src/runtime/select.go:191
+j := cheaprandn(uint32(norder + 1))  // Random index!
+pollorder[norder] = pollorder[j]
+pollorder[j] = uint16(i)
+norder++
+</code></pre>
+
+<p>This implements the algorithm to randomize case order:</p>
+
+<ul>
+<li><code>cheaprandn()</code> generates a pseudo-random number</li>
+<li>Cases are placed in random positions in the <code>pollorder</code> array</li>
+<li>Select then checks cases in this randomized order</li>
+</ul>
+
+<h2>Step 4: Make Select Deterministic</h2>
+
+<p><strong>Edit <code>select.go</code>:</strong></p>
+
+<p>Find line 191 and change the randomization to be deterministic:</p>
+
+<pre><code class="language-go">// go/src/runtime/select.go:191
+// Original:
+j := cheaprandn(uint32(norder + 1))
+pollorder[norder] = pollorder[j]
+pollorder[j] = uint16(i)
+
+// Change to:
+pullorder[norder] = uint16(len(scases)-1-i)
+</code></pre>
+
+<h3>🔧 Understanding the Code Change</h3>
+
+<ul>
+<li><strong><code>uint16(len(scases)-1-i)</code></strong>: Use inverse orther here</li>
+<li><strong>Result</strong>: pullorder is now always ordered in the source code order</li>
+<li><strong>Effect</strong>: Cases maintain their source code order in <code>pollorder</code></li>
+</ul>
+
+<h2>Step 5: Rebuild Go Runtime</h2>
+
+<pre><code class="language-bash">cd ../  # back to go/src
+./make.bash
+</code></pre>
+
+<h2>Step 6: Test Deterministic Behavior</h2>
+
+<pre><code class="language-bash">../go/bin/go run random_select_demo.go
+</code></pre>
+
+<p>Now you should see <strong>deterministic output</strong>:</p>
+
+<pre><code>Round 0: Selected ch1 (value 1)
+Round 1: Selected ch1 (value 1)
+Round 2: Selected ch1 (value 1)
+Round 3: Selected ch1 (value 1)
+...
+</code></pre>
+
+<p>Perfect! <code>ch1</code> is <strong>always</strong> chosen because is the first one in the code, no more random order.</p>
+
+<h2>Understanding What We Did</h2>
+
+<ol>
+<li><strong>Removed Randomization</strong>: Replaced <code>cheaprandn()</code> with deterministic index</li>
+<li><strong>Maintained Source Order</strong>: Cases are now checked in the order they appear</li>
+<li><strong>Performance Boost</strong>: Slightly faster (no random number generation)</li>
+<li><strong>Changed Semantics</strong>: Same syntax, different runtime behavior</li>
+</ol>
+
+<h2>🎓 What We Learned</h2>
+
+<ul>
+<li>🔄 <strong>Runtime Modification</strong>: How to alter fundamental language behavior</li>
+<li>⚖️ <strong>Design Trade-offs</strong>: Fairness vs. determinism in concurrent systems</li>
+<li>📊 <strong>Select Internals</strong>: How <code>selectgo</code> and <code>pollorder</code> work</li>
+<li>🧪 <strong>Behavioral Testing</strong>: Validating semantic changes with test programs</li>
+</ul>
+
+<h2>💡 Extension Ideas</h2>
+
+<p>Try these additional modifications: 🚀</p>
+
+<ol>
+<li>➕ Add a reverse-order mode (check cases last to first)</li>
+<li>➕ Add priority levels based on case position</li>
+<li>📊 Track selection statistics for debugging</li>
+<li>🎲 Make randomization configurable via environment variable</li>
+</ol>
+
+<h2>Cleanup</h2>
+
+<p>To restore Go&rsquo;s original random behavior:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+git checkout select.go
+cd ../
+./make.bash
+</code></pre>
+
+<h2>Summary</h2>
+
+<p>You&rsquo;ve transformed Go&rsquo;s <code>select</code> from a fair, random chooser into a predictable, deterministic priority system:</p>
+
+<pre><code class="language-go">// Before: Random selection (fair but unpredictable)
+select {
+case &lt;-ch1: // 33% chance
+case &lt;-ch2: // 33% chance
+case &lt;-ch3: // 33% chance
+}
+
+// After: Deterministic selection (predictable but may starve)
+select {
+case &lt;-ch1: // Always chosen when ready
+case &lt;-ch2: // Only if ch1 not ready
+case &lt;-ch3: // Only if ch1 and ch2 not ready
+}
+</code></pre>
+
+<p>This exercise demonstrated how runtime modifications can fundamentally change language behavior and exposed important trade-offs in concurrent system design! 🎯✨</p>
+
+<hr />
+
+<p><em>Continue to <a href="10-java-style-stack-traces.html">Exercise 10</a> or return to the <a href="index.html">main workshop</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="08-goroutine-sleep-detective.html" class="nav-button">← Previous</a>
+            
+            
+            <a href="10-java-style-stack-traces.html" class="nav-button">Next: Exercise 10 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Created by <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3: Multiple &#34;go&#34; Keywords - Parser Enhancement - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>🔄 Exercise 3: Multiple &ldquo;go&rdquo; Keywords - Parser Enhancement</h1>
+
+<p>In this exercise, you&rsquo;ll modify the Go parser to accept multiple consecutive &ldquo;go&rdquo; keywords for starting goroutines! 🚀 This will teach you how to enhance parser logic to handle repetitive syntax patterns while maintaining the same semantic behavior.</p>
+
+<h2>🎯 Learning Objectives</h2>
+
+<p>By the end of this exercise, you will:</p>
+
+<ul>
+<li>✅ Understand Go&rsquo;s parser structure and token consumption</li>
+<li>✅ Know how to modify parser logic for syntax extensions</li>
+<li>✅ Test parser modifications with working code</li>
+</ul>
+
+<h2>🔍 Step 1: Navigate to the Parser</h2>
+
+<pre><code class="language-bash">cd go/src/cmd/compile/internal/syntax
+</code></pre>
+
+<h3>🔑 Understanding the Current Parser Logic</h3>
+
+<p>Let&rsquo;s examine how the parser currently handles the &ldquo;go&rdquo; statement in <code>parser.go</code>. Look around line 2675:</p>
+
+<pre><code class="language-go">// go/src/cmd/compile/internal/syntax/parser.go:2673-2676
+...
+return s
+
+case _Go, _Defer:
+    return p.callStmt()
+...
+</code></pre>
+
+<p>The parser recognizes <code>_Go</code> token and immediately calls <code>p.callStmt()</code> to handle the goroutine creation.</p>
+
+<p>Find the <code>callStmt()</code> method in <code>parser.go</code> at line 977. This is where we&rsquo;ll add our multiple &ldquo;go&rdquo; logic:</p>
+
+<pre><code class="language-go">// go/src/cmd/compile/internal/syntax/parser.go:976-985
+// callStmt parses call-like statements that can be preceded by 'defer' and 'go'.
+func (p *parser) callStmt() *CallStmt {
+    if trace {
+        defer p.trace(&quot;callStmt&quot;)()
+    }
+
+    s := new(CallStmt)
+    s.pos = p.pos()
+    s.Tok = p.tok // _Defer or _Go
+    p.next()
+    ...
+}
+</code></pre>
+
+<p>The key line is <code>s.Tok = p.tok</code> which captures whether this is a &ldquo;defer&rdquo; or &ldquo;go&rdquo; statement, followed by <code>p.next()</code> which consumes the token.</p>
+
+<h2>Step 2: Add Multiple &ldquo;go&rdquo; Support</h2>
+
+<p>We need to modify the <code>callStmt()</code> method to consume multiple consecutive &ldquo;go&rdquo; tokens while preserving the same semantic meaning.</p>
+
+<p><strong>Edit <code>parser.go</code>:</strong></p>
+
+<p>Find line 985 where <code>p.next()</code> is called and add our multiple &ldquo;go&rdquo; logic right after it:</p>
+
+<pre><code class="language-go">// go/src/cmd/compile/internal/syntax/parser.go:982-990
+s := new(CallStmt)
+s.pos = p.pos()
+s.Tok = p.tok // _Defer or _Go
+p.next()
+
+// Allow multiple consecutive &quot;go&quot; keywords (go go go ...)
+if s.Tok == _Go {
+    for p.tok == _Go {
+        p.next()
+    }
+}
+
+...
+</code></pre>
+
+<h3>🔧 Understanding the Code Change</h3>
+
+<ul>
+<li><strong><code>if s.Tok == _Go</code></strong>: Only apply multiple keyword logic to &ldquo;go&rdquo; statements (not &ldquo;defer&rdquo;)</li>
+<li><strong><code>for p.tok == _Go</code></strong>: Keep consuming &ldquo;go&rdquo; tokens while they appear consecutively</li>
+<li><strong><code>p.next()</code></strong>: Advance past each additional &ldquo;go&rdquo; token</li>
+<li><strong>Preservation</strong>: <code>s.Tok</code> remains <code>_Go</code>, so the semantic meaning is unchanged</li>
+</ul>
+
+<h2>Step 3: Rebuild the Compiler</h2>
+
+<p>Now let&rsquo;s rebuild the Go toolchain with our changes:</p>
+
+<pre><code class="language-bash">cd ../../../  # back to go/src
+./make.bash
+</code></pre>
+
+<p>If there are any compilation errors, review your changes and fix them.</p>
+
+<h2>Step 4: Test Multiple &ldquo;go&rdquo; Keywords</h2>
+
+<p>Create a test program to verify our multiple &ldquo;go&rdquo; syntax works:</p>
+
+<pre><code class="language-bash">mkdir -p /tmp/multiple-go-test
+cd /tmp/multiple-go-test
+</code></pre>
+
+<p>Create a test.go file:</p>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;fmt&quot;
+    &quot;time&quot;
+)
+
+func sayHello(name string) {
+    fmt.Printf(&quot;Hello from %s!\n&quot;, name)
+}
+
+func main() {
+    fmt.Println(&quot;Testing multiple go keywords...&quot;)
+
+    // Test regular single go
+    go sayHello(&quot;single go&quot;)
+
+    // Test double go
+    go go sayHello(&quot;double go&quot;)
+
+    // Test triple go
+    go go go sayHello(&quot;triple go&quot;)
+
+    // Test quadruple go
+    go go go go sayHello(&quot;quadruple go&quot;)
+
+    // Wait a bit to see output
+    time.Sleep(100 * time.Millisecond)
+    fmt.Println(&quot;All done!&quot;)
+}
+</code></pre>
+
+<p>Execute the test program with your custom Go:</p>
+
+<pre><code class="language-bash">/path/to/workshop/go/bin/go run test.go
+</code></pre>
+
+<p>You should see output like: ✨</p>
+
+<pre><code>Testing multiple go keywords...
+Hello from single go!
+Hello from double go!
+Hello from triple go!
+Hello from quadruple go!
+All done!
+</code></pre>
+
+<h2>Step 5: Run Parser Tests</h2>
+
+<p>Let&rsquo;s make sure we didn&rsquo;t break the parser:</p>
+
+<pre><code class="language-bash">cd /path/to/workshop/go/src
+../bin/go test cmd/compile/internal/syntax -short
+</code></pre>
+
+<h2>Understanding What We Did</h2>
+
+<ol>
+<li><strong>Parser Enhancement</strong>: Modified <code>callStmt()</code> to handle multiple consecutive &ldquo;go&rdquo; tokens</li>
+<li><strong>Token Consumption</strong>: Added a loop to consume additional &ldquo;go&rdquo; tokens after the first one</li>
+<li><strong>Semantic Preservation</strong>: Multiple &ldquo;go&rdquo; keywords still create exactly one goroutine</li>
+<li><strong>Targeted Change</strong>: Only affects &ldquo;go&rdquo; statements, not &ldquo;defer&rdquo; statements</li>
+</ol>
+
+<h2>🎓 What We Learned</h2>
+
+<ul>
+<li>🔄 <strong>Parser Logic</strong>: How Go processes token sequences into statements</li>
+<li>📝 <strong>Token Consumption</strong>: Techniques for consuming multiple tokens of the same type</li>
+<li>🧪 <strong>Parser Testing</strong>: Validating parser changes with diverse test cases</li>
+</ul>
+
+<h2>💡 Extension Ideas</h2>
+
+<p>Try these additional modifications: 🚀</p>
+
+<ol>
+<li>➕ Add similar support for &ldquo;defer defer defer&rdquo; (more challenging!)</li>
+<li>➕ Add a maximum limit (e.g., max 5 consecutive &ldquo;go&rdquo; keywords)</li>
+<li>📊 Track how many &ldquo;go&rdquo; keywords were used for debugging</li>
+<li>🎨 Make the multiple keywords affect goroutine priority</li>
+</ol>
+
+<h2>➡️ Next Steps</h2>
+
+<p>Excellent work! 🎉 You&rsquo;ve successfully enhanced Go&rsquo;s parser to handle repetitive syntax patterns.</p>
+
+<p>In <a href="./04-compiler-inlining-parameters.md">Exercise 4: Compiler Inlining Parameters</a>, we&rsquo;ll shift focus to explore how Go&rsquo;s compiler optimization works, learning to tune inlining parameters for binary size control.</p>
+
+<h2>Cleanup</h2>
+
+<p>To restore the original Go source:</p>
+
+<pre><code class="language-bash">cd /path/to/workshop/go/src/cmd/compile/internal/syntax
+git checkout parser.go
+cd ../../../
+./make.bash  # Rebuild with original code
+</code></pre>
+
+<h2>Summary</h2>
+
+<p>Multiple &ldquo;go&rdquo; keywords now work for starting goroutines:</p>
+
+<pre><code class="language-go">// These are all equivalent and create exactly one goroutine:
+go myFunction()
+go go myFunction()
+go go go myFunction() 
+go go go go myFunction()
+
+// The parser consumes all consecutive &quot;go&quot; tokens
+// but the semantic behavior remains the same!
+</code></pre>
+
+<p>This exercise demonstrated how parser-level modifications can add expressive syntactic sugar while preserving the underlying language semantics! 🚀✨</p>
+
+<hr />
+
+<p><em>Continue to <a href="04-compiler-inlining-parameters.html">Exercise 4</a> or return to the <a href="index.html">main workshop</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="02-scanner-arrow-operator.html" class="nav-button">← Previous</a>
+            
+            
+            <a href="04-compiler-inlining-parameters.html" class="nav-button">Next: Exercise 4 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Created by <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
