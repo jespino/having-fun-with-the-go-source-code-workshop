@@ -71,13 +71,55 @@ Transform Go's verbose stack traces into Java-style formatting.
 ```
 .
 ├── README.md                 # This file
-├── exercises/               # Individual exercise files
+├── exercises/               # Individual exercise files (markdown)
 │   ├── 00-introduction-setup.md
 │   ├── 01-compile-go-unchanged.md
 │   ├── 02-scanner-arrow-operator.md
 │   └── ...
+├── website-generator/       # Go program to generate website from markdown
+│   ├── main.go
+│   ├── templates.go
+│   └── README.md
+├── website/                 # Generated website (HTML)
+│   ├── index.html
+│   ├── 00-introduction-setup.html
+│   └── ...
+├── Makefile                 # Build automation
 └── go/                      # Go source code (cloned during setup)
 ```
+
+## 🌐 Website Generator
+
+This repository includes a Go program that automatically generates a static website from the markdown exercise files.
+
+### Generate the Website
+
+```bash
+# Using make (recommended)
+make website
+
+# Or run directly
+cd website-generator
+go run . -exercises ../exercises -output ../website
+```
+
+### Serve Locally
+
+```bash
+# Start a local web server
+make serve
+
+# Then open http://localhost:8000 in your browser
+```
+
+The website generator:
+- ✅ Converts markdown to HTML using [blackfriday](https://github.com/russross/blackfriday)
+- ✅ Preserves all formatting, emojis, and code blocks
+- ✅ Generates navigation between exercises
+- ✅ Creates an index page with exercise overview
+- ✅ Includes responsive CSS styling
+
+See [website-generator/README.md](website-generator/README.md) for more details.
 
 ## 💡 Tips for Success
 

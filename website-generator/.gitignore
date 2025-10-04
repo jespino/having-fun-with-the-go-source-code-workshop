@@ -1,0 +1,21 @@
+# Go compiler workspace
+go/
+doing-it/
+
+# Generated website (can be regenerated from markdown)
+website/*.html
+website/*.css
+
+# Go module cache
+website-generator/go.sum
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

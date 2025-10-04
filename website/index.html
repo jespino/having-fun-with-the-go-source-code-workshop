@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Having Fun with the Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">🚀 Go Source Code Workshop</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="hero">
+            <h1>🚀 Having Fun with the Go Source Code Workshop</h1>
+            <p class="lead">Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime. 🎯</p>
+            <p class="version-note"><strong>📌 This workshop uses Go version 1.25.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.</p>
+        </header>
+
+        <section class="prerequisites">
+            <h2>📋 Prerequisites</h2>
+            <ul>
+                <li>🐹 Basic knowledge of Go programming</li>
+                <li>💻 Familiarity with command line tools</li>
+                <li>🗂️ Git installed on your system</li>
+                <li><strong>⚡ Go compiler version 1.24.6 or newer</strong> (required for bootstrapping the build process)</li>
+                <li>💾 At least 4GB of free disk space</li>
+            </ul>
+        </section>
+
+        <section class="overview">
+            <h2>🎓 Workshop Overview</h2>
+            <p>This workshop consists of 11 exercises that will take you through the process from building Go from source, and making modifications at different places in the compiler, tooling and runtime. You'll gain some insights about the Go internals, from things like the lexer or parser, to runtime behaviors:</p>
+
+            <div class="exercises-grid">
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 0</div>
+                    <h3>🌱 <a href="00-introduction-setup.html">Introduction and Setup</a></h3>
+                    <p>Get started by cloning and setting up the Go source code environment.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 1</div>
+                    <h3>🔨 <a href="01-compile-go-unchanged.html">Compiling Go Without Changes</a></h3>
+                    <p>Learn to build the Go toolchain from source without any modifications.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 2</div>
+                    <h3>⚡ <a href="02-scanner-arrow-operator.html">Adding the &#34;=&gt;&#34; Arrow Operator for Goroutines</a></h3>
+                    <p>Learn scanner/lexer modification by adding &#34;=&gt;&#34; as an alternative syntax for starting goroutines.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 3</div>
+                    <h3>🔄 <a href="03-parser-multiple-go.html">Multiple &#34;go&#34; Keywords - Parser Enhancement</a></h3>
+                    <p>Learn parser modification by enabling multiple consecutive &#34;go&#34; keywords (go go go myFunction).</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 4</div>
+                    <h3>⚙️ <a href="04-compiler-inlining-parameters.html">Inline Parameters - Function Inlining Experiments</a></h3>
+                    <p>Explore the inliner behavior by modifying function inlining parameters.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 5</div>
+                    <h3>🎨 <a href="05-gofmt-ast-transformation.html">gofmt Transformation - &#34;hello&#34; to &#34;helo&#34;</a></h3>
+                    <p>Learn about Go&#39;s tools by modifying gofmt to modify &#34;hello&#34; to &#34;helo&#34; in code.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 6</div>
+                    <h3>🔍 <a href="06-ssa-power-of-two-detector.html">SSA Pass - Detecting Division by Powers of Two</a></h3>
+                    <p>Create a custom SSA compiler pass that detects division operations by powers of two that could be optimized to bit shifts.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 7</div>
+                    <h3>🕰️ <a href="07-runtime-patient-go.html">Patient Go - Making Go Wait for Goroutines</a></h3>
+                    <p>Modify the Go runtime to wait for all goroutines to complete before program termination.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 8</div>
+                    <h3>🕵️‍♂️ <a href="08-goroutine-sleep-detective.html">Goroutine Sleep Detective - Runtime State Monitoring</a></h3>
+                    <p>Add logging to the Go scheduler to monitor goroutines going to sleep.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 9</div>
+                    <h3>🎯 <a href="09-predictable-select.html">Predictable Select - Removing Randomness from Go&#39;s Select Statement</a></h3>
+                    <p>Modify Go&#39;s select statement implementation to be deterministic instead of random.</p>
+                </div>
+                
+                <div class="exercise-card">
+                    <div class="exercise-number">Exercise 10</div>
+                    <h3>☕ <a href="10-java-style-stack-traces.html">Java-Style Stack Traces - Making Go Panics Look Familiar</a></h3>
+                    <p>Transform Go&#39;s verbose stack traces into Java-style formatting.</p>
+                </div>
+                
+            </div>
+        </section>
+
+        <section class="getting-started">
+            <h2>🚀 Getting Started</h2>
+            <ol>
+                <li>🌱 Start with <a href="00-introduction-setup.html">Exercise 0</a> to set up your environment</li>
+                <li>📚 Work through the exercises in order</li>
+                <li>🔗 After exercise 1, you can pick and choose the exercise that you want.</li>
+            </ol>
+        </section>
+
+        <section class="tips">
+            <h2>💡 Tips for Success</h2>
+            <ul>
+                <li>⏰ Take your time with each exercise - compiler internals are complex!</li>
+                <li>🔍 Don't hesitate to explore the Go source code beyond what's required</li>
+                <li>🌿 Use <code>git</code> to track your changes and revert when needed</li>
+                <li>🧪 Test your modifications thoroughly with various Go programs</li>
+            </ul>
+        </section>
+
+        <section class="resources">
+            <h2>📖 Resources</h2>
+            <ul>
+                <li>🏗️ <a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go Compiler Overview</a></li>
+                <li>📋 <a href="https://go.dev/ref/spec">Go Language Specification</a></li>
+                <li>🔧 <a href="https://pkg.go.dev/runtime">Go Runtime Documentation</a></li>
+                <li>📚 <a href="https://go.dev/src/">Go Internal Documentation</a></li>
+            </ul>
+
+            <h3>🎥 Video References</h3>
+            <p>These workshop exercises are based on insights from my talks:</p>
+            <ul>
+                <li>🎬 <a href="https://www.youtube.com/watch?v=qnmoAA0WRgE">Understanding the Go Compiler</a> - Deep dive into Go's compilation process</li>
+                <li>🎬 <a href="https://www.youtube.com/watch?v=YpRNFNFaLGY">Understanding the Go Runtime</a> - Exploration of Go's runtime system</li>
+            </ul>
+        </section>
+
+        <section class="completion">
+            <h2>🏆 Workshop Completion</h2>
+            <p>Upon completing all exercises, you'll have:</p>
+            <ul>
+                <li>✅ <strong>Built Go from source</strong> and understood the bootstrap process</li>
+                <li>✅ <strong>Modified language syntax</strong> by changing scanner and parser behavior</li>
+                <li>✅ <strong>Customized development tools</strong> like gofmt and compiler optimizations</li>
+                <li>✅ <strong>Implemented SSA optimizations</strong> in the compiler backend</li>
+                <li>✅ <strong>Modified runtime behavior</strong> including program entry points and scheduler monitoring</li>
+                <li>✅ <strong>Altered concurrency algorithms</strong> like select statement randomization</li>
+                <li>✅ <strong>Customized error reporting</strong> with Java-style stack trace formatting</li>
+            </ul>
+
+            <p><strong>Congratulations!</strong> You'll have gained the confidence to keep exploring the Go source code. This knowledge enables you to:</p>
+            <ul>
+                <li>Start small contributions to the Go project</li>
+                <li>Build custom language variants and tools</li>
+                <li>Understand some trade-offs in language and runtime design</li>
+            </ul>
+        </section>
+
+        <section class="contributing">
+            <h2>🤝 Contributing</h2>
+            <p>Found an issue, have an improvement idea or want to add more exercises? Please <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop/issues">open an issue</a> or submit a pull request!</p>
+        </section>
+
+        <div class="cta">
+            <a href="00-introduction-setup.html" class="cta-button">Start with Exercise 0 →</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🚀 Having Fun with the Go Source Code Workshop</p>
+            <p><strong>Happy coding and welcome to the world of Go internals!</strong> ✨</p>
+        </div>
+    </footer>
+</body>
+</html>

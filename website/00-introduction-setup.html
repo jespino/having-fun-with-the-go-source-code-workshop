@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 0: Introduction and Setup - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">🚀 Go Source Code Workshop</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>🌱 Exercise 0: Introduction and Setup</h1>
+
+<p>Welcome to the Go Source Code Workshop! 🎉 In this introductory exercise, you&rsquo;ll set up your environment and get familiar with the Go source code repository.</p>
+
+<h2>🎯 Learning Objectives</h2>
+
+<p>By the end of this exercise, you will:</p>
+
+<ul>
+<li>✅ Have a working Go development environment</li>
+<li>✅ Know how to get the Go source code</li>
+</ul>
+
+<h2>📋 Prerequisites</h2>
+
+<p>Make sure you have the following installed:</p>
+
+<ul>
+<li>🗂️ Git</li>
+<li>💾 At least 4GB of free disk space</li>
+</ul>
+
+<h2>⚡ Step 1: Install or Upgrade Go</h2>
+
+<p><strong>⚠️ Important</strong>: You need an existing Go installation (version 1.24.6 or newer) to build Go from source. This is called &ldquo;bootstrapping&rdquo; - using an existing Go compiler to build the new one.</p>
+
+<h3>Check Your Current Go Version</h3>
+
+<pre><code class="language-bash">go version
+# Should show: go version go1.24.6 or higher
+</code></pre>
+
+<h3>If Go is Not Installed or Too Old</h3>
+
+<p>If you don&rsquo;t have Go installed, or your version is older than 1.24.6:</p>
+
+<ol>
+<li>📥 <strong>Download Go</strong>: Visit <a href="https://go.dev/dl/">https://go.dev/dl/</a> and download the appropriate installer for your operating system</li>
+<li>🛠️ <strong>Install Go</strong>: Follow the official installation guide for your platform:</li>
+<li>✅ <strong>Verify Installation</strong>: Open a new terminal and run:</li>
+</ol>
+
+<pre><code class="language-bash">   go version
+   # Should show: go version go1.24.6 or higher
+</code></pre>
+
+<p><strong>📚 Installation Help</strong>: If you need detailed installation instructions, see the <a href="https://go.dev/doc/install">official Go installation guide</a>.</p>
+
+<h2>📥 Step 2: Clone the Go Source Code</h2>
+
+<p>Let&rsquo;s clone the official Go repository. This might take a few minutes as it&rsquo;s a large repository. ⏳</p>
+
+<pre><code class="language-bash">git clone https://go.googlesource.com/go
+cd go
+</code></pre>
+
+<h2>🏷️ Step 3: Checkout Go Version 1.25.1</h2>
+
+<p>For consistency across the workshop, we&rsquo;ll use Go version 1.25.1. Let&rsquo;s check out the specific release tag: 📌</p>
+
+<pre><code class="language-bash">git checkout go1.25.1
+</code></pre>
+
+<p>Verify you&rsquo;re on the correct version:</p>
+
+<pre><code class="language-bash">git describe --tags
+# Should show: go1.25.1
+</code></pre>
+
+<h2>🎓 What We Accomplished</h2>
+
+<ul>
+<li>✅ Installed or verified Go 1.24.6+ for bootstrapping</li>
+<li>✅ Cloned the official Go repository</li>
+<li>✅ Checked out Go version 1.25.1 for consistency</li>
+<li>✅ Environment is ready for building Go from source</li>
+</ul>
+
+<h2>➡️ Next Steps</h2>
+
+<p>Perfect! Your environment is now set up and ready. In <a href="./01-compile-go-unchanged.md">Exercise 1: Compiling Go Without Changes</a>, you&rsquo;ll build the Go toolchain from source and explore the Go compiler structure while it&rsquo;s building! 🔨</p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="index.html" class="nav-button">← Home</a>
+            
+            
+            <a href="01-compile-go-unchanged.html" class="nav-button">Next: Exercise 1 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🚀 Having Fun with the Go Source Code Workshop</p>
+        </div>
+    </footer>
+</body>
+</html>

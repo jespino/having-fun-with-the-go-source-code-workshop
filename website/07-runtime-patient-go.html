@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 7: Patient Go - Making Go Wait for Goroutines - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">🚀 Go Source Code Workshop</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>🕰️ Exercise 7: Patient Go - Making Go Wait for Goroutines</h1>
+
+<p>In this exercise, you&rsquo;ll modify the Go runtime to wait for all goroutines to complete before the program exits. Currently, when <code>main()</code> returns, Go immediately terminates even if goroutines are still running. We&rsquo;ll make Go &ldquo;patient&rdquo; by waiting for all goroutines to finish!</p>
+
+<h2>🎯 Learning Objectives</h2>
+
+<p>By the end of this exercise, you will:</p>
+
+<ul>
+<li>✅ Understand Go&rsquo;s program termination process</li>
+<li>✅ Know how to count active goroutines</li>
+<li>✅ Modify the main runtime function to change program behavior</li>
+<li>✅ Understand the trade-offs of automatic goroutine waiting</li>
+</ul>
+
+<h2>🧠 Background: Go&rsquo;s Current Termination Behavior</h2>
+
+<p>Currently, when you write:</p>
+
+<pre><code class="language-go">package main
+
+import &quot;time&quot;
+
+func main() {
+    go func() {
+        time.Sleep(2 * time.Second)
+        println(&quot;Goroutine finished!&quot;)
+    }()
+    println(&quot;Main finished!&quot;)
+    // Program exits immediately, goroutine never completes
+}
+</code></pre>
+
+<p><strong>Output:</strong></p>
+
+<pre><code>Main finished!
+</code></pre>
+
+<p>The goroutine never gets to print because the program exits when <code>main()</code> returns.</p>
+
+<p>We&rsquo;ll change this so Go waits patiently for all goroutines to finish:</p>
+
+<p><strong>New Output:</strong></p>
+
+<pre><code>Main finished!
+Goroutine finished!
+</code></pre>
+
+<h2>🔍 Step 1: Understanding the Runtime Main Function</h2>
+
+<p>The Go runtime&rsquo;s <code>main()</code> function in <code>runtime/proc.go</code> is responsible for running your program&rsquo;s <code>main()</code> function. Let&rsquo;s examine how this works:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+</code></pre>
+
+<p>Open <code>proc.go</code> and find the <code>main()</code> function. Near the top (around line 135-136), you&rsquo;ll see how the runtime links to your program&rsquo;s main:</p>
+
+<pre><code class="language-go">//go:linkname main_main main.main
+func main_main()
+</code></pre>
+
+<p>This <code>//go:linkname</code> directive tells the linker to connect the runtime&rsquo;s <code>main_main</code> function to your program&rsquo;s <code>main.main</code> function. This is how the runtime can call code from your main package.</p>
+
+<p>Further down in the same <code>main()</code> function (around line 284), you&rsquo;ll see where this gets called:</p>
+
+<pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+fn()
+
+... // tear-down process continues
+</code></pre>
+
+<p><strong>How it works:</strong>
+1. The go runtime boostrap process happens
+2. The runtime&rsquo;s <code>main()</code> function runs first
+3. A bit more of boostrap process
+4. The <code>main_main</code> (which is your program&rsquo;s <code>main()</code> function via linkname) is called
+5. Your <code>main()</code> function executes - <strong>responsibility is delegated to your code</strong>
+6. When your <code>main()</code> returns, control returns to the runtime&rsquo;s <code>main()</code> function
+7. The runtime continues with the program <strong>tear-down process</strong> (cleanup and exit)</p>
+
+<p>Currently, the tear-down starts immediately after your <code>main()</code> returns, without waiting for other goroutines.</p>
+
+<h2>🔧 Step 2: Add Goroutine Waiting Logic</h2>
+
+<p>We&rsquo;ll add code to wait until only 1 goroutine remains (the main goroutine itself).</p>
+
+<p><strong>Edit <code>runtime/proc.go</code>:</strong></p>
+
+<p>Find the section around line 284-286 where <code>main_main</code> is called:</p>
+
+<pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+fn()
+</code></pre>
+
+<p>Add the waiting logic right after the <code>fn()</code> call:</p>
+
+<pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+fn()
+
+// Wait until only 1 goroutine is running (the main goroutine)
+for gcount() &gt; 1 {
+	Gosched()
+}
+</code></pre>
+
+<h3>🔍 Understanding the Code</h3>
+
+<ul>
+<li><strong><code>gcount()</code></strong> - Runtime function that returns the number of active goroutines</li>
+<li><strong><code>gcount() &gt; 1</code></strong> - While more than just the main goroutine is running</li>
+<li><strong><code>Gosched()</code></strong> - Yields the processor, allowing other goroutines to run</li>
+<li><strong>Loop terminates</strong> - When only the main goroutine remains (count = 1)</li>
+</ul>
+
+<h2>📝 Step 3: Rebuild Go Toolchain</h2>
+
+<pre><code class="language-bash">cd go/src
+./make.bash
+</code></pre>
+
+<p>This rebuilds the runtime with your patient goroutine waiting logic.</p>
+
+<h2>🧪 Step 4: Test Basic Goroutine Waiting</h2>
+
+<p>Create a test file to verify the behavior:</p>
+
+<p>Create <code>patient_test.go</code>:</p>
+
+<pre><code class="language-go">package main
+
+import &quot;time&quot;
+
+func main() {
+	println(&quot;Main starting...&quot;)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		println(&quot;Goroutine 1 finished!&quot;)
+	}()
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		println(&quot;Goroutine 2 finished!&quot;)
+	}()
+
+	println(&quot;Main finished, but Go will wait...&quot;)
+}
+</code></pre>
+
+<p>Run with your modified Go:</p>
+
+<pre><code class="language-bash">./bin/go run patient_test.go
+</code></pre>
+
+<p><strong>Expected output:</strong></p>
+
+<pre><code>Main starting...
+Main finished, but Go will wait...
+Goroutine 1 finished!
+Goroutine 2 finished!
+</code></pre>
+
+<p>🎉 Success! Go now waits for all goroutines to complete!</p>
+
+<h2>🎓 What We Learned</h2>
+
+<ul>
+<li>🔄 <strong>Program Termination</strong>: How Go programs exit and cleanup</li>
+<li>📊 <strong>Goroutine Tracking</strong>: The <code>gcount()</code> function tracks active goroutines</li>
+<li>⏸️ <strong>Cooperative Scheduling</strong>: <code>Gosched()</code> yields to allow other goroutines to run</li>
+<li>🔧 <strong>Runtime Modification</strong>: How a small change affects all Go programs</li>
+<li>⚖️ <strong>Design Trade-offs</strong>: Benefits and drawbacks of automatic waiting</li>
+</ul>
+
+<h2>💡 Extension Ideas</h2>
+
+<p>Try these additional modifications: 🚀</p>
+
+<ol>
+<li>➕ Add a timeout: Wait maximum 10 seconds for goroutines</li>
+<li>➕ Add logging: Print when waiting starts and which goroutines remain</li>
+<li>➕ Make it configurable: Use environment variable to enable/disable</li>
+<li>➕ Add a warning: Detect infinite loops in goroutines</li>
+</ol>
+
+<h2>🧹 Cleanup</h2>
+
+<p>To restore standard Go behavior:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+git checkout proc.go
+cd ..
+./make.bash
+</code></pre>
+
+<h2>📊 Summary</h2>
+
+<p>You&rsquo;ve successfully modified Go&rsquo;s runtime to be &ldquo;patient&rdquo; and wait for all goroutines!</p>
+
+<pre><code>Before:  main() returns → immediate exit → goroutines abandoned
+After:   main() returns → wait for goroutines → all complete → exit
+
+Changes: runtime/proc.go main() function
+Result:  No goroutine left behind! 🎯
+</code></pre>
+
+<p>This modification demonstrates:
+- Deep understanding of the Go runtime
+- How program termination works
+- The relationship between main() and goroutines
+- Real-world trade-offs in language design</p>
+
+<p>Your Go is now patient! 🕰️✨</p>
+
+<hr />
+
+<p><em>Continue to <a href="08-goroutine-sleep-detective.html">Exercise 8</a> or return to the <a href="index.html">main workshop</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="06-ssa-power-of-two-detector.html" class="nav-button">← Previous</a>
+            
+            
+            <a href="08-goroutine-sleep-detective.html" class="nav-button">Next: Exercise 8 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🚀 Having Fun with the Go Source Code Workshop</p>
+        </div>
+    </footer>
+</body>
+</html>

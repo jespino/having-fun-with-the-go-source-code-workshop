@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4: Inline Parameters - Function Inlining Experiments - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">🚀 Go Source Code Workshop</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>⚡ Exercise 4: Compiler Inlining Parameters - Tuning for Binary Size Control</h1>
+
+<p>In this exercise, you&rsquo;ll explore and modify Go&rsquo;s inlining parameters to see their dramatic effects on binary size! 🎛️ This will teach you how Go&rsquo;s compiler decides when to inline functions and how tweaking these parameters can significantly change your compiled programs.</p>
+
+<h2>🎯 Learning Objectives</h2>
+
+<p>By the end of this exercise, you will:
+- ✅ Understand Go&rsquo;s inlining budget system and parameters
+- ✅ Know where inlining decisions are made in the compiler
+- ✅ Modify inlining thresholds to control optimization behavior
+- ✅ Measure the impact on binary size</p>
+
+<h2>🧠 Background: Function Inlining in Go</h2>
+
+<p>Function inlining is a compiler optimization where function calls are replaced by the actual function body. This trades binary size for performance:</p>
+
+<p><strong>Benefits:</strong>
+- ⚡ Eliminates call overhead
+- 🎯 Enables further optimizations at call site
+- 🚀 Better instruction pipeline utilization</p>
+
+<p><strong>Costs:</strong>
+- 📦 Larger binary size
+- 💾 Increased memory usage (for the program)</p>
+
+<p>Go uses a sophisticated <strong>budget system</strong> to decide when inlining is profitable!</p>
+
+<h2>🔍 Step 1: Understanding Go&rsquo;s Inlining Budget</h2>
+
+<p>Let&rsquo;s examine the current inlining parameters:</p>
+
+<pre><code class="language-bash">cd go/src/cmd/compile/internal/inline
+</code></pre>
+
+<p>Open <code>inl.go</code> and look at the key parameters around lines 48-86:</p>
+
+<h3>🎛️ Key Inlining Parameters</h3>
+
+<p>From <code>go/src/cmd/compile/internal/inline/inl.go:48-86</code>:</p>
+
+<pre><code class="language-go">const (
+    inlineMaxBudget       = 80    // Maximum &quot;cost&quot; for inlining
+    inlineExtraAppendCost = 0     // Extra cost for append operations
+    inlineExtraCallCost   = 57    // Cost penalty for function calls
+    inlineParamCallCost   = 17    // Reduced cost when calling a parameter
+    inlineExtraPanicCost  = 1     // Low cost for panic calls
+    inlineExtraThrowCost  = 80    // High cost discourages inlining runtime.throw
+
+    // Function size thresholds
+    inlineBigFunctionNodes      = 5000  // Nodes that make a function &quot;big&quot;
+    inlineBigFunctionMaxCost    = 20    // Max inline cost into &quot;big&quot; functions
+    inlineClosureCalledOnceCost = 800   // Special budget for single-use closures
+
+    // PGO (Profile Guided Optimization) parameters
+    inlineHotMaxBudget = 2000   // Much larger budget for &quot;hot&quot; functions
+)
+</code></pre>
+
+<h3>🔬 How the Budget System Works</h3>
+
+<p>Each Go statement/expression has a <strong>cost</strong>:
+- Simple statements: 1 point
+- Function calls: 57+ points
+- Loops, conditions: 1 point each
+- Complex expressions: Variable points</p>
+
+<p>The compiler sums up costs and compares against the budget!</p>
+
+<h2>📊 Step 2: Use Go Compiler Binary for Size Comparison</h2>
+
+<p>Instead of creating toy programs, let&rsquo;s use the Go compiler binary itself as our test subject! The Go compiler (<code>bin/go</code>) is perfect for demonstrating inlining effects because:</p>
+
+<ul>
+<li>🏗️ <strong>Large codebase</strong> - Shows meaningful size differences</li>
+<li>🔧 <strong>Real-world code</strong> - Contains the actual patterns we&rsquo;re optimizing</li>
+<li>🎯 <strong>Workshop relevance</strong> - We&rsquo;re building it throughout the exercises</li>
+<li>📊 <strong>Dramatic results</strong> - Large enough to show significant inlining impact</li>
+</ul>
+
+<h3>🎯 Test Different Inlining Settings on Go Binary</h3>
+
+<p>Let&rsquo;s rebuild the entire Go toolchain with different inlining settings and compare the <code>bin/go</code> binary sizes:</p>
+
+<pre><code class="language-bash">cd go/src
+</code></pre>
+
+<h3>📊 Baseline Build - Default Settings</h3>
+
+<p>First, let&rsquo;s build with default inlining settings and backup the binary:</p>
+
+<pre><code class="language-bash"># Build with default settings
+./make.bash
+
+# Copy the default Go binary for comparison
+cp ../bin/go ../bin/go-default
+
+# Check the size
+ls -lh ../bin/go-default
+wc -c ../bin/go-default
+</code></pre>
+
+<h3>🔬 Check Current Inlining Impact on Go Compiler Build</h3>
+
+<p>We can examine how inlining affects the Go compiler itself during compilation:</p>
+
+<pre><code class="language-bash"># See inlining decisions when compiling the Go compiler
+# This shows how inlining parameters affect the compiler's own build process
+cd cmd/compile
+../../bin/go build -gcflags=&quot;-m&quot; . 2&gt;&amp;1 | grep &quot;can inline&quot; | wc -l
+echo &quot;Functions that can be inlined during Go compiler build&quot;
+</code></pre>
+
+<h2>⚙️ Step 3: Modify Inlining Parameters</h2>
+
+<p>Now let&rsquo;s modify the inlining parameters to see their effects!</p>
+
+<h3>🔧 Experiment 1: Aggressive Inlining</h3>
+
+<p>Edit <code>go/src/cmd/compile/internal/inline/inl.go</code> around line 50:</p>
+
+<pre><code class="language-go">const (
+    inlineMaxBudget       = 200   // Increased from 80
+    inlineExtraCallCost   = 20    // Decreased from 57
+    inlineBigFunctionMaxCost = 50 // Increased from 20
+)
+</code></pre>
+
+<p><strong>Rebuild the compiler:</strong></p>
+
+<pre><code class="language-bash">cd go/src
+./make.bash
+</code></pre>
+
+<p><strong>Test aggressive inlining on Go binary:</strong></p>
+
+<pre><code class="language-bash"># Copy the aggressively-inlined Go binary
+cp ../bin/go ../bin/go-aggressive
+
+# Compare sizes
+echo &quot;Default size: $(wc -c &lt; ../bin/go-default)&quot;
+echo &quot;Aggressive size: $(wc -c &lt; ../bin/go-aggressive)&quot;
+
+# Calculate size difference
+default_size=$(wc -c &lt; ../bin/go-default)
+aggressive_size=$(wc -c &lt; ../bin/go-aggressive)
+echo &quot;Size difference: $(($aggressive_size - $default_size)) bytes&quot;
+echo &quot;Percentage increase: $(echo &quot;scale=2; ($aggressive_size - $default_size) * 100 / $default_size&quot; | bc)%&quot;
+</code></pre>
+
+<h3>🔧 Experiment 2: Conservative Inlining</h3>
+
+<p>Now try conservative settings. Edit the parameters:</p>
+
+<pre><code class="language-go">const (
+    inlineMaxBudget       = 40    // Decreased from 80
+    inlineExtraCallCost   = 100   // Increased from 57
+    inlineBigFunctionMaxCost = 5  // Decreased from 20
+)
+</code></pre>
+
+<p><strong>Rebuild and test:</strong></p>
+
+<pre><code class="language-bash">cd go/src
+./make.bash
+
+# Copy the conservatively-inlined Go binary
+cp ../bin/go ../bin/go-conservative
+
+# Compare all three Go binaries
+echo &quot;Conservative size: $(wc -c &lt; ../bin/go-conservative)&quot;
+echo &quot;Default size: $(wc -c &lt; ../bin/go-default)&quot;
+echo &quot;Aggressive size: $(wc -c &lt; ../bin/go-aggressive)&quot;
+</code></pre>
+
+<h2>📊 Step 4: Comprehensive Binary Size Analysis</h2>
+
+<p>Let&rsquo;s test extreme inlining settings to see dramatic effects on the Go compiler binary:</p>
+
+<h3>🔧 Experiment 3: No Inlining At All</h3>
+
+<p>For comparison, let&rsquo;s disable inlining entirely:</p>
+
+<pre><code class="language-go">const (
+    inlineMaxBudget       = 0     // No inlining budget
+    inlineExtraCallCost   = 1000  // Prohibitive call cost
+    inlineBigFunctionMaxCost = 0  // No big function inlining
+)
+</code></pre>
+
+<pre><code class="language-bash">cd go/src
+./make.bash
+
+# Copy the no-inlining Go binary
+cp ../bin/go ../bin/go-no-inline
+</code></pre>
+
+<h3>🔧 Experiment 4: Extreme Inlining - Breaking Point Demonstration</h3>
+
+<p>Let&rsquo;s try extremely aggressive settings to see what happens when we push inlining too far:</p>
+
+<pre><code class="language-go">const (
+    inlineMaxBudget       = 500   // Very high budget
+    inlineExtraCallCost   = 5     // Very low call cost
+    inlineBigFunctionMaxCost = 200 // Very high big function budget
+)
+</code></pre>
+
+<pre><code class="language-bash">cd go/src
+./make.bash
+</code></pre>
+
+<p><strong>⚠️ Expected Result:</strong> This will likely fail to compile or produce a broken compiler! This demonstrates that there are limits to how aggressive inlining can be. You may see compilation errors or the build may hang.</p>
+
+<p>If it fails (which is expected), you&rsquo;ll learn that:
+- Extreme inlining can cause compilation to fail
+- There are practical limits to compiler optimizations
+- The default parameters are carefully balanced for good reason</p>
+
+<h2>📋 Step 5: Analyze Results</h2>
+
+<p>Compare the Go compiler binary sizes:</p>
+
+<pre><code class="language-bash">cd go
+
+echo &quot;=== GO COMPILER BINARY SIZE COMPARISON ===&quot;
+echo &quot;No Inlining:  $(wc -c &lt; bin/go-no-inline) bytes&quot;
+echo &quot;Conservative: $(wc -c &lt; bin/go-conservative) bytes&quot;
+echo &quot;Default:      $(wc -c &lt; bin/go-default) bytes&quot;
+echo &quot;Aggressive:   $(wc -c &lt; bin/go-aggressive) bytes&quot;
+
+echo &quot;&quot;
+echo &quot;=== SIZE DIFFERENCES ===&quot;
+no_inline_size=$(wc -c &lt; bin/go-no-inline)
+conservative_size=$(wc -c &lt; bin/go-conservative)
+default_size=$(wc -c &lt; bin/go-default)
+aggressive_size=$(wc -c &lt; bin/go-aggressive)
+
+echo &quot;No-inline vs Default: $(($default_size - $no_inline_size)) bytes difference&quot;
+echo &quot;Default vs Aggressive: $(($aggressive_size - $default_size)) bytes difference&quot;
+echo &quot;Full Range (No-inline to Aggressive): $(($aggressive_size - $no_inline_size)) bytes difference&quot;
+
+# Calculate percentages
+echo &quot;&quot;
+echo &quot;=== PERCENTAGE DIFFERENCES ===&quot;
+echo &quot;Aggressive vs Default: $(echo &quot;scale=2; ($aggressive_size - $default_size) * 100 / $default_size&quot; | bc)%&quot;
+echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inline_size) * 100 / $no_inline_size&quot; | bc)%&quot;
+</code></pre>
+
+<h2>🔧 Understanding What We Modified</h2>
+
+<h3>🎛️ Key Parameter Functions</h3>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Purpose</th>
+<th>Impact</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>inlineMaxBudget</code></td>
+<td>Maximum cost for any inlined function</td>
+<td>Higher = more inlining</td>
+</tr>
+
+<tr>
+<td><code>inlineExtraCallCost</code></td>
+<td>Penalty for function calls inside inlined functions</td>
+<td>Lower = more aggressive</td>
+</tr>
+
+<tr>
+<td><code>inlineBigFunctionMaxCost</code></td>
+<td>Max cost when inlining into large functions</td>
+<td>Higher = more inlining in big funcs</td>
+</tr>
+
+<tr>
+<td><code>inlineBigFunctionNodes</code></td>
+<td>Threshold for &ldquo;big&rdquo; function detection</td>
+<td>Lower = more functions considered &ldquo;big&rdquo;</td>
+</tr>
+</tbody>
+</table>
+
+<h3>📊 Typical Results You Should See</h3>
+
+<p>With the Go compiler binary, you should observe dramatic size differences based on actual measurements:</p>
+
+<ul>
+<li><strong>No Inlining</strong>: Smallest binary (~25MB / 25,176 KB)</li>
+<li><strong>Conservative</strong>: Small binary (~26MB / 25,968 KB)</li>
+<li><strong>Default</strong>: Balanced size (~27MB / 27,544 KB)</li>
+<li><strong>Aggressive</strong>: Largest binary (~36MB / 35,904 KB) - <strong>30% larger than default!</strong></li>
+</ul>
+
+<p><strong>Key Insights:</strong>
+- <strong>Aggressive inlining</strong> can increase binary size by <strong>8+ MB</strong> (30% larger)
+- <strong>No inlining vs Default</strong> shows a <strong>2+ MB difference</strong> (8% smaller)</p>
+
+<p>The exact sizes depend on your system, but you should see similar dramatic differences!</p>
+
+<h2>🎓 What We Learned</h2>
+
+<ul>
+<li>🎛️ <strong>Budget System</strong>: How Go uses cost-based analysis for inlining decisions</li>
+<li>📊 <strong>Parameter Impact</strong>: How different settings affect binary size and performance</li>
+<li>🔬 <strong>Measurement Techniques</strong>: Using debug flags to understand compiler decisions</li>
+<li>⚖️ <strong>Trade-offs</strong>: The fundamental tension between binary size and performance</li>
+<li>🛠️ <strong>Compiler Tuning</strong>: How to modify compiler behavior for specific needs</li>
+</ul>
+
+<h2>💡 Extension Ideas</h2>
+
+<p>Try these additional experiments: 🚀
+1. 📈 Create a script to automate testing different parameter combinations
+2. 🎯 Test with real-world Go programs (like building Go itself!)
+3. 📊 Measure compilation time differences with various settings
+4. 🌡️ Experiment with PGO (Profile-Guided Optimization) parameters
+5. 🔬 Analyze assembly output differences between inlined and non-inlined calls</p>
+
+<h2>➡️ Next Steps</h2>
+
+<p>Excellent work! 🎉 You&rsquo;ve learned how to tune Go&rsquo;s inlining behavior and seen its real-world impact on binary size and performance. In the next exercises, we&rsquo;ll explore modifiying the gofmt tool.</p>
+
+<h2>🧹 Cleanup</h2>
+
+<p>To restore original inlining parameters and clean up test binaries:</p>
+
+<pre><code class="language-bash">cd go/src/cmd/compile/internal/inline
+git checkout inl.go
+cd ../../../../
+
+# Rebuild with original parameters
+cd src
+./make.bash
+
+# Clean up test binaries
+rm -f ../bin/go-default ../bin/go-aggressive ../bin/go-conservative ../bin/go-no-inline
+</code></pre>
+
+<h2>📚 Key Takeaways</h2>
+
+<ol>
+<li><strong>Inlining is a Trade-off</strong>: More inlining = larger binaries but potentially faster execution</li>
+<li><strong>Budget System</strong>: Go uses sophisticated cost analysis to make inlining decisions</li>
+<li><strong>Parameter Impact</strong>: Small parameter changes can have significant effects on output</li>
+<li><strong>Debug Tools</strong>: Go provides excellent tools for understanding compiler decisions</li>
+<li><strong>Real-World Relevance</strong>: These parameters affect every Go program you compile!</li>
+</ol>
+
+<p>The Go compiler team has carefully tuned these defaults through extensive benchmarking - but now you understand how to adjust them for your specific needs! ⚡🎯</p>
+
+<hr />
+
+<p><em>Continue to <a href="05-gofmt-ast-transformation.html">Exercise 5</a> or return to the <a href="index.html">main workshop</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="03-parser-multiple-go.html" class="nav-button">← Previous</a>
+            
+            
+            <a href="05-gofmt-ast-transformation.html" class="nav-button">Next: Exercise 5 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>🚀 Having Fun with the Go Source Code Workshop</p>
+        </div>
+    </footer>
+</body>
+</html>
