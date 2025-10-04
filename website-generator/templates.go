@@ -220,26 +220,45 @@ section h2:first-child {
 
 /* Code Blocks */
 pre {
-    background-color: var(--code-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
+    background: linear-gradient(145deg, #1e1e1e 0%, #2d2d2d 100%);
+    border: 2px solid #00ADD8;
+    border-radius: 12px;
+    padding: 1.5rem;
     overflow-x: auto;
-    margin: 1rem 0;
-    line-height: 1.5;
+    margin: 1.5rem 0;
+    line-height: 1.6;
+    box-shadow: 0 8px 20px rgba(0, 173, 216, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+pre::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00ADD8, #5DC9E2, #CE3262);
+    border-radius: 12px 12px 0 0;
 }
 
 code {
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
-    font-size: 0.9em;
-    background-color: var(--code-bg);
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
+    font-family: 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 0.95em;
+    background-color: rgba(0, 173, 216, 0.1);
+    color: #00ADD8;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 173, 216, 0.3);
 }
 
 pre code {
     background-color: transparent;
     padding: 0;
+    border: none;
+    color: #e8e8e8;
+    display: block;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Lists */
