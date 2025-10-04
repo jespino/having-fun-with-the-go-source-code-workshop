@@ -270,9 +270,10 @@ const exerciseTemplate = `<!DOCTYPE html>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Go Source Code Workshop</a>
+            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
             </div>
         </div>
     </nav>
@@ -294,7 +295,13 @@ const exerciseTemplate = `<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            <p>🚀 Having Fun with the Go Source Code Workshop</p>
+            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Created by <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
         </div>
     </footer>
 </body>
@@ -347,16 +354,17 @@ const indexTemplate = `<!DOCTYPE html>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Go Source Code Workshop</a>
+            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
             </div>
         </div>
     </nav>
 
     <div class="container">
         <header class="hero">
-            <h1>🚀 Having Fun with the Go Source Code Workshop</h1>
+            <h1>🚀 Having fun with the Go Source Code</h1>
             <p class="lead">Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime. 🎯</p>
             <p class="version-note"><strong>📌 This workshop uses Go version 1.25.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.</p>
         </header>
@@ -378,11 +386,13 @@ const indexTemplate = `<!DOCTYPE html>
 
             <div class="exercises-grid">
                 {{range .Exercises}}
-                <div class="exercise-card">
-                    <div class="exercise-number">Exercise {{.Number}}</div>
-                    <h3>{{.Emoji}} <a href="{{.Filename}}">{{.Title}}</a></h3>
-                    <p>{{.Description}}</p>
-                </div>
+                <a href="{{.Filename}}" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Exercise {{.Number}}</div>
+                        <h3>{{.Emoji}} {{.Title}}</h3>
+                        <p>{{.Description}}</p>
+                    </div>
+                </a>
                 {{end}}
             </div>
         </section>
@@ -456,8 +466,13 @@ const indexTemplate = `<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            <p>🚀 Having Fun with the Go Source Code Workshop</p>
-            <p><strong>Happy coding and welcome to the world of Go internals!</strong> ✨</p>
+            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Created by <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
         </div>
     </footer>
 </body>

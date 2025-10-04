@@ -174,15 +174,26 @@ section h2:first-child {
     margin-top: 2rem;
 }
 
+.exercise-card-link {
+    text-decoration: none !important;
+    color: inherit;
+    display: block;
+}
+
+.exercise-card-link:hover {
+    text-decoration: none !important;
+}
+
 .exercise-card {
     border: 2px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
     transition: all 0.3s;
     background: white;
+    height: 100%;
 }
 
-.exercise-card:hover {
+.exercise-card-link:hover .exercise-card {
     transform: translateY(-4px);
     box-shadow: var(--shadow-hover);
     border-color: var(--primary-color);
@@ -202,14 +213,10 @@ section h2:first-child {
 .exercise-card h3 {
     margin: 0.5rem 0;
     font-size: 1.25rem;
-}
-
-.exercise-card h3 a {
     color: var(--text-dark);
-    text-decoration: none;
 }
 
-.exercise-card h3 a:hover {
+.exercise-card-link:hover .exercise-card h3 {
     color: var(--primary-color);
 }
 
@@ -376,6 +383,27 @@ footer {
 
 footer p {
     margin: 0.5rem 0;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: white !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-links a:hover {
+    color: var(--primary-color) !important;
 }
 
 /* Tables */
