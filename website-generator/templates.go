@@ -261,6 +261,36 @@ pre code {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Copy Button */
+.copy-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: rgba(0, 173, 216, 0.2);
+    border: 1px solid rgba(0, 173, 216, 0.5);
+    color: #00ADD8;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.copy-button:hover {
+    background-color: rgba(0, 173, 216, 0.3);
+    border-color: #00ADD8;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 173, 216, 0.5);
+}
+
+.copy-button.copied {
+    background-color: rgba(46, 213, 115, 0.3);
+    border-color: #2ed573;
+    color: #2ed573;
+}
+
 /* Lists */
 ul, ol {
     margin: 1rem 0 1rem 2rem;
