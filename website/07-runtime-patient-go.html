@@ -89,14 +89,17 @@ fn()
 ... // tear-down process continues
 </code></pre>
 
-<p><strong>How it works:</strong>
-1. The go runtime boostrap process happens
-2. The runtime&rsquo;s <code>main()</code> function runs first
-3. A bit more of boostrap process
-4. The <code>main_main</code> (which is your program&rsquo;s <code>main()</code> function via linkname) is called
-5. Your <code>main()</code> function executes - <strong>responsibility is delegated to your code</strong>
-6. When your <code>main()</code> returns, control returns to the runtime&rsquo;s <code>main()</code> function
-7. The runtime continues with the program <strong>tear-down process</strong> (cleanup and exit)</p>
+<p><strong>How it works:</strong></p>
+
+<ol>
+<li>The go runtime boostrap process happens</li>
+<li>The runtime&rsquo;s <code>main()</code> function runs first</li>
+<li>A bit more of boostrap process</li>
+<li>The <code>main_main</code> (which is your program&rsquo;s <code>main()</code> function via linkname) is called</li>
+<li>Your <code>main()</code> function executes - <strong>responsibility is delegated to your code</strong></li>
+<li>When your <code>main()</code> returns, control returns to the runtime&rsquo;s <code>main()</code> function</li>
+<li>The runtime continues with the program <strong>tear-down process</strong> (cleanup and exit)</li>
+</ol>
 
 <p>Currently, the tear-down starts immediately after your <code>main()</code> returns, without waiting for other goroutines.</p>
 
@@ -224,11 +227,14 @@ Changes: runtime/proc.go main() function
 Result:  No goroutine left behind! 🎯
 </code></pre>
 
-<p>This modification demonstrates:
-- Deep understanding of the Go runtime
-- How program termination works
-- The relationship between main() and goroutines
-- Real-world trade-offs in language design</p>
+<p>This modification demonstrates:</p>
+
+<ul>
+<li>Deep understanding of the Go runtime</li>
+<li>How program termination works</li>
+<li>The relationship between main() and goroutines</li>
+<li>Real-world trade-offs in language design</li>
+</ul>
 
 <p>Your Go is now patient! 🕰️✨</p>
 

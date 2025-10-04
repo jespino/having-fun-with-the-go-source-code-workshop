@@ -44,6 +44,7 @@ var passes = [...]pass{
 ```
 
 Each pass has:
+
 - **name** - Displayed in debug output
 - **fn** - Function that performs the transformation
 - **required** - Whether this pass must run
@@ -141,10 +142,6 @@ cd go/src
 This compiles your new pass into the Go compiler.
 
 ## 🧪 Step 5: Create Test Programs
-
-```bash
-cd ../doing-it  # or your test directory
-```
 
 Create `test_divisions.go`:
 

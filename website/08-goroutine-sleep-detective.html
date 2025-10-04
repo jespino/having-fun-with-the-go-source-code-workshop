@@ -34,12 +34,15 @@
 
 <h2>🧠 Background: Goroutine States</h2>
 
-<p>Go manages goroutines through different states:
-- <strong><code>_Grunnable</code></strong> - Ready to run but not executing
-- <strong><code>_Grunning</code></strong> - Currently executing
-- <strong><code>_Gwaiting</code></strong> - Blocked waiting for something (our target!)
-- <strong><code>_Gsyscall</code></strong> - Executing a system call
-- &hellip;</p>
+<p>Go manages goroutines through different states:</p>
+
+<ul>
+<li><strong><code>_Grunnable</code></strong> - Ready to run but not executing</li>
+<li><strong><code>_Grunning</code></strong> - Currently executing</li>
+<li><strong><code>_Gwaiting</code></strong> - Blocked waiting for something (our target!)</li>
+<li><strong><code>_Gsyscall</code></strong> - Executing a system call</li>
+<li>&hellip;</li>
+</ul>
 
 <p>When a goroutine needs to wait (for channels, mutexes, sleep, etc.), it &ldquo;parks&rdquo; and transitions to <code>_Gwaiting</code> state.</p>
 
@@ -51,9 +54,12 @@
 grep -n &quot;func gopark&quot; proc.go
 </code></pre>
 
-<p>Key functions:
-- <strong><code>gopark()</code></strong> - Initiates parking a goroutine
-- <strong><code>park_m()</code></strong> - Actually changes the state to <code>_Gwaiting</code></p>
+<p>Key functions:</p>
+
+<ul>
+<li><strong><code>gopark()</code></strong> - Initiates parking a goroutine</li>
+<li><strong><code>park_m()</code></strong> - Actually changes the state to <code>_Gwaiting</code></li>
+</ul>
 
 <h2>Step 2: Find the State Transition Code</h2>
 
@@ -185,11 +191,14 @@ Received: Hello!
 <li><strong>Tested Scenarios</strong>: Verified with channels, mutexes, sleep, and select</li>
 </ol>
 
-<p>Common wait reasons you&rsquo;ll see:
-- <code>chan receive</code> / <code>chan send</code>
-- <code>sync mutex lock</code>
-- <code>sleep</code>
-- <code>GC</code></p>
+<p>Common wait reasons you&rsquo;ll see:</p>
+
+<ul>
+<li><code>chan receive</code> / <code>chan send</code></li>
+<li><code>sync mutex lock</code></li>
+<li><code>sleep</code></li>
+<li><code>GC</code></li>
+</ul>
 
 <h2>🎓 What We Learned</h2>
 

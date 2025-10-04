@@ -76,6 +76,7 @@ go run random_select_demo.go
 ```
 
 Output shows random selection:
+
 ```
 Round 0: Selected ch3 (value 3)
 Round 1: Selected ch1 (value 1)
@@ -104,6 +105,7 @@ norder++
 ```
 
 This implements the algorithm to randomize case order:
+
 - `cheaprandn()` generates a pseudo-random number
 - Cases are placed in random positions in the `pollorder` array
 - Select then checks cases in this randomized order

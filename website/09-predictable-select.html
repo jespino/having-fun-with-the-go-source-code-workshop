@@ -119,10 +119,13 @@ pollorder[j] = uint16(i)
 norder++
 </code></pre>
 
-<p>This implements the algorithm to randomize case order:
-- <code>cheaprandn()</code> generates a pseudo-random number
-- Cases are placed in random positions in the <code>pollorder</code> array
-- Select then checks cases in this randomized order</p>
+<p>This implements the algorithm to randomize case order:</p>
+
+<ul>
+<li><code>cheaprandn()</code> generates a pseudo-random number</li>
+<li>Cases are placed in random positions in the <code>pollorder</code> array</li>
+<li>Select then checks cases in this randomized order</li>
+</ul>
 
 <h2>Step 4: Make Select Deterministic</h2>
 

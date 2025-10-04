@@ -65,10 +65,13 @@
 }
 </code></pre>
 
-<p>Each pass has:
-- <strong>name</strong> - Displayed in debug output
-- <strong>fn</strong> - Function that performs the transformation
-- <strong>required</strong> - Whether this pass must run</p>
+<p>Each pass has:</p>
+
+<ul>
+<li><strong>name</strong> - Displayed in debug output</li>
+<li><strong>fn</strong> - Function that performs the transformation</li>
+<li><strong>required</strong> - Whether this pass must run</li>
+</ul>
 
 <h2>🔧 Step 2: Create the Power of Two Detector Pass</h2>
 
@@ -161,9 +164,6 @@ func detectDivByPowerOfTwo(f *Func) {
 <p>This compiles your new pass into the Go compiler.</p>
 
 <h2>🧪 Step 5: Create Test Programs</h2>
-
-<pre><code class="language-bash">cd ../doing-it  # or your test directory
-</code></pre>
 
 <p>Create <code>test_divisions.go</code>:</p>
 

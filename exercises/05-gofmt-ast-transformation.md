@@ -16,11 +16,13 @@ By the end of this exercise, you will:
 ## 🧠 Background: How gofmt Works
 
 gofmt operates through these stages:
+
 1. **Parse** → Convert source code to AST (Abstract Syntax Tree)
 2. **Transform** → Apply formatting rules to AST
 3. **Print** → Convert modified AST back to formatted source code with specific indentation
 
 The indentation behavior is controlled by two key constants:
+
 - **`tabWidth`** → Width of indentation (default: 8)
 - **`printerMode`** → Flags controlling spacing behavior:
   - `printer.UseSpaces` → Use spaces for padding
@@ -30,6 +32,7 @@ The indentation behavior is controlled by two key constants:
 ### 🌳 AST Structure
 
 Go represents source code as a tree of nodes we are going to use here this two nodes:
+
 - **`*ast.BasicLit`** → String literals, numbers, etc.
 - **`*ast.Comment`** → Comments in source code
 
@@ -41,6 +44,7 @@ ls -la
 ```
 
 Key files:
+
 - **`gofmt.go`** → Main program logic and file processing
 - **`simplify.go`** → AST simplification transformations
 
@@ -69,6 +73,7 @@ const (
 ```
 
 **What changed:**
+
 - **`tabWidth`**: Changed from `8` to `4` (4 spaces per indentation level)
 - **`printerMode`**: Removed `printer.TabIndent` flag (this removes tab characters and uses spaces only)
 
@@ -266,6 +271,7 @@ func main() {
 ```
 
 🎉 Two changes applied:
+
 1. All "hello" instances are replaced with "helo"
 2. Indentation uses 4 spaces instead of tabs
 
@@ -347,12 +353,6 @@ Transformation: "hello world"  → "helo world"
 Changes:  tabWidth=4 + remove TabIndent flag
          + ast.Inspect() → pattern match → replace text
 ```
-
-These techniques are used in real-world tools for:
-- **Style Enforcement** → Custom indentation rules (like Python's PEP 8)
-- **Code Migration** → Automated API updates
-- **Refactoring** → Large-scale code changes
-- **Organization Standards** → Enforcing team-specific formatting
 
 You now understand how tools like `gofmt`, `goimports`, and `go fix` work at both the printer and AST levels! ⚡🌳
 

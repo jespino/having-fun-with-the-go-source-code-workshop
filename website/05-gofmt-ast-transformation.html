@@ -37,23 +37,35 @@
 
 <h2>🧠 Background: How gofmt Works</h2>
 
-<p>gofmt operates through these stages:
-1. <strong>Parse</strong> → Convert source code to AST (Abstract Syntax Tree)
-2. <strong>Transform</strong> → Apply formatting rules to AST
-3. <strong>Print</strong> → Convert modified AST back to formatted source code with specific indentation</p>
+<p>gofmt operates through these stages:</p>
 
-<p>The indentation behavior is controlled by two key constants:
-- <strong><code>tabWidth</code></strong> → Width of indentation (default: 8)
-- <strong><code>printerMode</code></strong> → Flags controlling spacing behavior:
-  - <code>printer.UseSpaces</code> → Use spaces for padding
-  - <code>printer.TabIndent</code> → Use tabs for indentation
-  - <code>printerNormalizeNumbers</code> → Normalize number literals</p>
+<ol>
+<li><strong>Parse</strong> → Convert source code to AST (Abstract Syntax Tree)</li>
+<li><strong>Transform</strong> → Apply formatting rules to AST</li>
+<li><strong>Print</strong> → Convert modified AST back to formatted source code with specific indentation</li>
+</ol>
+
+<p>The indentation behavior is controlled by two key constants:</p>
+
+<ul>
+<li><strong><code>tabWidth</code></strong> → Width of indentation (default: 8)</li>
+<li><strong><code>printerMode</code></strong> → Flags controlling spacing behavior:
+
+<ul>
+<li><code>printer.UseSpaces</code> → Use spaces for padding</li>
+<li><code>printer.TabIndent</code> → Use tabs for indentation</li>
+<li><code>printerNormalizeNumbers</code> → Normalize number literals</li>
+</ul></li>
+</ul>
 
 <h3>🌳 AST Structure</h3>
 
-<p>Go represents source code as a tree of nodes we are going to use here this two nodes:
-- <strong><code>*ast.BasicLit</code></strong> → String literals, numbers, etc.
-- <strong><code>*ast.Comment</code></strong> → Comments in source code</p>
+<p>Go represents source code as a tree of nodes we are going to use here this two nodes:</p>
+
+<ul>
+<li><strong><code>*ast.BasicLit</code></strong> → String literals, numbers, etc.</li>
+<li><strong><code>*ast.Comment</code></strong> → Comments in source code</li>
+</ul>
 
 <h2>🔍 Step 1: Navigate to gofmt Source</h2>
 
@@ -61,9 +73,12 @@
 ls -la
 </code></pre>
 
-<p>Key files:
-- <strong><code>gofmt.go</code></strong> → Main program logic and file processing
-- <strong><code>simplify.go</code></strong> → AST simplification transformations</p>
+<p>Key files:</p>
+
+<ul>
+<li><strong><code>gofmt.go</code></strong> → Main program logic and file processing</li>
+<li><strong><code>simplify.go</code></strong> → AST simplification transformations</li>
+</ul>
 
 <h2>📏 Step 2: Change Indentation to 4 Spaces</h2>
 
@@ -87,9 +102,12 @@ ls -la
 	printerMode = printer.UseSpaces | printerNormalizeNumbers
 </code></pre>
 
-<p><strong>What changed:</strong>
-- <strong><code>tabWidth</code></strong>: Changed from <code>8</code> to <code>4</code> (4 spaces per indentation level)
-- <strong><code>printerMode</code></strong>: Removed <code>printer.TabIndent</code> flag (this removes tab characters and uses spaces only)</p>
+<p><strong>What changed:</strong></p>
+
+<ul>
+<li><strong><code>tabWidth</code></strong>: Changed from <code>8</code> to <code>4</code> (4 spaces per indentation level)</li>
+<li><strong><code>printerMode</code></strong>: Removed <code>printer.TabIndent</code> flag (this removes tab characters and uses spaces only)</li>
+</ul>
 
 <h3>Modify go/format Package</h3>
 
@@ -275,9 +293,12 @@ func main() {
 }
 </code></pre>
 
-<p>🎉 Two changes applied:
-1. All &ldquo;hello&rdquo; instances are replaced with &ldquo;helo&rdquo;
-2. Indentation uses 4 spaces instead of tabs</p>
+<p>🎉 Two changes applied:</p>
+
+<ol>
+<li>All &ldquo;hello&rdquo; instances are replaced with &ldquo;helo&rdquo;</li>
+<li>Indentation uses 4 spaces instead of tabs</li>
+</ol>
 
 <h2>Step 8: Test In-Place Formatting</h2>
 
@@ -360,12 +381,6 @@ Transformation: &quot;hello world&quot;  → &quot;helo world&quot;
 Changes:  tabWidth=4 + remove TabIndent flag
          + ast.Inspect() → pattern match → replace text
 </code></pre>
-
-<p>These techniques are used in real-world tools for:
-- <strong>Style Enforcement</strong> → Custom indentation rules (like Python&rsquo;s PEP 8)
-- <strong>Code Migration</strong> → Automated API updates
-- <strong>Refactoring</strong> → Large-scale code changes
-- <strong>Organization Standards</strong> → Enforcing team-specific formatting</p>
 
 <p>You now understand how tools like <code>gofmt</code>, <code>goimports</code>, and <code>go fix</code> work at both the printer and AST levels! ⚡🌳</p>
 

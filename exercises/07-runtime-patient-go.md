@@ -72,6 +72,7 @@ fn()
 ```
 
 **How it works:**
+
 1. The go runtime boostrap process happens
 2. The runtime's `main()` function runs first
 3. A bit more of boostrap process
@@ -158,6 +159,7 @@ Run with your modified Go:
 ```
 
 **Expected output:**
+
 ```
 Main starting...
 Main finished, but Go will wait...
@@ -208,6 +210,7 @@ Result:  No goroutine left behind! 🎯
 ```
 
 This modification demonstrates:
+
 - Deep understanding of the Go runtime
 - How program termination works
 - The relationship between main() and goroutines

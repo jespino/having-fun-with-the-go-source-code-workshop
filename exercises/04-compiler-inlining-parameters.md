@@ -5,6 +5,7 @@ In this exercise, you'll explore and modify Go's inlining parameters to see thei
 ## 🎯 Learning Objectives
 
 By the end of this exercise, you will:
+
 - ✅ Understand Go's inlining budget system and parameters
 - ✅ Know where inlining decisions are made in the compiler
 - ✅ Modify inlining thresholds to control optimization behavior
@@ -15,11 +16,13 @@ By the end of this exercise, you will:
 Function inlining is a compiler optimization where function calls are replaced by the actual function body. This trades binary size for performance:
 
 **Benefits:**
+
 - ⚡ Eliminates call overhead
 - 🎯 Enables further optimizations at call site
 - 🚀 Better instruction pipeline utilization
 
 **Costs:**
+
 - 📦 Larger binary size
 - 💾 Increased memory usage (for the program)
 
@@ -61,6 +64,7 @@ const (
 ### 🔬 How the Budget System Works
 
 Each Go statement/expression has a **cost**:
+
 - Simple statements: 1 point
 - Function calls: 57+ points
 - Loops, conditions: 1 point each
@@ -281,6 +285,7 @@ With the Go compiler binary, you should observe dramatic size differences based 
 - **Aggressive**: Largest binary (~36MB / 35,904 KB) - **30% larger than default!**
 
 **Key Insights:**
+
 - **Aggressive inlining** can increase binary size by **8+ MB** (30% larger)
 - **No inlining vs Default** shows a **2+ MB difference** (8% smaller)
 
@@ -297,6 +302,7 @@ The exact sizes depend on your system, but you should see similar dramatic diffe
 ## 💡 Extension Ideas
 
 Try these additional experiments: 🚀
+
 1. 📈 Create a script to automate testing different parameter combinations
 2. 🎯 Test with real-world Go programs (like building Go itself!)
 3. 📊 Measure compilation time differences with various settings

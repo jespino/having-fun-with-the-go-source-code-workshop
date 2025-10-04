@@ -24,24 +24,33 @@
 
 <h2>🎯 Learning Objectives</h2>
 
-<p>By the end of this exercise, you will:
-- ✅ Understand Go&rsquo;s inlining budget system and parameters
-- ✅ Know where inlining decisions are made in the compiler
-- ✅ Modify inlining thresholds to control optimization behavior
-- ✅ Measure the impact on binary size</p>
+<p>By the end of this exercise, you will:</p>
+
+<ul>
+<li>✅ Understand Go&rsquo;s inlining budget system and parameters</li>
+<li>✅ Know where inlining decisions are made in the compiler</li>
+<li>✅ Modify inlining thresholds to control optimization behavior</li>
+<li>✅ Measure the impact on binary size</li>
+</ul>
 
 <h2>🧠 Background: Function Inlining in Go</h2>
 
 <p>Function inlining is a compiler optimization where function calls are replaced by the actual function body. This trades binary size for performance:</p>
 
-<p><strong>Benefits:</strong>
-- ⚡ Eliminates call overhead
-- 🎯 Enables further optimizations at call site
-- 🚀 Better instruction pipeline utilization</p>
+<p><strong>Benefits:</strong></p>
 
-<p><strong>Costs:</strong>
-- 📦 Larger binary size
-- 💾 Increased memory usage (for the program)</p>
+<ul>
+<li>⚡ Eliminates call overhead</li>
+<li>🎯 Enables further optimizations at call site</li>
+<li>🚀 Better instruction pipeline utilization</li>
+</ul>
+
+<p><strong>Costs:</strong></p>
+
+<ul>
+<li>📦 Larger binary size</li>
+<li>💾 Increased memory usage (for the program)</li>
+</ul>
 
 <p>Go uses a sophisticated <strong>budget system</strong> to decide when inlining is profitable!</p>
 
@@ -78,11 +87,14 @@
 
 <h3>🔬 How the Budget System Works</h3>
 
-<p>Each Go statement/expression has a <strong>cost</strong>:
-- Simple statements: 1 point
-- Function calls: 57+ points
-- Loops, conditions: 1 point each
-- Complex expressions: Variable points</p>
+<p>Each Go statement/expression has a <strong>cost</strong>:</p>
+
+<ul>
+<li>Simple statements: 1 point</li>
+<li>Function calls: 57+ points</li>
+<li>Loops, conditions: 1 point each</li>
+<li>Complex expressions: Variable points</li>
+</ul>
 
 <p>The compiler sums up costs and compares against the budget!</p>
 
@@ -317,9 +329,12 @@ echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inli
 <li><strong>Aggressive</strong>: Largest binary (~36MB / 35,904 KB) - <strong>30% larger than default!</strong></li>
 </ul>
 
-<p><strong>Key Insights:</strong>
-- <strong>Aggressive inlining</strong> can increase binary size by <strong>8+ MB</strong> (30% larger)
-- <strong>No inlining vs Default</strong> shows a <strong>2+ MB difference</strong> (8% smaller)</p>
+<p><strong>Key Insights:</strong></p>
+
+<ul>
+<li><strong>Aggressive inlining</strong> can increase binary size by <strong>8+ MB</strong> (30% larger)</li>
+<li><strong>No inlining vs Default</strong> shows a <strong>2+ MB difference</strong> (8% smaller)</li>
+</ul>
 
 <p>The exact sizes depend on your system, but you should see similar dramatic differences!</p>
 
@@ -335,12 +350,15 @@ echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inli
 
 <h2>💡 Extension Ideas</h2>
 
-<p>Try these additional experiments: 🚀
-1. 📈 Create a script to automate testing different parameter combinations
-2. 🎯 Test with real-world Go programs (like building Go itself!)
-3. 📊 Measure compilation time differences with various settings
-4. 🌡️ Experiment with PGO (Profile-Guided Optimization) parameters
-5. 🔬 Analyze assembly output differences between inlined and non-inlined calls</p>
+<p>Try these additional experiments: 🚀</p>
+
+<ol>
+<li>📈 Create a script to automate testing different parameter combinations</li>
+<li>🎯 Test with real-world Go programs (like building Go itself!)</li>
+<li>📊 Measure compilation time differences with various settings</li>
+<li>🌡️ Experiment with PGO (Profile-Guided Optimization) parameters</li>
+<li>🔬 Analyze assembly output differences between inlined and non-inlined calls</li>
+</ol>
 
 <h2>➡️ Next Steps</h2>
 

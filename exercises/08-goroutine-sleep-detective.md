@@ -13,6 +13,7 @@ By the end of this exercise, you will:
 ## 🧠 Background: Goroutine States
 
 Go manages goroutines through different states:
+
 - **`_Grunnable`** - Ready to run but not executing
 - **`_Grunning`** - Currently executing
 - **`_Gwaiting`** - Blocked waiting for something (our target!)
@@ -31,6 +32,7 @@ grep -n "func gopark" proc.go
 ```
 
 Key functions:
+
 - **`gopark()`** - Initiates parking a goroutine
 - **`park_m()`** - Actually changes the state to `_Gwaiting`
 
@@ -170,6 +172,7 @@ Received: Hello!
 4. **Tested Scenarios**: Verified with channels, mutexes, sleep, and select
 
 Common wait reasons you'll see:
+
 - `chan receive` / `chan send`
 - `sync mutex lock`
 - `sleep`
