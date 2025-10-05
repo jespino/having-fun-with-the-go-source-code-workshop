@@ -74,7 +74,7 @@ case '=':
 ### 🔧 Understanding the Code Change
 
 - **`if s.ch == '>'`**: Check if the next character after "=" is ">"
-- **`s.nextch()`**: comsumes the ">" character from the lexer
+- **`s.nextch()`**: consumes the ">" character from the lexer
 - **`s.lit = "=>"`**: Set the literal value for debugging/error messages
 - **`s.tok = _Go`**: Assign the same token as the "go" keyword
 - **`break`**: Exit the case to avoid falling through to `_Assign`

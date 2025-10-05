@@ -23,7 +23,7 @@ The Go compiler transforms your code through multiple passes:
 4. **Optimization Passes** - Transform SSA (our focus!)
 5. **Code Generation** - Produce machine code
 
-We are going to work with the SSA form to know about the posibility of optimizing powers of two.
+We are going to work with the SSA form to know about the possibility of optimizing powers of two.
 
 ## 🔍 Step 1: Understanding SSA Pass Structure
 

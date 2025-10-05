@@ -129,7 +129,7 @@ pullorder[norder] = uint16(len(scases)-1-i)
 
 ### 🔧 Understanding the Code Change
 
-- **`uint16(len(scases)-1-i)`**: Use inverse orther here
+- **`uint16(len(scases)-1-i)`**: Use inverse other here
 - **Result**: pullorder is now always ordered in the source code order
 - **Effect**: Cases maintain their source code order in `pollorder`
 
