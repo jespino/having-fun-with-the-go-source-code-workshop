@@ -311,7 +311,7 @@ Try these additional experiments: 🚀
 
 ## ➡️ Next Steps
 
-Excellent work! 🎉 You've learned how to tune Go's inlining behavior and seen its real-world impact on binary size and performance. In the next exercises, we'll explore modifiying the gofmt tool.
+Excellent work! 🎉 You've learned how to tune Go's inlining behavior and seen its real-world impact on binary size and performance. In the next exercises, we'll explore modifying the gofmt tool.
 
 ## 🧹 Cleanup
 
