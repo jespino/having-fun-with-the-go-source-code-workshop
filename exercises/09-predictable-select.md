@@ -124,7 +124,7 @@ pollorder[norder] = pollorder[j]
 pollorder[j] = uint16(i)
 
 // Change to:
-pullorder[norder] = uint16(len(scases)-1-i)
+pollorder[norder] = uint16(len(scases)-1-i)
 ```
 
 ### 🔧 Understanding the Code Change
