@@ -129,6 +129,7 @@ pollorder[norder] = uint16(len(scases)-1-i)
 
 ### 🔧 Understanding the Code Change
 
+
 - **`uint16(len(scases)-1-i)`**: Use inverse order here
 - **Result**: pollorder is now always ordered in the source code order
 - **Effect**: Cases maintain their source code order in `pollorder`

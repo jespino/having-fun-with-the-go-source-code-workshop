@@ -12,7 +12,7 @@ By the end of this exercise, you will:
 
 ## 🧠 Background: Stack Trace Styles
 
-We're transforming Go's stracktrace format:
+We're transforming Go's stacktrace format:
 
 ```
 panic: Something went wrong
