@@ -189,7 +189,7 @@ Your detector found the 4 divisions by powers of 2! 🎉
 For detailed information about each detection:
 
 ```bash
-GOSSAFUNC=testDivisions ../go/bin/go build -gcflags="-d=ssa/detect div by power of two/debug=1" test_divisions.go
+GOSSAFUNC=testDivisions ../go/bin/go build -gcflags="-d=ssa/detect_div_by_power_of_two/debug=1" test_divisions.go
 ```
 
 **Expected output:**

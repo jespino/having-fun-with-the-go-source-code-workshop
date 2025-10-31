@@ -124,13 +124,14 @@ pollorder[norder] = pollorder[j]
 pollorder[j] = uint16(i)
 
 // Change to:
-pullorder[norder] = uint16(len(scases)-1-i)
+pollorder[norder] = uint16(len(scases)-1-i)
 ```
 
 ### 🔧 Understanding the Code Change
 
-- **`uint16(len(scases)-1-i)`**: Use inverse other here
-- **Result**: pullorder is now always ordered in the source code order
+
+- **`uint16(len(scases)-1-i)`**: Use inverse order here
+- **Result**: pollorder is now always ordered in the source code order
 - **Effect**: Cases maintain their source code order in `pollorder`
 
 ## Step 5: Rebuild Go Runtime
