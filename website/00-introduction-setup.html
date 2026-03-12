@@ -104,18 +104,15 @@
 
 <h2>📥 Step 2: Clone the Go Source Code</h2>
 
-<p>Let&rsquo;s clone the official Go repository. This might take a few minutes as it&rsquo;s a large repository. ⏳</p>
+<p>Let&rsquo;s clone the official Go repository. We use <code>--depth 1</code> to avoid downloading the full history, making the clone much faster: ⚡️</p>
 
-<pre><code class="language-bash">git clone https://go.googlesource.com/go
+<p>For consistency across the workshop, we&rsquo;ll use Go version 1.25.1. 📌</p>
+
+<pre><code class="language-bash">git clone --depth 1 --branch go1.25.1 https://go.googlesource.com/go
 cd go
 </code></pre>
 
-<h2>🏷️ Step 3: Checkout Go Version 1.25.1</h2>
-
-<p>For consistency across the workshop, we&rsquo;ll use Go version 1.25.1. Let&rsquo;s check out the specific release tag: 📌</p>
-
-<pre><code class="language-bash">git checkout go1.25.1
-</code></pre>
+<h2>🏷️ Step 3: Verify Go Version 1.25.1</h2>
 
 <p>Verify you&rsquo;re on the correct version:</p>
 
@@ -127,8 +124,7 @@ cd go
 
 <ul>
 <li>✅ Installed or verified Go 1.24.6+ for bootstrapping</li>
-<li>✅ Cloned the official Go repository</li>
-<li>✅ Checked out Go version 1.25.1 for consistency</li>
+<li>✅ Cloned the official Go repository at version 1.25.1</li>
 <li>✅ Environment is ready for building Go from source</li>
 </ul>
 
