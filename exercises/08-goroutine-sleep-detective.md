@@ -117,7 +117,7 @@ cd ../  # back to go/src
 
 ## Step 5: Test Channel Blocking
 
-Create a `channel_test.go` file:
+Create a `channel_demo.go` file:
 
 ```go
 package main
@@ -145,8 +145,8 @@ func main() {
 Build and run with our modified Go:
 
 ```bash
-../go/bin/go build channel_test.go
-./channel_test
+../go/bin/go build channel_demo.go
+./channel_demo
 ```
 
 **Note:** We build the binary first and then run it directly. This avoids mixing goroutines from the compiler/build process with goroutines from our program, giving us cleaner output!

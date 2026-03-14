@@ -46,6 +46,8 @@ case '=':
 
 The scanner checks for "==" (equals comparison) first, then falls back to "=" (assignment).
 
+> **📝 Note:** The exact code and line numbers may vary slightly depending on the Go version you checked out. Use your editor's search to find `case '=':` in `scanner.go` and adapt the modification to match the structure you see.
+
 ## Step 2: Add the Arrow Operator Logic
 
 We need to add logic to recognize "=>" and treat it as the `_Go` token.

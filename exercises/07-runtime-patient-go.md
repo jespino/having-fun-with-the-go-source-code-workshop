@@ -128,7 +128,7 @@ This rebuilds the runtime with your patient goroutine waiting logic.
 
 Create a test file to verify the behavior:
 
-Create `patient_test.go`:
+Create `patient_demo.go`:
 
 ```go
 package main
@@ -155,7 +155,7 @@ func main() {
 Run with your modified Go:
 
 ```bash
-./bin/go run patient_test.go
+./bin/go run patient_demo.go
 ```
 
 **Expected output:**

@@ -178,6 +178,19 @@ func main() {
 /path/to/workshop/go/bin/go run /tmp/hello.go
 ```
 
+## ⚠️ Troubleshooting
+
+### GOROOT Interference
+
+If running `../bin/go run /tmp/hello.go` (or the full path to the binary) gives unexpected results or uses the system Go instead of your newly built one, you may need to unset the `GOROOT` environment variable first:
+
+```bash
+unset GOROOT
+/path/to/workshop/go/bin/go run /tmp/hello.go
+```
+
+This happens because `GOROOT` may be set by your system Go installation, pointing the new binary to the wrong standard library and tools. Unsetting it lets the binary auto-detect its own root directory based on its location.
+
 ## 🎓 What We Learned
 
 - 🥾 **Bootstrap Process**: Go compiles itself using an existing Go installation
