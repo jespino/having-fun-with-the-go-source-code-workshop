@@ -14,6 +14,5 @@ clean: ## Remove generated website files
 	@rm -f website/*.html website/*.css
 	@echo "✅ Website cleaned"
 
-serve: ## Serve the website locally (requires Python)
-	@echo "🌐 Starting local web server on http://localhost:8000"
-	@cd website && python3 -m http.server 8000
+serve: ## Serve the website locally with live reload
+	@cd website-generator && go run . -exercises ../exercises -output ../website -serve

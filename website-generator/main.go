@@ -49,7 +49,18 @@ var exerciseMetadata = []struct {
 func main() {
 	exercisesDir := flag.String("exercises", "../exercises", "Path to exercises directory")
 	outputDir := flag.String("output", "../website", "Path to output directory")
+	serve := flag.Bool("serve", false, "Start dev server with live reload")
+	port := flag.Int("port", 8000, "Dev server port (used with -serve)")
 	flag.Parse()
+
+	if *serve {
+		srv := newDevServer(*exercisesDir, *outputDir, *port)
+		if err := srv.run(); err != nil {
+			fmt.Fprintf(os.Stderr, "Server error: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
 
 	// Create output directory if it doesn't exist
 	if err := os.MkdirAll(*outputDir, 0755); err != nil {
