@@ -133,7 +133,6 @@ See [website-generator/README.md](website-generator/README.md) for more details.
 - 🏗️ [Go Compiler Overview](https://github.com/golang/go/tree/master/src/cmd/compile)
 - 📋 [Go Language Specification](https://go.dev/ref/spec)
 - 🔧 [Go Runtime Documentation](https://pkg.go.dev/runtime)
-- 📚 [Go Internal Documentation](https://go.dev/src/)
 
 ### 🎥 Video References
 
