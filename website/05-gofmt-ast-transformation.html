@@ -124,7 +124,7 @@ ls -la
 
 <p><strong>Edit <code>go/src/cmd/gofmt/gofmt.go</code>:</strong></p>
 
-<p>Find the constants around line 47 (look for the comment &ldquo;Keep these in sync with go/format/format.go&rdquo;):</p>
+<p>Find the constants around line 50 (look for the comment &ldquo;Keep these in sync with go/format/format.go&rdquo;):</p>
 
 <pre><code class="language-go">const (
 	tabWidth    = 8
@@ -151,7 +151,7 @@ ls -la
 
 <p><strong>Edit <code>go/src/go/format/format.go</code>:</strong></p>
 
-<p>Find the constants around line 28 (same comment as above):</p>
+<p>Find the constants around line 29 (same comment as above):</p>
 
 <pre><code class="language-go">const (
 	tabWidth    = 8
@@ -222,7 +222,7 @@ func main() {
 
 <p><strong>Edit <code>gofmt.go</code>:</strong></p>
 
-<p>Add this transformation function around line 75 (after the <code>usage()</code> function):</p>
+<p>Add this transformation function around line 76 (after the <code>usage()</code> function):</p>
 
 <pre><code class="language-go">// transformHelloToHelo walks the AST and replaces &quot;hello&quot; with &quot;helo&quot;
 // in string literals and comments.
@@ -261,7 +261,7 @@ func transformHelloToHelo(file *ast.File) {
 
 <p><strong>Still in <code>gofmt.go</code>:</strong></p>
 
-<p>Find the <code>processFile</code> function around line 256. Look for:</p>
+<p>Find the <code>processFile</code> function around line 238. Look for the <code>if *simplifyAST</code> block around line 263:</p>
 
 <pre><code class="language-go">	if *simplifyAST {
 		simplify(file)

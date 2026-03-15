@@ -366,7 +366,7 @@ const indexTemplate = `<!DOCTYPE html>
         <header class="hero">
             <h1>🚀 Having fun with the Go Source Code</h1>
             <p class="lead">Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime. 🎯</p>
-            <p class="version-note"><strong>📌 This workshop uses Go version 1.25.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.</p>
+            <p class="version-note"><strong>📌 This workshop uses Go version 1.26.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.</p>
         </header>
 
         <section class="prerequisites">
@@ -375,7 +375,7 @@ const indexTemplate = `<!DOCTYPE html>
                 <li>🐹 Basic knowledge of Go programming</li>
                 <li>💻 Familiarity with command line tools</li>
                 <li>🗂️ Git installed on your system</li>
-                <li><strong>⚡ Go compiler version 1.24.6 or newer</strong> (required for bootstrapping the build process)</li>
+                <li><strong>⚡ Go compiler version 1.24 or newer</strong> (required for bootstrapping the build process)</li>
                 <li>💾 At least 4GB of free disk space</li>
             </ul>
         </section>

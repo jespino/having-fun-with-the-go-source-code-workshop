@@ -11,7 +11,7 @@ This is an educational workshop repository for learning Go compiler internals an
 ### Workshop Structure
 - **Root**: Contains main README.md with workshop overview and prerequisites
 - **exercises/**: Individual exercise markdown files (00-10) with hands-on instructions
-- **go/**: Go 1.25.1 source code (cloned during setup, ignored by git)
+- **go/**: Go 1.26.1 source code (cloned during setup, ignored by git)
 - **doing-it/**: Participant workspace directory (ignored by git)
 
 ### Exercise Flow
@@ -21,8 +21,8 @@ This is an educational workshop repository for learning Go compiler internals an
 4. **Exercises 3-10**: Placeholder files for future advanced topics
 
 ### Key Workshop Requirements
-- **Go Version**: Workshop uses Go 1.25.1 specifically (checked out via `git checkout go1.25.1`)
-- **Bootstrap Requirement**: Participants need Go 1.24.6+ installed to build Go 1.25.1
+- **Go Version**: Workshop uses Go 1.26.1 specifically (checked out via `git checkout go1.26.1`)
+- **Bootstrap Requirement**: Participants need Go 1.24+ installed to build Go 1.26.1
 - **Build Process**: Uses `./all.bash` (or `./make.bash` for build-only) in go/src directory
 - **Target Audience**: Assumes basic Go knowledge but teaches compiler internals from scratch
 
@@ -33,11 +33,11 @@ This is an educational workshop repository for learning Go compiler internals an
 # Clone Go source (done by participants)
 git clone https://go.googlesource.com/go
 cd go
-git checkout go1.25.1
+git checkout go1.26.1
 
 # Verify environment
-go version  # Must be 1.24.6+
-git describe --tags  # Should show go1.25.1
+go version  # Must be 1.24+
+git describe --tags  # Should show go1.26.1
 ```
 
 ### Building Go (Exercise 1)
@@ -86,7 +86,7 @@ cd go/src
 ## Workshop-Specific Considerations
 
 ### Version Management
-- Workshop is pinned to Go 1.25.1 for consistency
+- Workshop is pinned to Go 1.26.1 for consistency
 - All exercises assume this specific version
 - Participants must checkout this tag before starting
 

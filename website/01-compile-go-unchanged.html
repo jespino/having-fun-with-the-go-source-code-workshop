@@ -82,10 +82,10 @@
 <p>Let&rsquo;s check if you have Go installed (needed for bootstrapping): 🔍</p>
 
 <pre><code class="language-bash">go version
-# Must show version 1.24.6 or newer
+# Must show version 1.24 or newer
 </code></pre>
 
-<p><strong>⚠️ Critical</strong>: You must have Go 1.24.6 or newer installed to build Go 1.25.1. If you don&rsquo;t have Go installed or your version is too old, install the latest version from <a href="https://golang.org/dl/">https://golang.org/dl/</a> 📥</p>
+<p><strong>⚠️ Critical</strong>: You must have Go 1.24 or newer installed to build Go 1.26.1. If you don&rsquo;t have Go installed or your version is too old, install the latest version from <a href="https://golang.org/dl/">https://golang.org/dl/</a> 📥</p>
 
 <h2>📂 Step 2: Navigate to the Go Source Directory</h2>
 
@@ -95,7 +95,7 @@ pwd
 
 # Verify you're on the correct Go version
 git describe --tags
-# Should show: go1.25.1
+# Should show: go1.26.1
 </code></pre>
 
 <h2>🚀 Step 3: Start the Build Process</h2>
@@ -193,7 +193,7 @@ ls -la
 
 <p><strong>Switch back to your original terminal</strong> where the build is running. As the build progresses, you should see output like: 👀</p>
 
-<pre><code>Building Go cmd/dist using /usr/local/go. (go1.25.1 darwin/amd64)
+<pre><code>Building Go cmd/dist using /usr/local/go. (go1.26.1 darwin/amd64)
 Building Go toolchain1 using /usr/local/go.
 Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
 Building Go toolchain2 using go_bootstrap and Go toolchain1.
@@ -247,6 +247,18 @@ func main() {
 <pre><code class="language-bash"># Compile and run with your custom Go
 /path/to/workshop/go/bin/go run /tmp/hello.go
 </code></pre>
+
+<h2>⚠️ Troubleshooting</h2>
+
+<h3>GOROOT Interference</h3>
+
+<p>If running <code>../bin/go run /tmp/hello.go</code> (or the full path to the binary) gives unexpected results or uses the system Go instead of your newly built one, you may need to unset the <code>GOROOT</code> environment variable first:</p>
+
+<pre><code class="language-bash">unset GOROOT
+/path/to/workshop/go/bin/go run /tmp/hello.go
+</code></pre>
+
+<p>This happens because <code>GOROOT</code> may be set by your system Go installation, pointing the new binary to the wrong standard library and tools. Unsetting it lets the binary auto-detect its own root directory based on its location.</p>
 
 <h2>🎓 What We Learned</h2>
 

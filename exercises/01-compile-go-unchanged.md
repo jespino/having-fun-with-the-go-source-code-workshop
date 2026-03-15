@@ -23,10 +23,10 @@ Let's check if you have Go installed (needed for bootstrapping): 🔍
 
 ```bash
 go version
-# Must show version 1.24.6 or newer
+# Must show version 1.24 or newer
 ```
 
-**⚠️ Critical**: You must have Go 1.24.6 or newer installed to build Go 1.25.1. If you don't have Go installed or your version is too old, install the latest version from <https://golang.org/dl/> 📥
+**⚠️ Critical**: You must have Go 1.24 or newer installed to build Go 1.26.1. If you don't have Go installed or your version is too old, install the latest version from <https://golang.org/dl/> 📥
 
 ## 📂 Step 2: Navigate to the Go Source Directory
 
@@ -37,7 +37,7 @@ pwd
 
 # Verify you're on the correct Go version
 git describe --tags
-# Should show: go1.25.1
+# Should show: go1.26.1
 ```
 
 ## 🚀 Step 3: Start the Build Process
@@ -123,7 +123,7 @@ Key files and directories:
 **Switch back to your original terminal** where the build is running. As the build progresses, you should see output like: 👀
 
 ```
-Building Go cmd/dist using /usr/local/go. (go1.25.1 darwin/amd64)
+Building Go cmd/dist using /usr/local/go. (go1.26.1 darwin/amd64)
 Building Go toolchain1 using /usr/local/go.
 Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
 Building Go toolchain2 using go_bootstrap and Go toolchain1.

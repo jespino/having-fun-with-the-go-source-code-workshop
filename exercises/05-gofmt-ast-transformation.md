@@ -56,7 +56,7 @@ Before adding custom transformations, let's change gofmt to use 4 spaces instead
 
 **Edit `go/src/cmd/gofmt/gofmt.go`:**
 
-Find the constants around line 47 (look for the comment "Keep these in sync with go/format/format.go"):
+Find the constants around line 50 (look for the comment "Keep these in sync with go/format/format.go"):
 
 ```go
 const (
@@ -83,7 +83,7 @@ The `go/format` package also needs to be updated to keep behavior consistent.
 
 **Edit `go/src/go/format/format.go`:**
 
-Find the constants around line 28 (same comment as above):
+Find the constants around line 29 (same comment as above):
 
 ```go
 const (
@@ -158,7 +158,7 @@ func main() {
 
 **Edit `gofmt.go`:**
 
-Add this transformation function around line 75 (after the `usage()` function):
+Add this transformation function around line 76 (after the `usage()` function):
 
 ```go
 // transformHelloToHelo walks the AST and replaces "hello" with "helo"
@@ -196,7 +196,7 @@ func transformHelloToHelo(file *ast.File) {
 
 **Still in `gofmt.go`:**
 
-Find the `processFile` function around line 256. Look for:
+Find the `processFile` function around line 238. Look for the `if *simplifyAST` block around line 263:
 
 ```go
 	if *simplifyAST {

@@ -2,14 +2,14 @@
 
 Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime. 🎯
 
-**📌 This workshop uses Go version 1.25.1** - we'll check out the specific release tag to ensure consistency across all exercises.
+**📌 This workshop uses Go version 1.26.1** - we'll check out the specific release tag to ensure consistency across all exercises.
 
 ## 📋 Prerequisites
 
 - 🐹 Basic knowledge of Go programming
 - 💻 Familiarity with command line tools
 - 🗂️ Git installed on your system
-- **⚡ Go compiler version 1.24.6 or newer** (required for bootstrapping the build process)
+- **⚡ Go compiler version 1.24 or newer** (required for bootstrapping the build process)
 - 💾 At least 4GB of free disk space
 
 ## 🎓 Workshop Overview

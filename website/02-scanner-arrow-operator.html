@@ -94,15 +94,17 @@
 
 <pre><code class="language-go">// go/src/cmd/compile/internal/syntax/scanner.go:325
 case '=':
+    s.nextch()
     if s.ch == '=' {
         s.nextch()
+        s.op, s.prec = Eql, precCmp
         s.tok = _Operator
         break
     }
     s.tok = _Assign
 </code></pre>
 
-<p>The scanner checks for &ldquo;==&rdquo; (equals comparison) first, then falls back to &ldquo;=&rdquo; (assignment).</p>
+<p>The scanner first consumes the &ldquo;=&rdquo; character with <code>s.nextch()</code>, then checks if the next character is also &ldquo;=&rdquo; (for the <code>==</code> comparison operator). If not, it falls back to &ldquo;=&rdquo; (assignment).</p>
 
 <h2>Step 2: Add the Arrow Operator Logic</h2>
 
@@ -114,8 +116,10 @@ case '=':
 
 <pre><code class="language-go">// go/src/cmd/compile/internal/syntax/scanner.go:325
 case '=':
+    s.nextch()
     if s.ch == '=' {
         s.nextch()
+        s.op, s.prec = Eql, precCmp
         s.tok = _Operator
         break
     }
@@ -131,8 +135,8 @@ case '=':
 <h3>🔧 Understanding the Code Change</h3>
 
 <ul>
-<li><strong><code>if s.ch == '&gt;'</code></strong>: Check if the next character after &ldquo;=&rdquo; is &ldquo;&gt;&rdquo;</li>
-<li><strong><code>s.nextch()</code></strong>: comsumes the &ldquo;&gt;&rdquo; character from the lexer</li>
+<li><strong><code>if s.ch == '&gt;'</code></strong>: Check if the next character after &ldquo;=&rdquo; is &ldquo;&gt;&rdquo; (remember <code>s.nextch()</code> already consumed the &ldquo;=&rdquo;)</li>
+<li><strong><code>s.nextch()</code></strong>: consumes the &ldquo;&gt;&rdquo; character from the lexer</li>
 <li><strong><code>s.lit = &quot;=&gt;&quot;</code></strong>: Set the literal value for debugging/error messages</li>
 <li><strong><code>s.tok = _Go</code></strong>: Assign the same token as the &ldquo;go&rdquo; keyword</li>
 <li><strong><code>break</code></strong>: Exit the case to avoid falling through to <code>_Assign</code></li>

@@ -109,7 +109,7 @@ Goroutine finished!
 <pre><code class="language-bash">cd go/src/runtime
 </code></pre>
 
-<p>Open <code>proc.go</code> and find the <code>main()</code> function. Near the top (around line 135-136), you&rsquo;ll see how the runtime links to your program&rsquo;s main:</p>
+<p>Open <code>proc.go</code> and find the <code>main()</code> function. Near the top (around line 136-137), you&rsquo;ll see how the runtime links to your program&rsquo;s main:</p>
 
 <pre><code class="language-go">//go:linkname main_main main.main
 func main_main()
@@ -117,7 +117,7 @@ func main_main()
 
 <p>This <code>//go:linkname</code> directive tells the linker to connect the runtime&rsquo;s <code>main_main</code> function to your program&rsquo;s <code>main.main</code> function. This is how the runtime can call code from your main package.</p>
 
-<p>Further down in the same <code>main()</code> function (around line 284), you&rsquo;ll see where this gets called:</p>
+<p>Further down in the same <code>main()</code> function (around line 289), you&rsquo;ll see where this gets called:</p>
 
 <pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
 fn()
@@ -145,7 +145,7 @@ fn()
 
 <p><strong>Edit <code>runtime/proc.go</code>:</strong></p>
 
-<p>Find the section around line 284-286 where <code>main_main</code> is called:</p>
+<p>Find the section around line 289-290 where <code>main_main</code> is called:</p>
 
 <pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
 fn()
@@ -157,7 +157,7 @@ fn()
 fn()
 
 // Wait until only 1 goroutine is running (the main goroutine)
-for gcount() &gt; 1 {
+for gcount(false) &gt; 1 {
 	Gosched()
 }
 </code></pre>
@@ -165,8 +165,8 @@ for gcount() &gt; 1 {
 <h3>🔍 Understanding the Code</h3>
 
 <ul>
-<li><strong><code>gcount()</code></strong> - Runtime function that returns the number of active goroutines</li>
-<li><strong><code>gcount() &gt; 1</code></strong> - While more than just the main goroutine is running</li>
+<li><strong><code>gcount(false)</code></strong> - Runtime function that returns the number of active goroutines (the <code>false</code> argument excludes system goroutines from the count)</li>
+<li><strong><code>gcount(false) &gt; 1</code></strong> - While more than just the main goroutine is running</li>
 <li><strong><code>Gosched()</code></strong> - Yields the processor, allowing other goroutines to run</li>
 <li><strong>Loop terminates</strong> - When only the main goroutine remains (count = 1)</li>
 </ul>
@@ -183,7 +183,7 @@ for gcount() &gt; 1 {
 
 <p>Create a test file to verify the behavior:</p>
 
-<p>Create <code>patient_test.go</code>:</p>
+<p>Create <code>patient_demo.go</code>:</p>
 
 <pre><code class="language-go">package main
 
@@ -208,7 +208,7 @@ func main() {
 
 <p>Run with your modified Go:</p>
 
-<pre><code class="language-bash">./bin/go run patient_test.go
+<pre><code class="language-bash">./bin/go run patient_demo.go
 </code></pre>
 
 <p><strong>Expected output:</strong></p>

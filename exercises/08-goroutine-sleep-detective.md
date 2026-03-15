@@ -43,7 +43,7 @@ Key functions:
 grep -n -A 5 "func park_m" proc.go
 ```
 
-Around line 4237, you'll see:
+Around line 4275, you'll see:
 
 ```go
 casgstatus(gp, _Grunning, _Gwaiting)
@@ -57,7 +57,7 @@ This is the exact line where a goroutine transitions from running to waiting. Pe
 
 You'll need to add logging in three locations where goroutines transition to the waiting state:
 
-### Location 1: `casGToWaiting` function (around line 1366)
+### Location 1: `casGToWaiting` function (around line 1388)
 
 Find the `casGToWaiting` function and add logging after setting the wait reason:
 
@@ -72,24 +72,30 @@ func casGToWaiting(gp *g, old uint32, reason waitReason) {
 }
 ```
 
-### Location 2: `casGFromPreempted` function (around line 1411)
+### Location 2: `casGFromPreempted` function (around line 1430)
 
-Find where preempted goroutines transition to waiting:
+Find where preempted goroutines transition to waiting. Add logging after the `waitreason` is set but before the `CompareAndSwap`:
 
 ```go
 func casGFromPreempted(gp *g, old, new uint32) bool {
-	// ... existing code ...
+	if old != _Gpreempted || new != _Gwaiting {
+		throw("bad g transition")
+	}
+	gp.waitreason = waitReasonPreempted
+	if gp.goid > 1 { // Skip system goroutines 0 and 1
+		print("Hello, I'm goroutine ", gp.goid, ", going to sleep waiting for ", gp.waitreason.String(), "\n")
+	}
+	if !gp.atomicstatus.CompareAndSwap(_Gpreempted, _Gwaiting) {
+		return false
+	}
 	if bubble := gp.bubble; bubble != nil {
-		if gp.goid > 1 { // Skip system goroutines 0 and 1
-			print("Hello, I'm goroutine ", gp.goid, ", going to sleep waiting for ", gp.waitreason.String(), "\n")
-		}
 		bubble.changegstatus(gp, _Gpreempted, _Gwaiting)
 	}
 	return true
 }
 ```
 
-### Location 3: `park_m` function (around line 4240)
+### Location 3: `park_m` function (around line 4275)
 
 Find the `park_m` function and add logging before the direct `casgstatus` call:
 

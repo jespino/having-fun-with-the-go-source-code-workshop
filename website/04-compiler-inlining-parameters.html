@@ -97,29 +97,33 @@
 <pre><code class="language-bash">cd go/src/cmd/compile/internal/inline
 </code></pre>
 
-<p>Open <code>inl.go</code> and look at the key parameters around lines 48-86:</p>
+<p>Open <code>inl.go</code> and look at the key parameters around lines 49-85:</p>
 
 <h3>🎛️ Key Inlining Parameters</h3>
 
-<p>From <code>go/src/cmd/compile/internal/inline/inl.go:48-86</code>:</p>
+<p>From <code>go/src/cmd/compile/internal/inline/inl.go:49-85</code>:</p>
 
 <pre><code class="language-go">const (
-    inlineMaxBudget       = 80    // Maximum &quot;cost&quot; for inlining
-    inlineExtraAppendCost = 0     // Extra cost for append operations
-    inlineExtraCallCost   = 57    // Cost penalty for function calls
-    inlineParamCallCost   = 17    // Reduced cost when calling a parameter
-    inlineExtraPanicCost  = 1     // Low cost for panic calls
-    inlineExtraThrowCost  = 80    // High cost discourages inlining runtime.throw
+    inlineMaxBudget       = 80
+    inlineExtraAppendCost = 0
+    inlineExtraCallCost   = 57              // benchmarked to provide most benefit
+    inlineParamCallCost   = 17              // calling a parameter costs less
+    inlineExtraPanicCost  = 1               // do not penalize inlining panics
+    inlineExtraThrowCost  = inlineMaxBudget // inlining runtime.throw does not help
 
-    // Function size thresholds
-    inlineBigFunctionNodes      = 5000  // Nodes that make a function &quot;big&quot;
-    inlineBigFunctionMaxCost    = 20    // Max inline cost into &quot;big&quot; functions
-    inlineClosureCalledOnceCost = 800   // Special budget for single-use closures
+    inlineBigFunctionNodes      = 5000                 // Functions with this many nodes are &quot;big&quot;
+    inlineBigFunctionMaxCost    = 20                   // Max cost when inlining into a &quot;big&quot; function
+    inlineClosureCalledOnceCost = 10 * inlineMaxBudget // if a closure is called once, inline it
+)
 
-    // PGO (Profile Guided Optimization) parameters
-    inlineHotMaxBudget = 2000   // Much larger budget for &quot;hot&quot; functions
+var (
+    // ...
+    // Budget increased due to hotness (PGO).
+    inlineHotMaxBudget int32 = 2000
 )
 </code></pre>
+
+<p><strong>📝 Note:</strong> <code>inlineHotMaxBudget</code> is a <code>var</code>, not a <code>const</code>, because it&rsquo;s used with PGO (Profile Guided Optimization) and may be modified at runtime.</p>
 
 <h3>🔬 How the Budget System Works</h3>
 
@@ -398,7 +402,7 @@ echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inli
 
 <h2>➡️ Next Steps</h2>
 
-<p>Excellent work! 🎉 You&rsquo;ve learned how to tune Go&rsquo;s inlining behavior and seen its real-world impact on binary size and performance. In the next exercises, we&rsquo;ll explore modifiying the gofmt tool.</p>
+<p>Excellent work! 🎉 You&rsquo;ve learned how to tune Go&rsquo;s inlining behavior and seen its real-world impact on binary size and performance. In the next exercises, we&rsquo;ll explore modifying the gofmt tool.</p>
 
 <h2>🧹 Cleanup</h2>
 

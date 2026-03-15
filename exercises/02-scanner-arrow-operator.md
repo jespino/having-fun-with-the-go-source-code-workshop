@@ -36,17 +36,17 @@ Let's examine how the scanner handles the "=" operator in `scanner.go`. Look at 
 ```go
 // go/src/cmd/compile/internal/syntax/scanner.go:325
 case '=':
+    s.nextch()
     if s.ch == '=' {
         s.nextch()
+        s.op, s.prec = Eql, precCmp
         s.tok = _Operator
         break
     }
     s.tok = _Assign
 ```
 
-The scanner checks for "==" (equals comparison) first, then falls back to "=" (assignment).
-
-> **📝 Note:** The exact code and line numbers may vary slightly depending on the Go version you checked out. Use your editor's search to find `case '=':` in `scanner.go` and adapt the modification to match the structure you see.
+The scanner first consumes the "=" character with `s.nextch()`, then checks if the next character is also "=" (for the `==` comparison operator). If not, it falls back to "=" (assignment).
 
 ## Step 2: Add the Arrow Operator Logic
 
@@ -59,8 +59,10 @@ Find the "=" case at line 325 and modify it to also check for ">":
 ```go
 // go/src/cmd/compile/internal/syntax/scanner.go:325
 case '=':
+    s.nextch()
     if s.ch == '=' {
         s.nextch()
+        s.op, s.prec = Eql, precCmp
         s.tok = _Operator
         break
     }
@@ -75,7 +77,7 @@ case '=':
 
 ### 🔧 Understanding the Code Change
 
-- **`if s.ch == '>'`**: Check if the next character after "=" is ">"
+- **`if s.ch == '>'`**: Check if the next character after "=" is ">" (remember `s.nextch()` already consumed the "=")
 - **`s.nextch()`**: consumes the ">" character from the lexer
 - **`s.lit = "=>"`**: Set the literal value for debugging/error messages
 - **`s.tok = _Go`**: Assign the same token as the "go" keyword

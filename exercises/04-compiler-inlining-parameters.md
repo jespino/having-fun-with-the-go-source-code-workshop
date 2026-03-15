@@ -36,30 +36,34 @@ Let's examine the current inlining parameters:
 cd go/src/cmd/compile/internal/inline
 ```
 
-Open `inl.go` and look at the key parameters around lines 48-86:
+Open `inl.go` and look at the key parameters around lines 49-85:
 
 ### 🎛️ Key Inlining Parameters
 
-From `go/src/cmd/compile/internal/inline/inl.go:48-86`:
+From `go/src/cmd/compile/internal/inline/inl.go:49-85`:
 
 ```go
 const (
-    inlineMaxBudget       = 80    // Maximum "cost" for inlining
-    inlineExtraAppendCost = 0     // Extra cost for append operations
-    inlineExtraCallCost   = 57    // Cost penalty for function calls
-    inlineParamCallCost   = 17    // Reduced cost when calling a parameter
-    inlineExtraPanicCost  = 1     // Low cost for panic calls
-    inlineExtraThrowCost  = 80    // High cost discourages inlining runtime.throw
+    inlineMaxBudget       = 80
+    inlineExtraAppendCost = 0
+    inlineExtraCallCost   = 57              // benchmarked to provide most benefit
+    inlineParamCallCost   = 17              // calling a parameter costs less
+    inlineExtraPanicCost  = 1               // do not penalize inlining panics
+    inlineExtraThrowCost  = inlineMaxBudget // inlining runtime.throw does not help
 
-    // Function size thresholds
-    inlineBigFunctionNodes      = 5000  // Nodes that make a function "big"
-    inlineBigFunctionMaxCost    = 20    // Max inline cost into "big" functions
-    inlineClosureCalledOnceCost = 800   // Special budget for single-use closures
+    inlineBigFunctionNodes      = 5000                 // Functions with this many nodes are "big"
+    inlineBigFunctionMaxCost    = 20                   // Max cost when inlining into a "big" function
+    inlineClosureCalledOnceCost = 10 * inlineMaxBudget // if a closure is called once, inline it
+)
 
-    // PGO (Profile Guided Optimization) parameters
-    inlineHotMaxBudget = 2000   // Much larger budget for "hot" functions
+var (
+    // ...
+    // Budget increased due to hotness (PGO).
+    inlineHotMaxBudget int32 = 2000
 )
 ```
+
+**📝 Note:** `inlineHotMaxBudget` is a `var`, not a `const`, because it's used with PGO (Profile Guided Optimization) and may be modified at runtime.
 
 ### 🔬 How the Budget System Works
 

@@ -70,7 +70,7 @@
 
 <h2>🧠 Background: Stack Trace Styles</h2>
 
-<p>We&rsquo;re transforming Go&rsquo;s stracktrace format:</p>
+<p>We&rsquo;re transforming Go&rsquo;s stacktrace format:</p>
 
 <pre><code>panic: Something went wrong
 
@@ -135,7 +135,7 @@ func main() {
 
 <p><strong>Edit <code>panic.go</code>:</strong></p>
 
-<p>Find the <code>printpanics</code> function around line 668. Look for:</p>
+<p>Find the <code>printpanics</code> function around line 734. Look for:</p>
 
 <pre><code class="language-go">print(&quot;panic: &quot;)
 printpanicval(p.arg)
@@ -151,7 +151,7 @@ printpanicval(p.arg)
 
 <p><strong>Edit <code>traceback.go</code>:</strong></p>
 
-<p>Find the <code>goroutineheader</code> function around line 1212. Add a return statement at the beginning:</p>
+<p>Find the <code>goroutineheader</code> function around line 1215. Add a return statement at the beginning:</p>
 
 <pre><code class="language-go">func goroutineheader(gp *g) {
     return  // Add this line to skip printing goroutine info
@@ -164,14 +164,14 @@ printpanicval(p.arg)
 
 <p><strong>Still in <code>traceback.go</code>:</strong></p>
 
-<p>Find the <code>traceback2</code> function around line 965. Comment out the <code>gotraceback()</code> call:</p>
+<p>Find the <code>traceback2</code> function around line 945. Comment out the <code>gotraceback()</code> call (around line 966):</p>
 
 <pre><code class="language-go">gp := u.g.ptr()
 // level, _, _ := gotraceback()  // Comment this out
 var cgoBuf [32]uintptr
 </code></pre>
 
-<p>Then find where stack frames are printed (around line 990-1005). Replace this entire section:</p>
+<p>Then find where stack frames are printed (around line 991-1008). Replace this entire section:</p>
 
 <pre><code class="language-go">printFuncName(name)
 print(&quot;(&quot;)
@@ -231,9 +231,9 @@ Exception in thread &quot;main&quot; go.runtime.Panic: Something went wrong
 <h2>Understanding What We Did</h2>
 
 <ol>
-<li><strong>Changed Panic Header</strong> (<code>panic.go</code> line 668): Changed <code>&quot;panic: &quot;</code> to <code>&quot;Exception in thread \&quot;main\&quot; go.runtime.Panic: &quot;</code></li>
-<li><strong>Removed Goroutine Info</strong> (<code>traceback.go</code> line 1212): Added early <code>return</code> in <code>goroutineheader()</code></li>
-<li><strong>Simplified Stack Frames</strong> (<code>traceback.go</code> line 990-1005): Replaced the go output with the java <code>&quot;    at name(file:line)&quot;</code> format</li>
+<li><strong>Changed Panic Header</strong> (<code>panic.go</code> line 747): Changed <code>&quot;panic: &quot;</code> to <code>&quot;Exception in thread \&quot;main\&quot; go.runtime.Panic: &quot;</code></li>
+<li><strong>Removed Goroutine Info</strong> (<code>traceback.go</code> line 1215): Added early <code>return</code> in <code>goroutineheader()</code></li>
+<li><strong>Simplified Stack Frames</strong> (<code>traceback.go</code> line 991-1008): Replaced the go output with the java <code>&quot;    at name(file:line)&quot;</code> format</li>
 <li><strong>Removed Debug Info</strong>: Commented out <code>gotraceback()</code> call and eliminated hex offsets, frame pointers</li>
 <li><strong>Basename Only</strong>: Extract filename from full path using loop</li>
 </ol>

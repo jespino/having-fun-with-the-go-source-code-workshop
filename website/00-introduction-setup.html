@@ -78,17 +78,17 @@
 
 <h2>⚡ Step 1: Install or Upgrade Go</h2>
 
-<p><strong>⚠️ Important</strong>: You need an existing Go installation (version 1.24.6 or newer) to build Go from source. This is called &ldquo;bootstrapping&rdquo; - using an existing Go compiler to build the new one.</p>
+<p><strong>⚠️ Important</strong>: You need an existing Go installation (version 1.24 or newer) to build Go from source. This is called &ldquo;bootstrapping&rdquo; - using an existing Go compiler to build the new one.</p>
 
 <h3>Check Your Current Go Version</h3>
 
 <pre><code class="language-bash">go version
-# Should show: go version go1.24.6 or higher
+# Should show: go version go1.24 or higher
 </code></pre>
 
 <h3>If Go is Not Installed or Too Old</h3>
 
-<p>If you don&rsquo;t have Go installed, or your version is older than 1.24.6:</p>
+<p>If you don&rsquo;t have Go installed, or your version is older than 1.24:</p>
 
 <ol>
 <li>📥 <strong>Download Go</strong>: Visit <a href="https://go.dev/dl/">https://go.dev/dl/</a> and download the appropriate installer for your operating system</li>
@@ -97,7 +97,7 @@
 </ol>
 
 <pre><code class="language-bash">   go version
-   # Should show: go version go1.24.6 or higher
+   # Should show: go version go1.24 or higher
 </code></pre>
 
 <p><strong>📚 Installation Help</strong>: If you need detailed installation instructions, see the <a href="https://go.dev/doc/install">official Go installation guide</a>.</p>
@@ -110,25 +110,25 @@
 cd go
 </code></pre>
 
-<h2>🏷️ Step 3: Checkout Go Version 1.25.1</h2>
+<h2>🏷️ Step 3: Checkout Go Version 1.26.1</h2>
 
-<p>For consistency across the workshop, we&rsquo;ll use Go version 1.25.1. Let&rsquo;s check out the specific release tag: 📌</p>
+<p>For consistency across the workshop, we&rsquo;ll use Go version 1.26.1. Let&rsquo;s check out the specific release tag: 📌</p>
 
-<pre><code class="language-bash">git checkout go1.25.1
+<pre><code class="language-bash">git checkout go1.26.1
 </code></pre>
 
 <p>Verify you&rsquo;re on the correct version:</p>
 
 <pre><code class="language-bash">git describe --tags
-# Should show: go1.25.1
+# Should show: go1.26.1
 </code></pre>
 
 <h2>🎓 What We Accomplished</h2>
 
 <ul>
-<li>✅ Installed or verified Go 1.24.6+ for bootstrapping</li>
+<li>✅ Installed or verified Go 1.24+ for bootstrapping</li>
 <li>✅ Cloned the official Go repository</li>
-<li>✅ Checked out Go version 1.25.1 for consistency</li>
+<li>✅ Checked out Go version 1.26.1 for consistency</li>
 <li>✅ Environment is ready for building Go from source</li>
 </ul>
 

@@ -103,7 +103,7 @@ grep -n &quot;func gopark&quot; proc.go
 grep -n -A 5 &quot;func park_m&quot; proc.go
 </code></pre>
 
-<p>Around line 4237, you&rsquo;ll see:</p>
+<p>Around line 4275, you&rsquo;ll see:</p>
 
 <pre><code class="language-go">casgstatus(gp, _Grunning, _Gwaiting)
 </code></pre>
@@ -116,7 +116,7 @@ grep -n -A 5 &quot;func park_m&quot; proc.go
 
 <p>You&rsquo;ll need to add logging in three locations where goroutines transition to the waiting state:</p>
 
-<h3>Location 1: <code>casGToWaiting</code> function (around line 1366)</h3>
+<h3>Location 1: <code>casGToWaiting</code> function (around line 1388)</h3>
 
 <p>Find the <code>casGToWaiting</code> function and add logging after setting the wait reason:</p>
 
@@ -130,23 +130,29 @@ grep -n -A 5 &quot;func park_m&quot; proc.go
 }
 </code></pre>
 
-<h3>Location 2: <code>casGFromPreempted</code> function (around line 1411)</h3>
+<h3>Location 2: <code>casGFromPreempted</code> function (around line 1430)</h3>
 
-<p>Find where preempted goroutines transition to waiting:</p>
+<p>Find where preempted goroutines transition to waiting. Add logging after the <code>waitreason</code> is set but before the <code>CompareAndSwap</code>:</p>
 
 <pre><code class="language-go">func casGFromPreempted(gp *g, old, new uint32) bool {
-	// ... existing code ...
+	if old != _Gpreempted || new != _Gwaiting {
+		throw(&quot;bad g transition&quot;)
+	}
+	gp.waitreason = waitReasonPreempted
+	if gp.goid &gt; 1 { // Skip system goroutines 0 and 1
+		print(&quot;Hello, I'm goroutine &quot;, gp.goid, &quot;, going to sleep waiting for &quot;, gp.waitreason.String(), &quot;\n&quot;)
+	}
+	if !gp.atomicstatus.CompareAndSwap(_Gpreempted, _Gwaiting) {
+		return false
+	}
 	if bubble := gp.bubble; bubble != nil {
-		if gp.goid &gt; 1 { // Skip system goroutines 0 and 1
-			print(&quot;Hello, I'm goroutine &quot;, gp.goid, &quot;, going to sleep waiting for &quot;, gp.waitreason.String(), &quot;\n&quot;)
-		}
 		bubble.changegstatus(gp, _Gpreempted, _Gwaiting)
 	}
 	return true
 }
 </code></pre>
 
-<h3>Location 3: <code>park_m</code> function (around line 4240)</h3>
+<h3>Location 3: <code>park_m</code> function (around line 4275)</h3>
 
 <p>Find the <code>park_m</code> function and add logging before the direct <code>casgstatus</code> call:</p>
 
@@ -174,7 +180,7 @@ casgstatus(gp, _Grunning, _Gwaiting)
 
 <h2>Step 5: Test Channel Blocking</h2>
 
-<p>Create a <code>channel_test.go</code> file:</p>
+<p>Create a <code>channel_demo.go</code> file:</p>
 
 <pre><code class="language-go">package main
 
@@ -200,8 +206,8 @@ func main() {
 
 <p>Build and run with our modified Go:</p>
 
-<pre><code class="language-bash">../go/bin/go build channel_test.go
-./channel_test
+<pre><code class="language-bash">../go/bin/go build channel_demo.go
+./channel_demo
 </code></pre>
 
 <p><strong>Note:</strong> We build the binary first and then run it directly. This avoids mixing goroutines from the compiler/build process with goroutines from our program, giving us cleaner output!</p>

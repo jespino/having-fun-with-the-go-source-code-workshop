@@ -176,14 +176,14 @@ pollorder[norder] = pollorder[j]
 pollorder[j] = uint16(i)
 
 // Change to:
-pullorder[norder] = uint16(len(scases)-1-i)
+pollorder[norder] = uint16(len(scases)-1-i)
 </code></pre>
 
 <h3>🔧 Understanding the Code Change</h3>
 
 <ul>
-<li><strong><code>uint16(len(scases)-1-i)</code></strong>: Use inverse orther here</li>
-<li><strong>Result</strong>: pullorder is now always ordered in the source code order</li>
+<li><strong><code>uint16(len(scases)-1-i)</code></strong>: Use inverse order here</li>
+<li><strong>Result</strong>: pollorder is now always ordered in the source code order</li>
 <li><strong>Effect</strong>: Cases maintain their source code order in <code>pollorder</code></li>
 </ul>
 

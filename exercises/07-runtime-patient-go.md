@@ -53,7 +53,7 @@ The Go runtime's `main()` function in `runtime/proc.go` is responsible for runni
 cd go/src/runtime
 ```
 
-Open `proc.go` and find the `main()` function. Near the top (around line 135-136), you'll see how the runtime links to your program's main:
+Open `proc.go` and find the `main()` function. Near the top (around line 136-137), you'll see how the runtime links to your program's main:
 
 ```go
 //go:linkname main_main main.main
@@ -62,7 +62,7 @@ func main_main()
 
 This `//go:linkname` directive tells the linker to connect the runtime's `main_main` function to your program's `main.main` function. This is how the runtime can call code from your main package.
 
-Further down in the same `main()` function (around line 284), you'll see where this gets called:
+Further down in the same `main()` function (around line 289), you'll see where this gets called:
 
 ```go
 fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
@@ -89,7 +89,7 @@ We'll add code to wait until only 1 goroutine remains (the main goroutine itself
 
 **Edit `runtime/proc.go`:**
 
-Find the section around line 284-286 where `main_main` is called:
+Find the section around line 289-290 where `main_main` is called:
 
 ```go
 fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
@@ -103,15 +103,15 @@ fn := main_main // make an indirect call, as the linker doesn't know the address
 fn()
 
 // Wait until only 1 goroutine is running (the main goroutine)
-for gcount() > 1 {
+for gcount(false) > 1 {
 	Gosched()
 }
 ```
 
 ### 🔍 Understanding the Code
 
-- **`gcount()`** - Runtime function that returns the number of active goroutines
-- **`gcount() > 1`** - While more than just the main goroutine is running
+- **`gcount(false)`** - Runtime function that returns the number of active goroutines (the `false` argument excludes system goroutines from the count)
+- **`gcount(false) > 1`** - While more than just the main goroutine is running
 - **`Gosched()`** - Yields the processor, allowing other goroutines to run
 - **Loop terminates** - When only the main goroutine remains (count = 1)
 

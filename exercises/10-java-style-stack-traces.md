@@ -82,7 +82,7 @@ Key files we'll modify:
 
 **Edit `panic.go`:**
 
-Find the `printpanics` function around line 668. Look for:
+Find the `printpanics` function around line 734. Look for:
 
 ```go
 print("panic: ")
@@ -100,7 +100,7 @@ printpanicval(p.arg)
 
 **Edit `traceback.go`:**
 
-Find the `goroutineheader` function around line 1212. Add a return statement at the beginning:
+Find the `goroutineheader` function around line 1215. Add a return statement at the beginning:
 
 ```go
 func goroutineheader(gp *g) {
@@ -114,7 +114,7 @@ func goroutineheader(gp *g) {
 
 **Still in `traceback.go`:**
 
-Find the `traceback2` function around line 965. Comment out the `gotraceback()` call:
+Find the `traceback2` function around line 945. Comment out the `gotraceback()` call (around line 966):
 
 ```go
 gp := u.g.ptr()
@@ -122,7 +122,7 @@ gp := u.g.ptr()
 var cgoBuf [32]uintptr
 ```
 
-Then find where stack frames are printed (around line 990-1005). Replace this entire section:
+Then find where stack frames are printed (around line 991-1008). Replace this entire section:
 
 ```go
 printFuncName(name)
@@ -186,9 +186,9 @@ Exception in thread "main" go.runtime.Panic: Something went wrong
 
 ## Understanding What We Did
 
-1. **Changed Panic Header** (`panic.go` line 668): Changed `"panic: "` to `"Exception in thread \"main\" go.runtime.Panic: "`
-2. **Removed Goroutine Info** (`traceback.go` line 1212): Added early `return` in `goroutineheader()`
-3. **Simplified Stack Frames** (`traceback.go` line 990-1005): Replaced the go output with the java `"    at name(file:line)"` format
+1. **Changed Panic Header** (`panic.go` line 747): Changed `"panic: "` to `"Exception in thread \"main\" go.runtime.Panic: "`
+2. **Removed Goroutine Info** (`traceback.go` line 1215): Added early `return` in `goroutineheader()`
+3. **Simplified Stack Frames** (`traceback.go` line 991-1008): Replaced the go output with the java `"    at name(file:line)"` format
 4. **Removed Debug Info**: Commented out `gotraceback()` call and eliminated hex offsets, frame pointers
 5. **Basename Only**: Extract filename from full path using loop
 
