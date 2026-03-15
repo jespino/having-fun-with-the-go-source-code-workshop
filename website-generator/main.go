@@ -38,7 +38,7 @@ var exerciseMetadata = []struct {
 	{"02-scanner-arrow-operator.md", "Adding the \"=>\" Arrow Operator for Goroutines", "⚡", "Learn scanner/lexer modification by adding \"=>\" as an alternative syntax for starting goroutines."},
 	{"03-parser-multiple-go.md", "Multiple \"go\" Keywords - Parser Enhancement", "🔄", "Learn parser modification by enabling multiple consecutive \"go\" keywords (go go go myFunction)."},
 	{"04-compiler-inlining-parameters.md", "Inline Parameters - Function Inlining Experiments", "⚙️", "Explore the inliner behavior by modifying function inlining parameters."},
-	{"05-gofmt-ast-transformation.md", "gofmt Transformation - \"hello\" to \"helo\"", "🎨", "Learn about Go's tools by modifying gofmt to modify \"hello\" to \"helo\" in code."},
+	{"05-gofmt-ast-transformation.md", "gofmt Modification - Indentation & AST Transformation", "⚡", "Modify gofmt to use 4 spaces instead of tabs and add a custom AST transformation replacing \"hello\" with \"helo\"."},
 	{"06-ssa-power-of-two-detector.md", "SSA Pass - Detecting Division by Powers of Two", "🔍", "Create a custom SSA compiler pass that detects division operations by powers of two that could be optimized to bit shifts."},
 	{"07-runtime-patient-go.md", "Patient Go - Making Go Wait for Goroutines", "🕰️", "Modify the Go runtime to wait for all goroutines to complete before program termination."},
 	{"08-goroutine-sleep-detective.md", "Goroutine Sleep Detective - Runtime State Monitoring", "🕵️‍♂️", "Add logging to the Go scheduler to monitor goroutines going to sleep."},

@@ -36,9 +36,9 @@ Learn parser modification by enabling multiple consecutive "go" keywords (go go 
 
 Explore the inliner behavior by modifying function inlining parameters.
 
-### 🎨 [Exercise 5: gofmt Transformation - "hello" to "helo"](./exercises/05-gofmt-ast-transformation.md)
+### ⚡ [Exercise 5: gofmt Modification - Indentation & AST Transformation](./exercises/05-gofmt-ast-transformation.md)
 
-Learn about Go's tools by modifying gofmt to modify "hello" to "helo" in code.
+Modify gofmt to use 4 spaces instead of tabs and add a custom AST transformation replacing "hello" with "helo".
 
 ### 🔍 [Exercise 6: SSA Pass - Detecting Division by Powers of Two](./exercises/06-ssa-power-of-two-detector.md)
 
