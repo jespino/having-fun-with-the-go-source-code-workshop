@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 2: Añadiendo el Operador Flecha &#34;=&gt;&#34; para Goroutines - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="../02-scanner-arrow-operator.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>Ejercicio 2: Anadir el Operador Flecha &ldquo;=&gt;&rdquo; para Goroutines</h1>
+
+<blockquote>
+<p>📖 <strong>Quieres saber mas?</strong> Lee <a href="https://internals-for-interns.com/posts/the-go-lexer/">The Scanner</a> en Internals for Interns para una explicacion detallada de como funciona el lexer/scanner de Go.</p>
+</blockquote>
+
+<p>En este ejercicio, anadiras un nuevo operador flecha &ldquo;=&gt;&rdquo; a Go que funciona como una sintaxis alternativa para iniciar goroutines. Esto te ensenara como modificar el scanner de Go para reconocer nuevos operadores y mapearlos a funcionalidad existente.</p>
+
+<h2>Objetivos de Aprendizaje</h2>
+
+<p>Al finalizar este ejercicio, seras capaz de:</p>
+
+<ul>
+<li>Entender como el scanner de Go tokeniza operadores</li>
+<li>Saber como anadir nueva sintaxis de operadores a Go</li>
+<li>Modificar la logica de analisis lexico del scanner</li>
+<li>Probar tu modificacion del scanner con codigo funcional</li>
+<li>Extender con exito el vocabulario de operadores de Go</li>
+</ul>
+
+<h2>Contexto: Como Funciona esta Modificacion del Scanner</h2>
+
+<p>Este ejercicio demuestra <strong>modificaciones a nivel de scanner</strong> para anadir nueva sintaxis de operadores a Go. Modificaremos la logica del scanner para reconocer una nueva secuencia de operador &ldquo;=&gt;&rdquo; y mapearla a un token existente. Esto es lo que lograremos:</p>
+
+<ul>
+<li><strong>Mejora del Scanner</strong>: Anadir reconocimiento para la secuencia del operador &ldquo;=&gt;&rdquo;</li>
+<li><strong>Mapeo de Token</strong>: Mapear &ldquo;=&gt;&rdquo; al token <code>_Go</code> existente (igual que la palabra clave &ldquo;go&rdquo;)</li>
+<li><strong>Sintaxis Alternativa</strong>: Crear <code>=&gt; myFunction()</code> como equivalente a <code>go myFunction()</code></li>
+<li><strong>Impacto Minimo</strong>: No se necesitan cambios en el parser ni en el compilador, solo logica del scanner</li>
+</ul>
+
+<p>Este enfoque nos permite crear sintaxis alternativa elegante sin modificar las partes mas profundas del compilador.</p>
+
+<h2>Paso 1: Navegar al Scanner</h2>
+
+<pre><code class="language-bash">cd go/src/cmd/compile/internal/syntax
+</code></pre>
+
+<h3>Entender la Estructura del Scanner</h3>
+
+<p>Examinemos como el scanner maneja el operador &ldquo;=&rdquo; en <code>scanner.go</code>. Mira la linea 325:</p>
+
+<pre><code class="language-go">// go/src/cmd/compile/internal/syntax/scanner.go:325
+case '=':
+    s.nextch()
+    if s.ch == '=' {
+        s.nextch()
+        s.op, s.prec = Eql, precCmp
+        s.tok = _Operator
+        break
+    }
+    s.tok = _Assign
+</code></pre>
+
+<p>El scanner primero consume el caracter &ldquo;=&rdquo; con <code>s.nextch()</code>, luego verifica si el siguiente caracter tambien es &ldquo;=&rdquo; (para el operador de comparacion <code>==</code>). Si no lo es, se queda con &ldquo;=&rdquo; (asignacion).</p>
+
+<h2>Paso 2: Anadir la Logica del Operador Flecha</h2>
+
+<p>Necesitamos anadir logica para reconocer &ldquo;=&gt;&rdquo; y tratarlo como el token <code>_Go</code>.</p>
+
+<p><strong>Edita <code>scanner.go</code>:</strong></p>
+
+<p>Encuentra el case &ldquo;=&rdquo; en la linea 325 y modificalo para que tambien verifique &ldquo;&gt;&rdquo;:</p>
+
+<pre><code class="language-go">// go/src/cmd/compile/internal/syntax/scanner.go:325
+case '=':
+    s.nextch()
+    if s.ch == '=' {
+        s.nextch()
+        s.op, s.prec = Eql, precCmp
+        s.tok = _Operator
+        break
+    }
+    if s.ch == '&gt;' {
+        s.nextch()
+        s.lit = &quot;=&gt;&quot;
+        s.tok = _Go
+        break
+    }
+    s.tok = _Assign
+</code></pre>
+
+<h3>Entendiendo el Cambio en el Codigo</h3>
+
+<ul>
+<li><strong><code>if s.ch == '&gt;'</code></strong>: Verifica si el siguiente caracter despues de &ldquo;=&rdquo; es &ldquo;&gt;&rdquo; (recuerda que <code>s.nextch()</code> ya consumio el &ldquo;=&rdquo;)</li>
+<li><strong><code>s.nextch()</code></strong>: Consume el caracter &ldquo;&gt;&rdquo; del lexer</li>
+<li><strong><code>s.lit = &quot;=&gt;&quot;</code></strong>: Establece el valor literal para depuracion y mensajes de error</li>
+<li><strong><code>s.tok = _Go</code></strong>: Asigna el mismo token que la palabra clave &ldquo;go&rdquo;</li>
+<li><strong><code>break</code></strong>: Sale del case para evitar caer en <code>_Assign</code></li>
+</ul>
+
+<h2>Paso 3: Recompilar el Compilador</h2>
+
+<p>Ahora recompilemos la toolchain de Go con nuestros cambios:</p>
+
+<pre><code class="language-bash">cd ../../../  # back to go/src
+./make.bash
+</code></pre>
+
+<p>Si hay errores de compilacion, revisa tus cambios y corrígelos.</p>
+
+<h2>Paso 4: Probar el Nuevo Operador Flecha</h2>
+
+<p>Crea un programa de prueba para verificar que nuestro nuevo operador &ldquo;=&gt;&rdquo; funciona:</p>
+
+<pre><code class="language-bash">mkdir -p /tmp/arrow-test
+cd /tmp/arrow-test
+</code></pre>
+
+<p>Crea un archivo test.go:</p>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;fmt&quot;
+    &quot;time&quot;
+)
+
+func sayHello(name string) {
+    fmt.Printf(&quot;Hello from %s!\n&quot;, name)
+}
+
+func main() {
+    fmt.Println(&quot;Testing =&gt; arrow operator...&quot;)
+
+    // Test regular go keyword
+    go sayHello(&quot;regular go&quot;)
+
+    // Test our new =&gt; operator
+    =&gt; sayHello(&quot;arrow operator&quot;)
+
+    // Wait a bit to see output
+    time.Sleep(100 * time.Millisecond)
+    fmt.Println(&quot;All done!&quot;)
+}
+</code></pre>
+
+<p>Ejecuta el programa de prueba con tu Go personalizado:</p>
+
+<pre><code class="language-bash">/path/to/workshop/go/bin/go run test.go
+</code></pre>
+
+<p>Deberias ver una salida como esta:</p>
+
+<pre><code>Testing =&gt; arrow operator...
+Hello from regular go!
+Hello from arrow operator!
+All done!
+</code></pre>
+
+<h2>Paso 5: Probar Operadores Mixtos de Go</h2>
+
+<p>Probemos escenarios mixtos usando tanto la palabra clave tradicional &ldquo;go&rdquo; como nuestro nuevo operador flecha &ldquo;=&gt;&rdquo;:</p>
+
+<p>Crea un archivo mixed-test.go:</p>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;fmt&quot;
+    &quot;sync&quot;
+    &quot;time&quot;
+)
+
+func worker(id int, wg *sync.WaitGroup) {
+    defer wg.Done()
+    fmt.Printf(&quot;Worker %d starting\n&quot;, id)
+    time.Sleep(50 * time.Millisecond)
+    fmt.Printf(&quot;Worker %d done\n&quot;, id)
+}
+
+func main() {
+    var wg sync.WaitGroup
+
+    fmt.Println(&quot;Starting workers with mixed syntax...&quot;)
+
+    // Mix of regular go and =&gt; operators
+    for i := 1; i &lt;= 4; i++ {
+        wg.Add(1)
+        if i%2 == 0 {
+            go worker(i, &amp;wg)  // Regular go
+        } else {
+            =&gt; worker(i, &amp;wg)  // Arrow operator
+        }
+    }
+
+    wg.Wait()
+    fmt.Println(&quot;All workers completed!&quot;)
+}
+</code></pre>
+
+<p>Ejecuta el programa de prueba mixto:</p>
+
+<pre><code class="language-bash">/path/to/workshop/go/bin/go run mixed-test.go
+</code></pre>
+
+<h2>Paso 6: Ejecutar los Tests del Scanner</h2>
+
+<p>Asegurate de que no hemos roto el scanner:</p>
+
+<pre><code class="language-bash">cd /path/to/workshop/go/src
+../bin/go test cmd/compile/internal/syntax -short
+</code></pre>
+
+<h2>Lo que Hicimos</h2>
+
+<ol>
+<li><strong>Modificamos la Logica del Scanner</strong>: Anadimos reconocimiento de &ldquo;=&gt;&rdquo; al case existente de &ldquo;=&rdquo;</li>
+<li><strong>Reutilizamos un Token Existente</strong>: Mapeamos &ldquo;=&gt;&rdquo; al token <code>_Go</code> en lugar de crear uno nuevo</li>
+<li><strong>Preservamos la Funcionalidad Existente</strong>: Los operadores &ldquo;=&rdquo; y &ldquo;==&rdquo; siguen funcionando normalmente</li>
+<li><strong>Impacto Minimo del Cambio</strong>: No se necesitaron cambios en el parser ni en el IR</li>
+</ol>
+
+<h2>Lo que Aprendimos</h2>
+
+<ul>
+<li><strong>Logica del Scanner</strong>: Como Go tokeniza secuencias de operadores</li>
+<li><strong>Reconocimiento de Operadores</strong>: Anadir nuevos operadores mediante modificacion del scanner</li>
+<li><strong>Reutilizacion de Tokens</strong>: Mapear nueva sintaxis a tokens existentes</li>
+<li><strong>Estrategia de Testing</strong>: Validar cambios del scanner con codigo real</li>
+<li><strong>Proceso de Compilacion</strong>: Recompilar Go con modificaciones del scanner</li>
+</ul>
+
+<h2>Ideas de Extension</h2>
+
+<p>Prueba estas modificaciones adicionales:</p>
+
+<ol>
+<li>Anadir &ldquo;:&gt;&rdquo; como otra alternativa a &ldquo;go&rdquo;</li>
+<li>Anadir &ldquo;~&gt;&rdquo; para operaciones asincronas</li>
+<li>Anadir &ldquo;&gt;&gt;&gt;&rdquo; como operador de triple flecha</li>
+<li>Hacer que el operador flecha funcione en diferentes contextos</li>
+</ol>
+
+<h2>Siguientes Pasos</h2>
+
+<p>Has anadido exitosamente un nuevo operador al scanner de Go. Ahora entiendes como modificar el scanner para crear sintaxis alternativa para funcionalidad existente. Esta tecnica se puede aplicar para crear otros atajos de operadores y azucar sintactico en el lenguaje.</p>
+
+<p>En el Ejercicio 3, tomaremos un enfoque diferente y exploraremos <strong>modificaciones del parser</strong>, aprendiendo como modificar el parser para manejar multiples tokens consecutivos.</p>
+
+<h2>Limpieza</h2>
+
+<p>Para restaurar el codigo fuente original de Go:</p>
+
+<pre><code class="language-bash">cd /path/to/workshop/go/src/cmd/compile/internal/syntax
+git checkout scanner.go
+cd ../../../
+./make.bash  # Recompilar con el codigo original
+</code></pre>
+
+<h2>Resumen</h2>
+
+<p>El operador flecha &ldquo;=&gt;&rdquo; ahora funciona como alternativa a &ldquo;go&rdquo; para lanzar goroutines:</p>
+
+<pre><code class="language-go">// Ahora son equivalentes:
+go myFunction()
+=&gt; myFunction()
+
+// Ambos crean goroutines de la misma manera!
+</code></pre>
+
+<p>Este ejercicio demostro como las modificaciones a nivel de scanner pueden anadir nueva sintaxis con cambios minimos en el codigo.</p>
+
+<hr />
+
+<p><em>Continua al <a href="03-parser-multiple-go.html">Ejercicio 3</a> o vuelve al <a href="index.html">taller principal</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="01-compile-go-unchanged.html" class="nav-button">← Anterior</a>
+            
+            
+            <a href="03-parser-multiple-go.html" class="nav-button">Siguiente: Ejercicio 3 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Having fun with the Go Source Code</p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

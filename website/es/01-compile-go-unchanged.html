@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 1: Compilando Go Sin Cambios - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="../01-compile-go-unchanged.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>Ejercicio 1: Compilar Go sin Cambios</h1>
+
+<p>En este ejercicio, aprenderas a compilar la toolchain de Go desde el codigo fuente sin realizar ninguna modificacion. Esta es una habilidad esencial antes de empezar a hacer cambios en el lenguaje.</p>
+
+<h2>Objetivos de Aprendizaje</h2>
+
+<p>Al finalizar este ejercicio, seras capaz de:</p>
+
+<ul>
+<li>Entender el proceso de compilacion de Go y el concepto de bootstrap</li>
+<li>Compilar Go desde el codigo fuente exitosamente</li>
+<li>Saber como explorar la estructura del codigo fuente de Go</li>
+<li>Saber como probar tu compilacion personalizada de Go</li>
+</ul>
+
+<h2>Paso 1: Entender el Proceso de Bootstrap</h2>
+
+<p>Go esta escrito en Go. Esto crea un problema del &ldquo;huevo y la gallina&rdquo;: como compilas Go sin tener Go? La solucion es el bootstrapping:</p>
+
+<ol>
+<li>El equipo de Go proporciona binarios precompilados</li>
+<li>Estos binarios compilan el codigo fuente actual de Go</li>
+<li>La version recien compilada se puede usar para el desarrollo</li>
+</ol>
+
+<p>Verifiquemos que tienes Go instalado (necesario para el bootstrapping):</p>
+
+<pre><code class="language-bash">go version
+# Debe mostrar version 1.24 o superior
+</code></pre>
+
+<p><strong>⚠️ Importante</strong>: Debes tener Go 1.24 o superior instalado para compilar Go 1.26.1. Si no tienes Go instalado o tu version es demasiado antigua, instala la ultima version desde <a href="https://golang.org/dl/">https://golang.org/dl/</a></p>
+
+<h2>Paso 2: Navegar al Directorio del Codigo Fuente de Go</h2>
+
+<pre><code class="language-bash">cd go/src
+pwd
+# Deberia mostrar: /ruta/al/taller/go/src
+
+# Verifica que estas en la version correcta de Go
+git describe --tags
+# Deberia mostrar: go1.26.1
+</code></pre>
+
+<h2>Paso 3: Iniciar el Proceso de Compilacion</h2>
+
+<p>Go proporciona diferentes scripts para la compilacion. Empezaremos con <code>make.bash</code> que compila la toolchain, y mientras tanto exploraremos el codigo fuente.</p>
+
+<p><strong>En sistemas tipo Unix (Linux, macOS):</strong></p>
+
+<pre><code class="language-bash">./make.bash
+</code></pre>
+
+<p><strong>En Windows:</strong></p>
+
+<pre><code class="language-cmd">make.bat
+</code></pre>
+
+<p>Este script hara lo siguiente:</p>
+
+<ol>
+<li>Compilar la toolchain de Go (compilador, enlazador, runtime, biblioteca estandar)</li>
+<li>Tardara aproximadamente entre 2 y 10 minutos dependiendo de tu sistema</li>
+</ol>
+
+<p><strong>Nota:</strong> La primera vez que ejecutes esto, tardara mas ya que necesita compilar todo desde cero.</p>
+
+<h3>Que pasa con <code>all.bash</code> y <code>run.bash</code>?</h3>
+
+<p>Quizas te preguntes sobre otros scripts en el directorio <code>src/</code>:</p>
+
+<ul>
+<li><strong><code>make.bash</code></strong>: Compila solo la toolchain de Go (lo que estamos usando)</li>
+<li><strong><code>run.bash</code></strong>: Ejecuta la suite completa de tests (requiere que Go este compilado primero)</li>
+<li><strong><code>all.bash</code></strong>: Script de conveniencia que ejecuta <code>make.bash</code> + <code>run.bash</code> + muestra informacion de la compilacion</li>
+</ul>
+
+<p>Para este taller, <code>make.bash</code> es perfecto porque:</p>
+
+<ul>
+<li>Un tiempo de compilacion mas corto significa menos espera</li>
+<li>Solo necesitamos una compilacion funcional de Go para nuestros experimentos</li>
+<li>Podemos ejecutar los tests mas adelante si es necesario con <code>run.bash</code></li>
+</ul>
+
+<h2>Paso 4: Explorar el Codigo Fuente Mientras se Compila</h2>
+
+<p>Mientras la compilacion esta en marcha, abre una <strong>nueva terminal</strong> o <strong>IDE</strong> y exploremos la estructura del codigo fuente de Go. Este es un buen momento para entender lo que estamos compilando.</p>
+
+<p><strong>En tu nueva terminal:</strong></p>
+
+<pre><code class="language-bash">cd /path/to/workshop/go  # Navega al directorio del codigo fuente de Go
+ls -la
+</code></pre>
+
+<h3>Estructura del Repositorio</h3>
+
+<p>Directorios clave que deberias ver:</p>
+
+<ul>
+<li><strong><code>src/</code></strong>: Contiene el codigo fuente de Go
+
+<ul>
+<li><code>src/cmd/</code>: Herramientas de linea de comandos (go, gofmt, etc.)</li>
+<li><code>src/runtime/</code>: Sistema de runtime de Go</li>
+<li><code>src/go/</code>: Paquetes del lenguaje Go (parser, AST, etc.)</li>
+</ul></li>
+<li><strong><code>test/</code></strong>: Archivos de test del lenguaje Go</li>
+<li><strong><code>api/</code></strong>: Datos de compatibilidad de la API</li>
+<li><strong><code>doc/</code></strong>: Documentacion</li>
+</ul>
+
+<h3>Examinar la Estructura del Compilador de Go</h3>
+
+<p>El compilador de Go se encuentra en <code>src/cmd/compile/</code>. Vamos a explorarlo:</p>
+
+<pre><code class="language-bash">cd src/cmd/compile
+ls -la
+</code></pre>
+
+<p>Archivos y directorios clave:</p>
+
+<ul>
+<li><strong><code>main.go</code></strong>: Punto de entrada del compilador</li>
+<li><strong><code>internal/</code></strong>: Paquetes internos del compilador
+
+<ul>
+<li><code>internal/syntax/</code>: Lexer/parser (scanner, parser)</li>
+<li><code>internal/types2/</code>: Verificador de tipos</li>
+<li><code>internal/ir/</code>: Representacion intermedia</li>
+<li><code>internal/gc/</code>: Generacion de codigo</li>
+</ul></li>
+</ul>
+
+<h2>Paso 5: Entender la Salida de la Compilacion</h2>
+
+<p><strong>Vuelve a tu terminal original</strong> donde la compilacion esta en ejecucion. A medida que avanza la compilacion, deberias ver una salida como esta:</p>
+
+<pre><code>Building Go cmd/dist using /usr/local/go. (go1.26.1 darwin/amd64)
+Building Go toolchain1 using /usr/local/go.
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+Building Go toolchain3 using go_bootstrap and Go toolchain2.
+Building packages and commands for darwin/amd64.
+</code></pre>
+
+<p>Esto muestra el proceso de bootstrap en multiples etapas:</p>
+
+<ul>
+<li>El compilador se compila con la version de Go instalada en tu sistema (toolchain1)</li>
+<li>Luego el compilador se vuelve a compilar usando la toolchain1 para producir la toolchain2</li>
+<li>Finalmente la toolchain3 se genera usando la toolchain2</li>
+<li>La toolchain3 y la toolchain2 deberian ser identicas</li>
+</ul>
+
+<h2>Paso 6: Localizar tu Binario de Go Compilado</h2>
+
+<p>Despues de una compilacion exitosa, tu nuevo binario de Go estara en:</p>
+
+<pre><code class="language-bash">ls -la /path/to/workshop/go/bin
+</code></pre>
+
+<p>Deberias ver:</p>
+
+<ul>
+<li><code>go</code> - El comando principal de Go</li>
+<li><code>gofmt</code> - Formateador de Go</li>
+<li>Otras herramientas de Go</li>
+</ul>
+
+<h2>Paso 7: Probar tu Compilacion Personalizada de Go</h2>
+
+<p>Probemos tu Go recien compilado:</p>
+
+<pre><code class="language-bash"># Verificar la version de tu Go compilado
+../bin/go version
+</code></pre>
+
+<p>Crea un archivo hello.go en un directorio temporal, por ejemplo <code>/tmp</code>.</p>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+func main() {
+    fmt.Println(&quot;Hello from my custom Go build!&quot;)
+}
+</code></pre>
+
+<pre><code class="language-bash"># Compilar y ejecutar con tu Go personalizado
+/path/to/workshop/go/bin/go run /tmp/hello.go
+</code></pre>
+
+<h2>⚠️ Solucion de Problemas</h2>
+
+<h3>Interferencia de GOROOT</h3>
+
+<p>Si al ejecutar <code>../bin/go run /tmp/hello.go</code> (o la ruta completa al binario) obtienes resultados inesperados o se usa el Go del sistema en lugar del que acabas de compilar, puede que necesites eliminar la variable de entorno <code>GOROOT</code> primero:</p>
+
+<pre><code class="language-bash">unset GOROOT
+/path/to/workshop/go/bin/go run /tmp/hello.go
+</code></pre>
+
+<p>Esto ocurre porque <code>GOROOT</code> puede estar configurada por la instalacion de Go de tu sistema, apuntando al nuevo binario hacia la biblioteca estandar y herramientas incorrectas. Al eliminarla, el binario detecta automaticamente su propio directorio raiz basandose en su ubicacion.</p>
+
+<h2>Lo que Aprendimos</h2>
+
+<ul>
+<li><strong>Proceso de Bootstrap</strong>: Go se compila a si mismo usando una instalacion existente de Go</li>
+<li><strong>Estructura del Codigo Fuente de Go</strong>: Un codigo bien organizado con separacion clara (cmd/, runtime/, etc.)</li>
+<li><strong>Proceso de Compilacion</strong>: <code>./make.bash</code> compila todo</li>
+</ul>
+
+<h2>Siguientes Pasos</h2>
+
+<p>Felicidades. Ahora tienes una toolchain de Go funcional compilada desde el codigo fuente.</p>
+
+<p>Puedes continuar con cualquiera de los siguientes ejercicios para aprender sobre diferentes partes de Go:</p>
+
+<ul>
+<li><a href="02-scanner-arrow-operator.html">Ejercicio 2: Anadir el Operador Flecha &ldquo;=&gt;&rdquo; para Goroutines</a> - Modificaciones del scanner</li>
+<li><a href="03-parser-multiple-go.html">Ejercicio 3: Multiples palabras clave &ldquo;go&rdquo; - Mejora del Parser</a> - Modificaciones del parser</li>
+<li><a href="04-compiler-inlining-parameters.html">Ejercicio 4: Parametros de Inlining - Experimentos de Inlining de Funciones</a> - Parametros del compilador</li>
+<li><a href="05-gofmt-ast-transformation.html">Ejercicio 5: Transformacion de gofmt - &ldquo;hello&rdquo; a &ldquo;helo&rdquo;</a> - Transformaciones del AST</li>
+<li><a href="06-ssa-power-of-two-detector.html">Ejercicio 6: Pase SSA - Deteccion de Division por Potencias de Dos</a> - Pases del compilador SSA</li>
+<li><a href="07-runtime-patient-go.html">Ejercicio 7: Go Paciente - Hacer que Go Espere a las Goroutines</a> - Modificaciones del runtime</li>
+<li><a href="08-goroutine-sleep-detective.html">Ejercicio 8: Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime</a> - Monitoreo del scheduler</li>
+<li><a href="09-predictable-select.html">Ejercicio 9: Select Predecible - Eliminar la Aleatoriedad del Select de Go</a> - Comportamiento del select</li>
+<li><a href="10-java-style-stack-traces.html">Ejercicio 10: Stack Traces al Estilo Java - Hacer que los Panics de Go se Vean Familiares</a> - Formato de errores</li>
+</ul>
+
+<p>O vuelve al <a href="index.html">taller principal</a> para elegir un ejercicio.</p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="00-introduction-setup.html" class="nav-button">← Anterior</a>
+            
+            
+            <a href="02-scanner-arrow-operator.html" class="nav-button">Siguiente: Ejercicio 2 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Having fun with the Go Source Code</p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

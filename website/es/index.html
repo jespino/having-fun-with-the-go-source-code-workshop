@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divirtiéndonos con el Código Fuente de Go</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="../index.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="hero">
+            <h1>Divirtiéndonos con el Código Fuente de Go</h1>
+            <p class="lead">¡Bienvenido a un taller interactivo donde aprenderás a modificar y experimentar con el código fuente del lenguaje de programación Go! Este taller práctico te guiará a través de la comprensión, compilación y modificación del compilador y runtime de Go.</p>
+            <p class="version-note"><strong>Este taller usa Go versión 1.26.1</strong> - haremos checkout del tag de release específico para asegurar consistencia en todos los ejercicios.</p>
+        </header>
+
+        <section class="prerequisites">
+            <h2>Prerrequisitos</h2>
+            <ul>
+                <li>Conocimientos básicos de programación en Go</li>
+                <li>Familiaridad con herramientas de línea de comandos</li>
+                <li>Git instalado en tu sistema</li>
+                <li><strong>Compilador de Go versión 1.24 o superior</strong> (necesario para el proceso de bootstrapping)</li>
+                <li>Al menos 4GB de espacio libre en disco</li>
+                
+            </ul>
+        </section>
+
+        <section class="overview">
+            <h2>Descripción General del Taller</h2>
+            <p>Este taller consta de 11 ejercicios que te llevarán a través del proceso desde compilar Go desde el código fuente hasta hacer modificaciones en diferentes partes del compilador, herramientas y runtime. Obtendrás conocimientos sobre los internos de Go, desde cosas como el lexer o parser, hasta comportamientos del runtime:</p>
+
+            <div class="exercises-grid">
+                
+                <a href="00-introduction-setup.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 0</div>
+                        <h3>Introducción y Configuración</h3>
+                        <p>Comienza clonando y configurando el entorno del código fuente de Go.</p>
+                    </div>
+                </a>
+                
+                <a href="01-compile-go-unchanged.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 1</div>
+                        <h3>Compilando Go Sin Cambios</h3>
+                        <p>Aprende a compilar el toolchain de Go desde el código fuente sin modificaciones.</p>
+                    </div>
+                </a>
+                
+                <a href="02-scanner-arrow-operator.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 2</div>
+                        <h3>Añadiendo el Operador Flecha &#34;=&gt;&#34; para Goroutines</h3>
+                        <p>Aprende a modificar el scanner/lexer añadiendo &#34;=&gt;&#34; como sintaxis alternativa para iniciar goroutines.</p>
+                    </div>
+                </a>
+                
+                <a href="03-parser-multiple-go.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 3</div>
+                        <h3>Múltiples Keywords &#34;go&#34; - Mejora del Parser</h3>
+                        <p>Aprende a modificar el parser permitiendo múltiples keywords &#34;go&#34; consecutivos (go go go myFunction).</p>
+                    </div>
+                </a>
+                
+                <a href="04-compiler-inlining-parameters.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 4</div>
+                        <h3>Parámetros de Inlining - Experimentos con Function Inlining</h3>
+                        <p>Explora el comportamiento del inliner modificando los parámetros de inlining de funciones.</p>
+                    </div>
+                </a>
+                
+                <a href="05-gofmt-ast-transformation.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 5</div>
+                        <h3>Modificación de gofmt - Indentación y Transformación AST</h3>
+                        <p>Modifica gofmt para usar 4 espacios en lugar de tabs y añade una transformación AST personalizada reemplazando &#34;hello&#34; con &#34;helo&#34;.</p>
+                    </div>
+                </a>
+                
+                <a href="06-ssa-power-of-two-detector.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 6</div>
+                        <h3>Pase SSA - Detectando División por Potencias de Dos</h3>
+                        <p>Crea un pase SSA personalizado en el compilador que detecta operaciones de división por potencias de dos que podrían optimizarse con bit shifts.</p>
+                    </div>
+                </a>
+                
+                <a href="07-runtime-patient-go.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 7</div>
+                        <h3>Go Paciente - Haciendo que Go Espere a las Goroutines</h3>
+                        <p>Modifica el runtime de Go para esperar a que todas las goroutines terminen antes de finalizar el programa.</p>
+                    </div>
+                </a>
+                
+                <a href="08-goroutine-sleep-detective.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 8</div>
+                        <h3>Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime</h3>
+                        <p>Añade logging al scheduler de Go para monitorear goroutines que se van a dormir.</p>
+                    </div>
+                </a>
+                
+                <a href="09-predictable-select.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 9</div>
+                        <h3>Select Predecible - Eliminando la Aleatoriedad del Select de Go</h3>
+                        <p>Modifica la implementación del select de Go para que sea determinista en lugar de aleatorio.</p>
+                    </div>
+                </a>
+                
+                <a href="10-java-style-stack-traces.html" class="exercise-card-link">
+                    <div class="exercise-card">
+                        <div class="exercise-number">Ejercicio 10</div>
+                        <h3>Stack Traces Estilo Java - Haciendo los Panics de Go Familiares</h3>
+                        <p>Transforma los stack traces verbosos de Go al formato estilo Java.</p>
+                    </div>
+                </a>
+                
+            </div>
+        </section>
+
+        <section class="getting-started">
+            <h2>Cómo Empezar</h2>
+            <ol>
+                <li>Comienza con el <a href="00-introduction-setup.html">Ejercicio 0</a> para configurar tu entorno</li>
+                <li>Trabaja los ejercicios en orden</li>
+                <li>Después del ejercicio 1, puedes elegir el ejercicio que quieras.</li>
+                
+            </ol>
+        </section>
+
+        <section class="tips">
+            <h2>Consejos para el Éxito</h2>
+            <ul>
+                <li>Tómate tu tiempo con cada ejercicio - ¡los internos del compilador son complejos!</li>
+                <li>No dudes en explorar el código fuente de Go más allá de lo requerido</li>
+                <li>Usa <code>git</code> para rastrear tus cambios y revertir cuando sea necesario</li>
+                <li>Prueba tus modificaciones a fondo con varios programas Go</li>
+                
+            </ul>
+        </section>
+
+        <section class="resources">
+            <h2>Recursos</h2>
+            <ul>
+                <li><a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go Compiler Overview</a></li>
+                <li><a href="https://go.dev/ref/spec">Go Language Specification</a></li>
+                <li><a href="https://pkg.go.dev/runtime">Go Runtime Documentation</a></li>
+            </ul>
+
+            <h3>Referencias en Video</h3>
+            <p>Los ejercicios de este taller están basados en ideas de mis charlas:</p>
+            <div class="video-grid">
+                <div class="video-container">
+                    <h4>Entendiendo el Compilador de Go</h4>
+                    <iframe src="https://www.youtube.com/embed/qnmoAA0WRgE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <p>Profundización en el proceso de compilación de Go</p>
+                </div>
+                <div class="video-container">
+                    <h4>Entendiendo el Runtime de Go</h4>
+                    <iframe src="https://www.youtube.com/embed/YpRNFNFaLGY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <p>Exploración del sistema de runtime de Go</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="completion">
+            <h2>Completando el Taller</h2>
+            <p>Al completar todos los ejercicios, habrás:</p>
+            <ul>
+                <li><strong>Compilado Go desde el código fuente</strong> y entendido el proceso de bootstrap</li>
+                <li><strong>Modificado la sintaxis del lenguaje</strong> cambiando el comportamiento del scanner y parser</li>
+                <li><strong>Personalizado herramientas de desarrollo</strong> como gofmt y optimizaciones del compilador</li>
+                <li><strong>Implementado optimizaciones SSA</strong> en el backend del compilador</li>
+                <li><strong>Modificado el comportamiento del runtime</strong> incluyendo puntos de entrada del programa y monitoreo del scheduler</li>
+                <li><strong>Alterado algoritmos de concurrencia</strong> como la aleatorización del select</li>
+                <li><strong>Personalizado el reporte de errores</strong> con formato de stack traces estilo Java</li>
+                
+            </ul>
+
+            <p><strong>¡Felicidades!</strong> Habrás ganado la confianza para seguir explorando el código fuente de Go. Este conocimiento te permite:</p>
+            <ul>
+                <li>Comenzar pequeñas contribuciones al proyecto Go</li>
+                <li>Construir variantes personalizadas del lenguaje y herramientas</li>
+                <li>Entender algunas decisiones de diseño del lenguaje y runtime</li>
+                
+            </ul>
+        </section>
+
+        <section class="contributing">
+            <h2>Contribuir</h2>
+            <p>¿Encontraste un problema, tienes una idea de mejora o quieres añadir más ejercicios? ¡Por favor <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop/issues">abre un issue</a> o envía un pull request!</p>
+        </section>
+
+        <div class="cta">
+            <a href="00-introduction-setup.html" class="cta-button">Comenzar con el Ejercicio 0 →</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Divirtiéndonos con el Código Fuente de Go</p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

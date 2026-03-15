@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercise 9: Predictable Select - Removing Randomness from Go&#39;s Select Statement - Go Source Code Workshop</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Exercise 9: Select Predecible - Eliminando la Aleatoriedad del Select de Go - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -46,8 +46,8 @@
         <div class="container">
             <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="es/09-predictable-select.html" class="lang-switch"><i class="fas fa-globe"></i> Español</a>
+                <a href="index.html">Inicio</a>
+                <a href="../09-predictable-select.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
             </div>
         </div>
@@ -55,28 +55,28 @@
 
     <div class="container">
         <article class="exercise-content">
-            <h1>Exercise 9: Predictable Select - Making Select Statements Deterministic</h1>
+            <h1>Ejercicio 9: Select Predecible - Haciendo las Sentencias Select Deterministas</h1>
 
 <blockquote>
-<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> on Internals for Interns for a deep dive into Go&rsquo;s runtime and goroutine scheduling.</p>
+<p>📖 <strong>¿Quieres saber más?</strong> Lee <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para una exploración en profundidad del runtime y la planificación de goroutines en Go.</p>
 </blockquote>
 
-<p>In this exercise, you&rsquo;ll modify Go&rsquo;s <code>select</code> statement to be deterministic instead of random. By default, Go randomizes which case is chosen when multiple channels are ready. We&rsquo;ll change it to always choose cases in the same order.</p>
+<p>En este ejercicio, modificarás la sentencia <code>select</code> de Go para que sea determinista en lugar de aleatoria. Por defecto, Go aleatoriza qué caso se elige cuando varios channels están listos. Nosotros lo cambiaremos para que siempre elija los casos en el mismo orden.</p>
 
-<h2>Learning Objectives</h2>
+<h2>Objetivos de Aprendizaje</h2>
 
-<p>By the end of this exercise, you will:</p>
+<p>Al finalizar este ejercicio, serás capaz de:</p>
 
 <ul>
-<li>Understand how Go&rsquo;s <code>select</code> statement is implemented</li>
-<li>Know why Go uses randomization (fairness vs. starvation)</li>
-<li>Modify the runtime&rsquo;s channel selection algorithm</li>
-<li>Test deterministic vs. random selection behavior</li>
+<li>Comprender cómo está implementada la sentencia <code>select</code> de Go</li>
+<li>Saber por qué Go usa aleatorización (equidad vs. inanición)</li>
+<li>Modificar el algoritmo de selección de channels en el runtime</li>
+<li>Probar el comportamiento de selección determinista vs. aleatorio</li>
 </ul>
 
-<h2>Background: Go Randomizes Select</h2>
+<h2>Contexto: Go Aleatoriza el Select</h2>
 
-<p>By default, when multiple channels are ready, Go randomizes which case executes:</p>
+<p>Por defecto, cuando varios channels están listos, Go aleatoriza cuál se ejecuta:</p>
 
 <pre><code class="language-go">select {
 case v := &lt;-ch1:  // Sometimes chosen
@@ -86,7 +86,7 @@ case v := &lt;-ch3:  // Sometimes chosen
 // Random selection prevents starvation
 </code></pre>
 
-<p>We&rsquo;ll make it deterministic:</p>
+<p>Lo haremos determinista:</p>
 
 <pre><code class="language-go">select {
 case v := &lt;-ch1:  // ALWAYS chosen first when ready
@@ -96,9 +96,9 @@ case v := &lt;-ch3:  // Only if ch1 and ch2 not ready
 // Predictable, source-order selection
 </code></pre>
 
-<h2>Step 1: Create a Test to See Current Randomization</h2>
+<h2>Paso 1: Crear un Test para Ver la Aleatorización Actual</h2>
 
-<p>Create a <code>random_select_demo.go</code> file:</p>
+<p>Crea un archivo <code>random_select_demo.go</code>:</p>
 
 <pre><code class="language-go">package main
 
@@ -129,12 +129,12 @@ func main() {
 }
 </code></pre>
 
-<p>Run with current Go to see random selection:</p>
+<p>Ejecuta con el Go actual para ver la selección aleatoria:</p>
 
 <pre><code class="language-bash">go run random_select_demo.go
 </code></pre>
 
-<p>Output shows random selection:</p>
+<p>La salida muestra selección aleatoria:</p>
 
 <pre><code>Round 0: Selected ch3 (value 3)
 Round 1: Selected ch1 (value 1)
@@ -142,16 +142,16 @@ Round 2: Selected ch2 (value 2)
 ...
 </code></pre>
 
-<h2>Step 2: Navigate to the Select Implementation</h2>
+<h2>Paso 2: Navegar a la Implementación del Select</h2>
 
 <pre><code class="language-bash">cd go/src/runtime
 </code></pre>
 
-<p>The <code>select.go</code> file contains the entire select statement implementation. The key function is <code>selectgo()</code> which handles case selection.</p>
+<p>El archivo <code>select.go</code> contiene toda la implementación de la sentencia select. La función clave es <code>selectgo()</code>, que se encarga de la selección de casos.</p>
 
-<h2>Step 3: Understand the Randomization Code</h2>
+<h2>Paso 3: Comprender el Código de Aleatorización</h2>
 
-<p>Look around line 191 in <code>select.go</code>:</p>
+<p>Busca alrededor de la línea 191 en <code>select.go</code>:</p>
 
 <pre><code class="language-go">// go/src/runtime/select.go:191
 j := cheaprandn(uint32(norder + 1))  // Random index!
@@ -160,19 +160,19 @@ pollorder[j] = uint16(i)
 norder++
 </code></pre>
 
-<p>This implements the algorithm to randomize case order:</p>
+<p>Esto implementa el algoritmo para aleatorizar el orden de los casos:</p>
 
 <ul>
-<li><code>cheaprandn()</code> generates a pseudo-random number</li>
-<li>Cases are placed in random positions in the <code>pollorder</code> array</li>
-<li>Select then checks cases in this randomized order</li>
+<li><code>cheaprandn()</code> genera un número pseudoaleatorio</li>
+<li>Los casos se colocan en posiciones aleatorias en el array <code>pollorder</code></li>
+<li>Luego select comprueba los casos en este orden aleatorizado</li>
 </ul>
 
-<h2>Step 4: Make Select Deterministic</h2>
+<h2>Paso 4: Hacer el Select Determinista</h2>
 
-<p><strong>Edit <code>select.go</code>:</strong></p>
+<p><strong>Edita <code>select.go</code>:</strong></p>
 
-<p>Find line 191 and change the randomization to be deterministic:</p>
+<p>Encuentra la línea 191 y cambia la aleatorización para que sea determinista:</p>
 
 <pre><code class="language-go">// go/src/runtime/select.go:191
 // Original:
@@ -184,26 +184,26 @@ pollorder[j] = uint16(i)
 pollorder[norder] = uint16(len(scases)-1-i)
 </code></pre>
 
-<h3>Understanding the Code Change</h3>
+<h3>Entendiendo el Cambio en el Código</h3>
 
 <ul>
-<li><strong><code>uint16(len(scases)-1-i)</code></strong>: Use inverse order here</li>
-<li><strong>Result</strong>: pollorder is now always ordered in the source code order</li>
-<li><strong>Effect</strong>: Cases maintain their source code order in <code>pollorder</code></li>
+<li><strong><code>uint16(len(scases)-1-i)</code></strong>: Se usa orden inverso aquí</li>
+<li><strong>Resultado</strong>: pollorder ahora siempre está ordenado en el orden del código fuente</li>
+<li><strong>Efecto</strong>: Los casos mantienen su orden del código fuente en <code>pollorder</code></li>
 </ul>
 
-<h2>Step 5: Rebuild Go Runtime</h2>
+<h2>Paso 5: Recompilar el Runtime de Go</h2>
 
 <pre><code class="language-bash">cd ../  # back to go/src
 ./make.bash
 </code></pre>
 
-<h2>Step 6: Test Deterministic Behavior</h2>
+<h2>Paso 6: Probar el Comportamiento Determinista</h2>
 
 <pre><code class="language-bash">../go/bin/go run random_select_demo.go
 </code></pre>
 
-<p>Now you should see <strong>deterministic output</strong>:</p>
+<p>Ahora deberías ver una <strong>salida determinista</strong>:</p>
 
 <pre><code>Round 0: Selected ch1 (value 1)
 Round 1: Selected ch1 (value 1)
@@ -212,40 +212,40 @@ Round 3: Selected ch1 (value 1)
 ...
 </code></pre>
 
-<p>Perfect! <code>ch1</code> is <strong>always</strong> chosen because is the first one in the code, no more random order.</p>
+<p>¡Perfecto! <code>ch1</code> es <strong>siempre</strong> elegido porque es el primero en el código, no más orden aleatorio.</p>
 
-<h2>Understanding What We Did</h2>
+<h2>Entendiendo lo que Hicimos</h2>
 
 <ol>
-<li><strong>Removed Randomization</strong>: Replaced <code>cheaprandn()</code> with deterministic index</li>
-<li><strong>Maintained Source Order</strong>: Cases are now checked in the order they appear</li>
-<li><strong>Performance Boost</strong>: Slightly faster (no random number generation)</li>
-<li><strong>Changed Semantics</strong>: Same syntax, different runtime behavior</li>
+<li><strong>Eliminamos la Aleatorización</strong>: Reemplazamos <code>cheaprandn()</code> con un índice determinista</li>
+<li><strong>Mantuvimos el Orden del Código</strong>: Los casos ahora se comprueban en el orden en que aparecen</li>
+<li><strong>Mejora de Rendimiento</strong>: Ligeramente más rápido (sin generación de números aleatorios)</li>
+<li><strong>Cambio de Semántica</strong>: Misma sintaxis, comportamiento diferente en tiempo de ejecución</li>
 </ol>
 
-<h2>What We Learned</h2>
+<h2>Lo que Aprendimos</h2>
 
 <ul>
-<li><strong>Runtime Modification</strong>: How to alter fundamental language behavior</li>
-<li><strong>Design Trade-offs</strong>: Fairness vs. determinism in concurrent systems</li>
-<li><strong>Select Internals</strong>: How <code>selectgo</code> and <code>pollorder</code> work</li>
-<li><strong>Behavioral Testing</strong>: Validating semantic changes with test programs</li>
+<li><strong>Modificación del Runtime</strong>: Cómo alterar el comportamiento fundamental del lenguaje</li>
+<li><strong>Compromisos de Diseño</strong>: Equidad vs. determinismo en sistemas concurrentes</li>
+<li><strong>Internos de Select</strong>: Cómo funcionan <code>selectgo</code> y <code>pollorder</code></li>
+<li><strong>Pruebas de Comportamiento</strong>: Validar cambios semánticos con programas de prueba</li>
 </ul>
 
-<h2>Extension Ideas</h2>
+<h2>Ideas de Extensión</h2>
 
-<p>Try these additional modifications:</p>
+<p>Prueba estas modificaciones adicionales:</p>
 
 <ol>
-<li>Add a reverse-order mode (check cases last to first)</li>
-<li>Add priority levels based on case position</li>
-<li>Track selection statistics for debugging</li>
-<li>Make randomization configurable via environment variable</li>
+<li>Añadir un modo de orden inverso (comprobar casos del último al primero)</li>
+<li>Añadir niveles de prioridad basados en la posición del caso</li>
+<li>Registrar estadísticas de selección para depuración</li>
+<li>Hacer la aleatorización configurable mediante una variable de entorno</li>
 </ol>
 
-<h2>Cleanup</h2>
+<h2>Limpieza</h2>
 
-<p>To restore Go&rsquo;s original random behavior:</p>
+<p>Para restaurar el comportamiento aleatorio original de Go:</p>
 
 <pre><code class="language-bash">cd go/src/runtime
 git checkout select.go
@@ -253,9 +253,9 @@ cd ../
 ./make.bash
 </code></pre>
 
-<h2>Summary</h2>
+<h2>Resumen</h2>
 
-<p>You&rsquo;ve transformed Go&rsquo;s <code>select</code> from a fair, random chooser into a predictable, deterministic priority system:</p>
+<p>Has transformado el <code>select</code> de Go de un selector aleatorio y equitativo en un sistema de prioridad predecible y determinista:</p>
 
 <pre><code class="language-go">// Before: Random selection (fair but unpredictable)
 select {
@@ -272,20 +272,20 @@ case &lt;-ch3: // Only if ch1 and ch2 not ready
 }
 </code></pre>
 
-<p>This exercise demonstrated how runtime modifications can fundamentally change language behavior and exposed important trade-offs in concurrent system design.</p>
+<p>Este ejercicio demostró cómo las modificaciones del runtime pueden cambiar fundamentalmente el comportamiento del lenguaje y expuso compromisos importantes en el diseño de sistemas concurrentes.</p>
 
 <hr />
 
-<p><em>Continue to <a href="10-java-style-stack-traces.html">Exercise 10</a> or return to the <a href="index.html">main workshop</a></em></p>
+<p><em>Continúa con el <a href="10-java-style-stack-traces.html">Ejercicio 10</a> o vuelve al <a href="index.html">taller principal</a></em></p>
 
         </article>
 
         <nav class="exercise-nav">
             
-            <a href="08-goroutine-sleep-detective.html" class="nav-button">← Previous</a>
+            <a href="08-goroutine-sleep-detective.html" class="nav-button">← Anterior</a>
             
             
-            <a href="10-java-style-stack-traces.html" class="nav-button">Next: Exercise 10 →</a>
+            <a href="10-java-style-stack-traces.html" class="nav-button">Siguiente: Ejercicio 10 →</a>
             
         </nav>
     </div>
@@ -293,7 +293,7 @@ case &lt;-ch3: // Only if ch1 and ch2 not ready
     <footer>
         <div class="container">
             <p>Having fun with the Go Source Code</p>
-            <p>Created by <strong>Jesús Espino</strong></p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
                 <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>

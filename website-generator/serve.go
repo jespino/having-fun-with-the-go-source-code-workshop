@@ -56,17 +56,38 @@ func (s *devServer) rebuild() error {
 		return err
 	}
 
-	exercises := make([]Exercise, 0, len(exerciseMetadata))
-	for i, meta := range exerciseMetadata {
-		exercise, err := generateExercisePage(s.exercisesDir, s.outputDir, meta, i)
-		if err != nil {
+	for _, lang := range languages {
+		langOutputDir := s.outputDir
+		if lang.OutputPrefix != "" {
+			langOutputDir = filepath.Join(s.outputDir, lang.OutputPrefix)
+			if err := os.MkdirAll(langOutputDir, 0755); err != nil {
+				return err
+			}
+		}
+
+		cssPath := "style.css"
+		if lang.OutputPrefix != "" {
+			cssPath = "../style.css"
+		}
+
+		homePath := ""
+		altLangURLPrefix := "../"
+		if lang.OutputPrefix == "" {
+			altLangURLPrefix = "es/"
+		}
+
+		exercises := make([]Exercise, 0, len(lang.Metadata))
+		for i, meta := range lang.Metadata {
+			exercise, err := generateExercisePage(s.exercisesDir, langOutputDir, lang, meta, i, cssPath, homePath, altLangURLPrefix)
+			if err != nil {
+				return err
+			}
+			exercises = append(exercises, exercise)
+		}
+
+		if err := generateIndexPage(langOutputDir, lang, exercises, cssPath, homePath, altLangURLPrefix); err != nil {
 			return err
 		}
-		exercises = append(exercises, exercise)
-	}
-
-	if err := generateIndexPage(s.outputDir, exercises); err != nil {
-		return err
 	}
 
 	if err := copyCSSFile(s.outputDir); err != nil {

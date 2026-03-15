@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 8: Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="../08-goroutine-sleep-detective.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>Ejercicio 8: Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime</h1>
+
+<blockquote>
+<p>📖 <strong>¿Quieres saber más?</strong> Lee <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para una exploración en profundidad de la planificación de goroutines y las transiciones de estado en Go.</p>
+</blockquote>
+
+<p>En este ejercicio, modificarás el scheduler del runtime de Go para registrar las transiciones de estado de las goroutines. Cada vez que una goroutine se duerma esperando algo, se anunciará: &ldquo;Hello, I&rsquo;m goroutine 42, going to sleep waiting for channel receive&rdquo;.</p>
+
+<h2>Objetivos de Aprendizaje</h2>
+
+<p>Al finalizar este ejercicio, serás capaz de:</p>
+
+<ul>
+<li>Comprender las transiciones de estado del scheduler de goroutines de Go</li>
+<li>Saber dónde se bloquean las goroutines en el runtime</li>
+<li>Modificar el scheduler para obtener información de depuración</li>
+</ul>
+
+<h2>Contexto: Estados de una Goroutine</h2>
+
+<p>Go gestiona las goroutines a través de diferentes estados:</p>
+
+<ul>
+<li><strong><code>_Grunnable</code></strong> - Lista para ejecutarse pero sin estar en ejecución</li>
+<li><strong><code>_Grunning</code></strong> - En ejecución actualmente</li>
+<li><strong><code>_Gwaiting</code></strong> - Bloqueada esperando algo (¡nuestro objetivo!)</li>
+<li><strong><code>_Gsyscall</code></strong> - Ejecutando una llamada al sistema</li>
+<li>&hellip;</li>
+</ul>
+
+<p>Cuando una goroutine necesita esperar (por channels, mutexes, sleep, etc.), se &ldquo;aparca&rdquo; y pasa al estado <code>_Gwaiting</code>.</p>
+
+<h2>Paso 1: Comprender el Mecanismo de Aparcamiento</h2>
+
+<p>La función <code>gopark</code> es invocada por TODAS las primitivas de sincronización cuando una goroutine necesita esperar.</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+grep -n &quot;func gopark&quot; proc.go
+</code></pre>
+
+<p>Funciones clave:</p>
+
+<ul>
+<li><strong><code>gopark()</code></strong> - Inicia el aparcamiento de una goroutine</li>
+<li><strong><code>park_m()</code></strong> - Cambia efectivamente el estado a <code>_Gwaiting</code></li>
+</ul>
+
+<h2>Paso 2: Encontrar el Código de Transición de Estado</h2>
+
+<pre><code class="language-bash"># Observa dónde cambia realmente el estado
+grep -n -A 5 &quot;func park_m&quot; proc.go
+</code></pre>
+
+<p>Alrededor de la línea 4275, verás:</p>
+
+<pre><code class="language-go">casgstatus(gp, _Grunning, _Gwaiting)
+</code></pre>
+
+<p>Esta es la línea exacta donde una goroutine pasa de en ejecución a en espera. ¡Perfecto para nuestro registro!</p>
+
+<h2>Paso 3: Añadir el Registro de Goroutines Dormidas</h2>
+
+<p><strong>Edita <code>proc.go</code>:</strong></p>
+
+<p>Necesitarás añadir registros en tres ubicaciones donde las goroutines pasan al estado de espera:</p>
+
+<h3>Ubicación 1: Función <code>casGToWaiting</code> (alrededor de la línea 1388)</h3>
+
+<p>Encuentra la función <code>casGToWaiting</code> y añade el registro después de establecer el motivo de espera:</p>
+
+<pre><code class="language-go">func casGToWaiting(gp *g, old uint32, reason waitReason) {
+	// Set the wait reason before calling casgstatus, because casgstatus will use it.
+	gp.waitreason = reason
+	if gp.goid &gt; 1 { // Skip system goroutines 0 and 1
+		print(&quot;Hello, I'm goroutine &quot;, gp.goid, &quot;, going to sleep waiting for &quot;, gp.waitreason.String(), &quot;\n&quot;)
+	}
+	casgstatus(gp, old, _Gwaiting)
+}
+</code></pre>
+
+<h3>Ubicación 2: Función <code>casGFromPreempted</code> (alrededor de la línea 1430)</h3>
+
+<p>Encuentra donde las goroutines interrumpidas pasan al estado de espera. Añade el registro después de establecer el <code>waitreason</code> pero antes del <code>CompareAndSwap</code>:</p>
+
+<pre><code class="language-go">func casGFromPreempted(gp *g, old, new uint32) bool {
+	if old != _Gpreempted || new != _Gwaiting {
+		throw(&quot;bad g transition&quot;)
+	}
+	gp.waitreason = waitReasonPreempted
+	if gp.goid &gt; 1 { // Skip system goroutines 0 and 1
+		print(&quot;Hello, I'm goroutine &quot;, gp.goid, &quot;, going to sleep waiting for &quot;, gp.waitreason.String(), &quot;\n&quot;)
+	}
+	if !gp.atomicstatus.CompareAndSwap(_Gpreempted, _Gwaiting) {
+		return false
+	}
+	if bubble := gp.bubble; bubble != nil {
+		bubble.changegstatus(gp, _Gpreempted, _Gwaiting)
+	}
+	return true
+}
+</code></pre>
+
+<h3>Ubicación 3: Función <code>park_m</code> (alrededor de la línea 4275)</h3>
+
+<p>Encuentra la función <code>park_m</code> y añade el registro antes de la llamada directa a <code>casgstatus</code>:</p>
+
+<pre><code class="language-go">// Add this before: casgstatus(gp, _Grunning, _Gwaiting)
+if gp.goid &gt; 1 { // Skip system goroutines 0 and 1
+    print(&quot;Hello, I'm goroutine &quot;, gp.goid, &quot;, going to sleep waiting for &quot;, gp.waitreason.String(), &quot;\n&quot;)
+}
+casgstatus(gp, _Grunning, _Gwaiting)
+</code></pre>
+
+<h3>Entendiendo el Código</h3>
+
+<ul>
+<li><strong><code>gp.goid</code></strong> - ID único de la goroutine</li>
+<li><strong><code>gp.waitreason.String()</code></strong> - Motivo de espera legible (channel, mutex, sleep, etc.)</li>
+<li><strong><code>print()</code></strong> - Función de impresión del runtime (escribe en stderr)</li>
+<li><strong><code>gp.goid &gt; 1</code></strong> - Omite las goroutines del sistema para reducir el ruido</li>
+</ul>
+
+<h2>Paso 4: Recompilar el Runtime de Go</h2>
+
+<pre><code class="language-bash">cd ../  # back to go/src
+./make.bash
+</code></pre>
+
+<h2>Paso 5: Probar el Bloqueo en Channels</h2>
+
+<p>Crea un archivo <code>channel_demo.go</code>:</p>
+
+<pre><code class="language-go">package main
+
+import &quot;time&quot;
+
+func main() {
+    ch := make(chan string)
+
+    // Start goroutine that will block on receive
+    go func() {
+        msg := &lt;-ch  // Should trigger our logging!
+        println(&quot;Received:&quot;, msg)
+    }()
+
+    // Let the goroutine start and block
+    time.Sleep(100 * time.Millisecond)
+
+    // Send something
+    ch &lt;- &quot;Hello!&quot;
+    time.Sleep(10 * time.Millisecond)
+}
+</code></pre>
+
+<p>Compila y ejecuta con nuestro Go modificado:</p>
+
+<pre><code class="language-bash">../go/bin/go build channel_demo.go
+./channel_demo
+</code></pre>
+
+<p><strong>Nota:</strong> Primero compilamos el binario y luego lo ejecutamos directamente. Esto evita mezclar las goroutines del compilador/proceso de compilación con las goroutines de nuestro programa, obteniendo una salida más limpia.</p>
+
+<p>Salida esperada:</p>
+
+<pre><code>Hello, I'm goroutine 4, going to sleep waiting for GC scavenge wait
+Hello, I'm goroutine 3, going to sleep waiting for GC sweep wait
+Hello, I'm goroutine 2, going to sleep waiting for force gc (idle)
+Hello, I'm goroutine 6, going to sleep waiting for chan receive
+Hello, I'm goroutine 5, going to sleep waiting for GOMAXPROCS updater (idle)
+Received: Hello!
+</code></pre>
+
+<p>Ahora puedes ver las goroutines bloqueándose.</p>
+
+<h2>Entendiendo lo que Hicimos</h2>
+
+<ol>
+<li><strong>Encontramos la Función de Aparcamiento</strong>: Localizamos dónde las goroutines pasan al estado de espera</li>
+<li><strong>Añadimos Registro</strong>: Insertamos una instrucción print antes del cambio de estado</li>
+<li><strong>Capturamos el Motivo de Espera</strong>: Usamos <code>gp.waitreason.String()</code> para una salida legible</li>
+<li><strong>Probamos Escenarios</strong>: Verificamos con channels, mutexes, sleep y select</li>
+</ol>
+
+<p>Motivos de espera comunes que verás:</p>
+
+<ul>
+<li><code>chan receive</code> / <code>chan send</code></li>
+<li><code>sync mutex lock</code></li>
+<li><code>sleep</code></li>
+<li><code>GC</code></li>
+</ul>
+
+<h2>Lo que Aprendimos</h2>
+
+<ul>
+<li><strong>Ciclo de Vida de una Goroutine</strong>: Cómo las goroutines transicionan entre estados</li>
+<li><strong>Mecanismo de Aparcamiento</strong>: Las funciones <code>gopark</code> y <code>park_m</code></li>
+<li><strong>Internos de Sincronización</strong>: Dónde los channels, mutexes y select causan bloqueos</li>
+<li><strong>Depuración del Runtime</strong>: Cómo añadir observabilidad al runtime de Go</li>
+<li><strong>Visibilidad de la Concurrencia</strong>: Observación en tiempo real de las operaciones de bloqueo</li>
+</ul>
+
+<h2>Ideas de Extensión</h2>
+
+<p>Prueba estas modificaciones adicionales:</p>
+
+<ol>
+<li>Añadir registro de despertar de goroutines (cuando reanudan la ejecución)</li>
+<li>Añadir iconos para diferentes motivos de espera (channel, mutex, sleep)</li>
+<li>Incluir marcas de tiempo para medir la duración del bloqueo</li>
+<li>Filtrar el registro solo por motivos de espera específicos</li>
+</ol>
+
+<h2>Limpieza</h2>
+
+<p>Para eliminar el registro:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+git checkout proc.go
+cd ../
+./make.bash
+</code></pre>
+
+<h2>Resumen</h2>
+
+<p>¡Has obtenido visión de rayos X del modelo de concurrencia de Go! Tu runtime modificado ahora anuncia cada operación de bloqueo de goroutines:</p>
+
+<pre><code>Hello, I'm goroutine 18, going to sleep waiting for chan receive
+Hello, I'm goroutine 19, going to sleep waiting for sync mutex lock
+Hello, I'm goroutine 20, going to sleep waiting for sleep
+</code></pre>
+
+<p>Este ejercicio reveló el funcionamiento interno del scheduler de Go y cómo las primitivas de sincronización interactúan con el runtime.</p>
+
+<hr />
+
+<p><em>Continúa con el <a href="09-predictable-select.html">Ejercicio 9</a> o vuelve al <a href="index.html">taller principal</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="07-runtime-patient-go.html" class="nav-button">← Anterior</a>
+            
+            
+            <a href="09-predictable-select.html" class="nav-button">Siguiente: Ejercicio 9 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Having fun with the Go Source Code</p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

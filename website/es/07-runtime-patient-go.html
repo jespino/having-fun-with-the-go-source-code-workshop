@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 7: Go Paciente - Haciendo que Go Espere a las Goroutines - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="../07-runtime-patient-go.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>Ejercicio 7: Go Paciente - Haciendo que Go Espere a las Goroutines</h1>
+
+<blockquote>
+<p>📖 <strong>¿Quieres aprender mas?</strong> Lee <a href="https://internals-for-interns.com/posts/understanding-go-runtime/">The Bootstrap</a> y <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para profundizar en el arranque del runtime de Go y la planificacion de goroutines.</p>
+</blockquote>
+
+<p>En este ejercicio, modificaras el runtime de Go para que espere a que todas las goroutines terminen antes de que el programa finalice. Actualmente, cuando <code>main()</code> retorna, Go termina inmediatamente incluso si hay goroutines todavia en ejecucion. Haremos que Go sea &ldquo;paciente&rdquo; esperando a que todas las goroutines terminen.</p>
+
+<h2>Objetivos de Aprendizaje</h2>
+
+<p>Al finalizar este ejercicio, seras capaz de:</p>
+
+<ul>
+<li>Entender el proceso de terminacion de programas en Go</li>
+<li>Saber como contar las goroutines activas</li>
+<li>Modificar la funcion principal del runtime para cambiar el comportamiento del programa</li>
+<li>Entender los compromisos de la espera automatica de goroutines</li>
+</ul>
+
+<h2>Contexto: Comportamiento Actual de Terminacion de Go</h2>
+
+<p>Actualmente, cuando escribes:</p>
+
+<pre><code class="language-go">package main
+
+import &quot;time&quot;
+
+func main() {
+    go func() {
+        time.Sleep(2 * time.Second)
+        println(&quot;Goroutine finished!&quot;)
+    }()
+    println(&quot;Main finished!&quot;)
+    // Program exits immediately, goroutine never completes
+}
+</code></pre>
+
+<p><strong>Salida:</strong></p>
+
+<pre><code>Main finished!
+</code></pre>
+
+<p>La goroutine nunca llega a imprimir porque el programa finaliza cuando <code>main()</code> retorna.</p>
+
+<p>Cambiaremos esto para que Go espere pacientemente a que todas las goroutines terminen:</p>
+
+<p><strong>Nueva salida:</strong></p>
+
+<pre><code>Main finished!
+Goroutine finished!
+</code></pre>
+
+<h2>Paso 1: Entender la Funcion Main del Runtime</h2>
+
+<p>La funcion <code>main()</code> del runtime de Go en <code>runtime/proc.go</code> es la responsable de ejecutar la funcion <code>main()</code> de tu programa. Examinemos como funciona:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+</code></pre>
+
+<p>Abre <code>proc.go</code> y busca la funcion <code>main()</code>. Cerca del principio (alrededor de las lineas 136-137), veras como el runtime se enlaza con el main de tu programa:</p>
+
+<pre><code class="language-go">//go:linkname main_main main.main
+func main_main()
+</code></pre>
+
+<p>Esta directiva <code>//go:linkname</code> le dice al linker que conecte la funcion <code>main_main</code> del runtime con la funcion <code>main.main</code> de tu programa. Asi es como el runtime puede llamar a codigo de tu paquete main.</p>
+
+<p>Mas abajo en la misma funcion <code>main()</code> (alrededor de la linea 289), veras donde se llama:</p>
+
+<pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+fn()
+
+... // tear-down process continues
+</code></pre>
+
+<p><strong>Como funciona:</strong></p>
+
+<ol>
+<li>Se ejecuta el proceso de bootstrap del runtime de Go</li>
+<li>La funcion <code>main()</code> del runtime se ejecuta primero</li>
+<li>Un poco mas de proceso de bootstrap</li>
+<li>Se llama a <code>main_main</code> (que es la funcion <code>main()</code> de tu programa via linkname)</li>
+<li>Tu funcion <code>main()</code> se ejecuta - <strong>la responsabilidad se delega a tu codigo</strong></li>
+<li>Cuando tu <code>main()</code> retorna, el control vuelve a la funcion <code>main()</code> del runtime</li>
+<li>El runtime continua con el <strong>proceso de desmontaje</strong> del programa (limpieza y salida)</li>
+</ol>
+
+<p>Actualmente, el desmontaje comienza inmediatamente despues de que tu <code>main()</code> retorna, sin esperar a otras goroutines.</p>
+
+<h2>Paso 2: Anadir la Logica de Espera de Goroutines</h2>
+
+<p>Anadiremos codigo para esperar hasta que solo quede 1 goroutine (la propia goroutine principal).</p>
+
+<p><strong>Edita <code>runtime/proc.go</code>:</strong></p>
+
+<p>Busca la seccion alrededor de las lineas 289-290 donde se llama a <code>main_main</code>:</p>
+
+<pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+fn()
+</code></pre>
+
+<p>Anade la logica de espera justo despues de la llamada a <code>fn()</code>:</p>
+
+<pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+fn()
+
+// Wait until only 1 goroutine is running (the main goroutine)
+for gcount(false) &gt; 1 {
+	Gosched()
+}
+</code></pre>
+
+<h3>Entendiendo el Codigo</h3>
+
+<ul>
+<li><strong><code>gcount(false)</code></strong> - Funcion del runtime que devuelve el numero de goroutines activas (el argumento <code>false</code> excluye las goroutines del sistema del conteo)</li>
+<li><strong><code>gcount(false) &gt; 1</code></strong> - Mientras haya mas goroutines aparte de la principal ejecutandose</li>
+<li><strong><code>Gosched()</code></strong> - Cede el procesador, permitiendo que otras goroutines se ejecuten</li>
+<li><strong>El bucle termina</strong> - Cuando solo queda la goroutine principal (conteo = 1)</li>
+</ul>
+
+<h2>Paso 3: Recompilar la Cadena de Herramientas de Go</h2>
+
+<pre><code class="language-bash">cd go/src
+./make.bash
+</code></pre>
+
+<p>Esto recompila el runtime con tu logica de espera paciente de goroutines.</p>
+
+<h2>Paso 4: Probar la Espera Basica de Goroutines</h2>
+
+<p>Crea un archivo de prueba para verificar el comportamiento:</p>
+
+<p>Crea <code>patient_demo.go</code>:</p>
+
+<pre><code class="language-go">package main
+
+import &quot;time&quot;
+
+func main() {
+	println(&quot;Main starting...&quot;)
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		println(&quot;Goroutine 1 finished!&quot;)
+	}()
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		println(&quot;Goroutine 2 finished!&quot;)
+	}()
+
+	println(&quot;Main finished, but Go will wait...&quot;)
+}
+</code></pre>
+
+<p>Ejecuta con tu Go modificado:</p>
+
+<pre><code class="language-bash">./bin/go run patient_demo.go
+</code></pre>
+
+<p><strong>Salida esperada:</strong></p>
+
+<pre><code>Main starting...
+Main finished, but Go will wait...
+Goroutine 1 finished!
+Goroutine 2 finished!
+</code></pre>
+
+<p>Go ahora espera a que todas las goroutines terminen.</p>
+
+<h2>Lo que Aprendimos</h2>
+
+<ul>
+<li><strong>Terminacion de Programas</strong>: Como los programas Go finalizan y hacen limpieza</li>
+<li><strong>Seguimiento de Goroutines</strong>: La funcion <code>gcount()</code> rastrea las goroutines activas</li>
+<li><strong>Planificacion Cooperativa</strong>: <code>Gosched()</code> cede para permitir que otras goroutines se ejecuten</li>
+<li><strong>Modificacion del Runtime</strong>: Como un pequenio cambio afecta a todos los programas Go</li>
+<li><strong>Compromisos de Disenio</strong>: Beneficios e inconvenientes de la espera automatica</li>
+</ul>
+
+<h2>Ideas de Extension</h2>
+
+<p>Prueba estas modificaciones adicionales:</p>
+
+<ol>
+<li>Anadir un timeout: Esperar un maximo de 10 segundos a las goroutines</li>
+<li>Anadir registro: Imprimir cuando comienza la espera y que goroutines quedan</li>
+<li>Hacerlo configurable: Usar una variable de entorno para activar/desactivar</li>
+<li>Anadir una advertencia: Detectar bucles infinitos en goroutines</li>
+</ol>
+
+<h2>Limpieza</h2>
+
+<p>Para restaurar el comportamiento estandar de Go:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+git checkout proc.go
+cd ..
+./make.bash
+</code></pre>
+
+<h2>Resumen</h2>
+
+<p>Has modificado con exito el runtime de Go para que sea &ldquo;paciente&rdquo; y espere a todas las goroutines.</p>
+
+<pre><code>Antes:   main() retorna → salida inmediata → goroutines abandonadas
+Despues: main() retorna → espera a las goroutines → todas terminan → salida
+
+Cambios: funcion main() en runtime/proc.go
+Resultado: Ninguna goroutine se queda atras
+</code></pre>
+
+<p>Esta modificacion demuestra:</p>
+
+<ul>
+<li>Comprension profunda del runtime de Go</li>
+<li>Como funciona la terminacion de programas</li>
+<li>La relacion entre main() y las goroutines</li>
+<li>Compromisos reales en el disenio de lenguajes</li>
+</ul>
+
+<p>Tu Go ahora es paciente.</p>
+
+<hr />
+
+<p><em>Continua con el <a href="08-goroutine-sleep-detective.html">Ejercicio 8</a> o vuelve al <a href="index.html">taller principal</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="06-ssa-power-of-two-detector.html" class="nav-button">← Anterior</a>
+            
+            
+            <a href="08-goroutine-sleep-detective.html" class="nav-button">Siguiente: Ejercicio 8 →</a>
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Having fun with the Go Source Code</p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

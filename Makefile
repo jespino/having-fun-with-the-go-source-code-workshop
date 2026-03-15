@@ -12,6 +12,7 @@ website: ## Generate the website from markdown exercises
 clean: ## Remove generated website files
 	@echo "🧹 Cleaning website directory..."
 	@rm -f website/*.html website/*.css
+	@rm -rf website/es
 	@echo "✅ Website cleaned"
 
 serve: ## Serve the website locally with live reload

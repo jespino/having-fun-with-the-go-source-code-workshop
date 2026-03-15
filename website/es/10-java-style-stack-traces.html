@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercise 10: Java-Style Stack Traces - Making Go Panics Look Familiar - Go Source Code Workshop</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Exercise 10: Stack Traces Estilo Java - Haciendo los Panics de Go Familiares - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -46,8 +46,8 @@
         <div class="container">
             <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="es/10-java-style-stack-traces.html" class="lang-switch"><i class="fas fa-globe"></i> Español</a>
+                <a href="index.html">Inicio</a>
+                <a href="../10-java-style-stack-traces.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
             </div>
         </div>
@@ -55,23 +55,23 @@
 
     <div class="container">
         <article class="exercise-content">
-            <h1>Exercise 10: Java-Style Stack Traces - Making Go Panics Look Familiar</h1>
+            <h1>Ejercicio 10: Stack Traces Estilo Java - Haciendo que los Panics de Go Resulten Familiares</h1>
 
-<p>In this exercise, you&rsquo;ll modify Go&rsquo;s stack trace formatting to match Java&rsquo;s style. Instead of Go&rsquo;s stack traces, we&rsquo;ll create Java-style traces.</p>
+<p>En este ejercicio, modificarás el formato de los stack traces de Go para que se parezcan al estilo de Java. En lugar de los stack traces de Go, crearemos trazas al estilo Java.</p>
 
-<h2>Learning Objectives</h2>
+<h2>Objetivos de Aprendizaje</h2>
 
-<p>By the end of this exercise, you will:</p>
+<p>Al finalizar este ejercicio, serás capaz de:</p>
 
 <ul>
-<li>Understand how Go formats stack traces in the runtime</li>
-<li>Know where panic messages are generated</li>
-<li>Modify runtime output formatting</li>
+<li>Comprender cómo Go formatea los stack traces en el runtime</li>
+<li>Saber dónde se generan los mensajes de panic</li>
+<li>Modificar el formato de salida del runtime</li>
 </ul>
 
-<h2>Background: Stack Trace Styles</h2>
+<h2>Contexto: Estilos de Stack Trace</h2>
 
-<p>We&rsquo;re transforming Go&rsquo;s stacktrace format:</p>
+<p>Vamos a transformar el formato de stack trace de Go:</p>
 
 <pre><code>panic: Something went wrong
 
@@ -84,7 +84,7 @@ main.methodA()
         /Users/dev/project/main.go:7 +0x12
 </code></pre>
 
-<p>Into this Java-style format:</p>
+<p>En este formato estilo Java:</p>
 
 <pre><code>Exception in thread &quot;main&quot; go.runtime.Panic: Something went wrong
     at main.methodC(main.go:15)
@@ -92,9 +92,9 @@ main.methodA()
     at main.methodA(main.go:7)
 </code></pre>
 
-<h2>Step 1: Create a Test Program</h2>
+<h2>Paso 1: Crear un Programa de Prueba</h2>
 
-<p>Create a <code>stack_trace_demo.go</code> file:</p>
+<p>Crea un archivo <code>stack_trace_demo.go</code>:</p>
 
 <pre><code class="language-go">package main
 
@@ -118,41 +118,41 @@ func main() {
 }
 </code></pre>
 
-<p>Run with current Go to see the stacktrace format:</p>
+<p>Ejecuta con el Go actual para ver el formato del stack trace:</p>
 
 <pre><code class="language-bash">go run stack_trace_demo.go
 </code></pre>
 
-<h2>Step 2: Navigate to Runtime Files</h2>
+<h2>Paso 2: Navegar a los Archivos del Runtime</h2>
 
 <pre><code class="language-bash">cd go/src/runtime
 </code></pre>
 
-<p>Key files we&rsquo;ll modify:
-- <strong><code>panic.go</code></strong> - Panic header message
-- <strong><code>traceback.go</code></strong> - Stack frame formatting</p>
+<p>Archivos clave que modificaremos:
+- <strong><code>panic.go</code></strong> - Cabecera del mensaje de panic
+- <strong><code>traceback.go</code></strong> - Formato de los frames del stack</p>
 
-<h2>Step 3: Modify the Panic Header</h2>
+<h2>Paso 3: Modificar la Cabecera del Panic</h2>
 
-<p><strong>Edit <code>panic.go</code>:</strong></p>
+<p><strong>Edita <code>panic.go</code>:</strong></p>
 
-<p>Find the <code>printpanics</code> function around line 734. Look for:</p>
+<p>Encuentra la función <code>printpanics</code> alrededor de la línea 734. Busca:</p>
 
 <pre><code class="language-go">print(&quot;panic: &quot;)
 printpanicval(p.arg)
 </code></pre>
 
-<p>Change to:</p>
+<p>Cámbialo a:</p>
 
 <pre><code class="language-go">print(&quot;Exception in thread \&quot;main\&quot; go.runtime.Panic: &quot;)
 printpanicval(p.arg)
 </code></pre>
 
-<h2>Step 4: Remove Goroutine Header</h2>
+<h2>Paso 4: Eliminar la Cabecera de Goroutine</h2>
 
-<p><strong>Edit <code>traceback.go</code>:</strong></p>
+<p><strong>Edita <code>traceback.go</code>:</strong></p>
 
-<p>Find the <code>goroutineheader</code> function around line 1215. Add a return statement at the beginning:</p>
+<p>Encuentra la función <code>goroutineheader</code> alrededor de la línea 1215. Añade una sentencia return al principio:</p>
 
 <pre><code class="language-go">func goroutineheader(gp *g) {
     return  // Add this line to skip printing goroutine info
@@ -161,18 +161,18 @@ printpanicval(p.arg)
 }
 </code></pre>
 
-<h2>Step 5: Transform Stack Frame Formatting</h2>
+<h2>Paso 5: Transformar el Formato de los Frames del Stack</h2>
 
-<p><strong>Still in <code>traceback.go</code>:</strong></p>
+<p><strong>Continuando en <code>traceback.go</code>:</strong></p>
 
-<p>Find the <code>traceback2</code> function around line 945. Comment out the <code>gotraceback()</code> call (around line 966):</p>
+<p>Encuentra la función <code>traceback2</code> alrededor de la línea 945. Comenta la llamada a <code>gotraceback()</code> (alrededor de la línea 966):</p>
 
 <pre><code class="language-go">gp := u.g.ptr()
 // level, _, _ := gotraceback()  // Comment this out
 var cgoBuf [32]uintptr
 </code></pre>
 
-<p>Then find where stack frames are printed (around line 991-1008). Replace this entire section:</p>
+<p>Luego encuentra donde se imprimen los frames del stack (alrededor de las líneas 991-1008). Reemplaza toda esta sección:</p>
 
 <pre><code class="language-go">printFuncName(name)
 print(&quot;(&quot;)
@@ -195,7 +195,7 @@ if !iu.isInlined(uf) {
 print(&quot;\n&quot;)
 </code></pre>
 
-<p>With this Java-style format:</p>
+<p>Con este formato estilo Java:</p>
 
 <pre><code class="language-go">// Extract just the filename (not full path)
 fileName := file
@@ -208,18 +208,18 @@ for i := len(file) - 1; i &gt;= 0; i-- {
 print(&quot;    at &quot;, name, &quot;(&quot;, fileName, &quot;:&quot;, line, &quot;)\n&quot;)
 </code></pre>
 
-<h2>Step 6: Rebuild Go Runtime</h2>
+<h2>Paso 6: Recompilar el Runtime de Go</h2>
 
 <pre><code class="language-bash">cd ../  # back to go/src
 ./make.bash
 </code></pre>
 
-<h2>Step 7: Test Java-Style Stack Traces</h2>
+<h2>Paso 7: Probar los Stack Traces Estilo Java</h2>
 
 <pre><code class="language-bash">../go/bin/go run stack_trace_demo.go
 </code></pre>
 
-<p>You should see:</p>
+<p>Deberías ver:</p>
 
 <pre><code>Starting the program...
 Exception in thread &quot;main&quot; go.runtime.Panic: Something went wrong
@@ -229,38 +229,38 @@ Exception in thread &quot;main&quot; go.runtime.Panic: Something went wrong
     at main.main(stack_trace_demo.go:19)
 </code></pre>
 
-<h2>Understanding What We Did</h2>
+<h2>Entendiendo lo que Hicimos</h2>
 
 <ol>
-<li><strong>Changed Panic Header</strong> (<code>panic.go</code> line 747): Changed <code>&quot;panic: &quot;</code> to <code>&quot;Exception in thread \&quot;main\&quot; go.runtime.Panic: &quot;</code></li>
-<li><strong>Removed Goroutine Info</strong> (<code>traceback.go</code> line 1215): Added early <code>return</code> in <code>goroutineheader()</code></li>
-<li><strong>Simplified Stack Frames</strong> (<code>traceback.go</code> line 991-1008): Replaced the go output with the java <code>&quot;    at name(file:line)&quot;</code> format</li>
-<li><strong>Removed Debug Info</strong>: Commented out <code>gotraceback()</code> call and eliminated hex offsets, frame pointers</li>
-<li><strong>Basename Only</strong>: Extract filename from full path using loop</li>
+<li><strong>Cambiamos la Cabecera del Panic</strong> (<code>panic.go</code> línea 747): Cambiamos <code>&quot;panic: &quot;</code> por <code>&quot;Exception in thread \&quot;main\&quot; go.runtime.Panic: &quot;</code></li>
+<li><strong>Eliminamos la Info de Goroutine</strong> (<code>traceback.go</code> línea 1215): Añadimos un <code>return</code> anticipado en <code>goroutineheader()</code></li>
+<li><strong>Simplificamos los Frames del Stack</strong> (<code>traceback.go</code> líneas 991-1008): Reemplazamos la salida de Go con el formato Java <code>&quot;    at name(file:line)&quot;</code></li>
+<li><strong>Eliminamos Info de Depuración</strong>: Comentamos la llamada a <code>gotraceback()</code> y eliminamos offsets hexadecimales y punteros de frame</li>
+<li><strong>Solo Nombre de Archivo</strong>: Extraemos el nombre del archivo de la ruta completa usando un bucle</li>
 </ol>
 
-<h2>What We Learned</h2>
+<h2>Lo que Aprendimos</h2>
 
 <ul>
-<li><strong>Runtime Formatting</strong>: How Go generates stack traces</li>
-<li><strong>Panic Handling</strong>: Where panic messages originate</li>
-<li><strong>Output Control</strong>: Modifying runtime print statements</li>
+<li><strong>Formato del Runtime</strong>: Cómo Go genera los stack traces</li>
+<li><strong>Manejo de Panics</strong>: Dónde se originan los mensajes de panic</li>
+<li><strong>Control de Salida</strong>: Modificar las sentencias print del runtime</li>
 </ul>
 
-<h2>Extension Ideas</h2>
+<h2>Ideas de Extensión</h2>
 
-<p>Try these additional modifications:</p>
+<p>Prueba estas modificaciones adicionales:</p>
 
 <ol>
-<li>Add color to the output (red for &ldquo;Exception&rdquo;)</li>
-<li>Make it configurable via environment variable</li>
-<li>Add Python-style formatting as another option</li>
-<li>Include package path conversion (github.com/user/pkg → github.com.user.pkg)</li>
+<li>Añadir color a la salida (rojo para &ldquo;Exception&rdquo;)</li>
+<li>Hacerlo configurable mediante una variable de entorno</li>
+<li>Añadir formato estilo Python como otra opción</li>
+<li>Incluir conversión de rutas de paquetes (github.com/user/pkg → github.com.user.pkg)</li>
 </ol>
 
-<h2>Cleanup</h2>
+<h2>Limpieza</h2>
 
-<p>To restore Go&rsquo;s original stack trace format:</p>
+<p>Para restaurar el formato original de stack traces de Go:</p>
 
 <pre><code class="language-bash">cd go/src/runtime
 git checkout panic.go traceback.go
@@ -268,9 +268,9 @@ cd ../
 ./make.bash
 </code></pre>
 
-<h2>Summary</h2>
+<h2>Resumen</h2>
 
-<p>You&rsquo;ve transformed Go&rsquo;s stack traces into Java-style formatting:</p>
+<p>Has transformado los stack traces de Go en formato estilo Java:</p>
 
 <pre><code>// Before: Technical and verbose
 goroutine 1 [running]:
@@ -284,13 +284,13 @@ Exception in thread &quot;main&quot; go.runtime.Panic: ...
 
 <hr />
 
-<p><em>Congratulations on completing all workshop exercises! Return to the <a href="index.html">main workshop</a></em></p>
+<p><em>¡Felicidades por completar todos los ejercicios del taller! Vuelve al <a href="index.html">taller principal</a></em></p>
 
         </article>
 
         <nav class="exercise-nav">
             
-            <a href="09-predictable-select.html" class="nav-button">← Previous</a>
+            <a href="09-predictable-select.html" class="nav-button">← Anterior</a>
             
             
         </nav>
@@ -299,7 +299,7 @@ Exception in thread &quot;main&quot; go.runtime.Panic: ...
     <footer>
         <div class="container">
             <p>Having fun with the Go Source Code</p>
-            <p>Created by <strong>Jesús Espino</strong></p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
                 <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>

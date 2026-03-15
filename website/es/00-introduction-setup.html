@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercise 0: Introduction and Setup - Go Source Code Workshop</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Exercise 0: Introducción y Configuración - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -46,8 +46,8 @@
         <div class="container">
             <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="es/00-introduction-setup.html" class="lang-switch"><i class="fas fa-globe"></i> Español</a>
+                <a href="index.html">Inicio</a>
+                <a href="../00-introduction-setup.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
             </div>
         </div>
@@ -55,92 +55,92 @@
 
     <div class="container">
         <article class="exercise-content">
-            <h1>Exercise 0: Introduction and Setup</h1>
+            <h1>Ejercicio 0: Introduccion y Configuracion del Entorno</h1>
 
-<p>Welcome to the Go Source Code Workshop! In this introductory exercise, you&rsquo;ll set up your environment and get familiar with the Go source code repository.</p>
+<p>Bienvenido al taller de codigo fuente de Go. En este ejercicio introductorio, prepararas tu entorno de desarrollo y te familiarizaras con el repositorio del codigo fuente de Go.</p>
 
-<h2>Learning Objectives</h2>
+<h2>Objetivos de Aprendizaje</h2>
 
-<p>By the end of this exercise, you will:</p>
+<p>Al finalizar este ejercicio, seras capaz de:</p>
 
 <ul>
-<li>Have a working Go development environment</li>
-<li>Know how to get the Go source code</li>
+<li>Tener un entorno de desarrollo de Go funcional</li>
+<li>Saber como obtener el codigo fuente de Go</li>
 </ul>
 
-<h2>Prerequisites</h2>
+<h2>Requisitos Previos</h2>
 
-<p>Make sure you have the following installed:</p>
+<p>Asegurate de tener lo siguiente instalado:</p>
 
 <ul>
 <li>Git</li>
-<li>At least 4GB of free disk space</li>
+<li>Al menos 4GB de espacio libre en disco</li>
 </ul>
 
-<h2>Step 1: Install or Upgrade Go</h2>
+<h2>Paso 1: Instalar o Actualizar Go</h2>
 
-<p><strong>⚠️ Important</strong>: You need an existing Go installation (version 1.24 or newer) to build Go from source. This is called &ldquo;bootstrapping&rdquo; - using an existing Go compiler to build the new one.</p>
+<p><strong>⚠️ Importante</strong>: Necesitas una instalacion existente de Go (version 1.24 o superior) para compilar Go desde el codigo fuente. Esto se conoce como &ldquo;bootstrapping&rdquo;: usar un compilador de Go existente para compilar el nuevo.</p>
 
-<h3>Check Your Current Go Version</h3>
+<h3>Verifica tu Version Actual de Go</h3>
 
 <pre><code class="language-bash">go version
-# Should show: go version go1.24 or higher
+# Deberia mostrar: go version go1.24 o superior
 </code></pre>
 
-<h3>If Go is Not Installed or Too Old</h3>
+<h3>Si Go no esta Instalado o es una Version Antigua</h3>
 
-<p>If you don&rsquo;t have Go installed, or your version is older than 1.24:</p>
+<p>Si no tienes Go instalado, o tu version es anterior a la 1.24:</p>
 
 <ol>
-<li><strong>Download Go</strong>: Visit <a href="https://go.dev/dl/">https://go.dev/dl/</a> and download the appropriate installer for your operating system</li>
-<li><strong>Install Go</strong>: Follow the official installation guide for your platform:</li>
-<li><strong>Verify Installation</strong>: Open a new terminal and run:</li>
+<li><strong>Descarga Go</strong>: Visita <a href="https://go.dev/dl/">https://go.dev/dl/</a> y descarga el instalador apropiado para tu sistema operativo</li>
+<li><strong>Instala Go</strong>: Sigue la guia oficial de instalacion para tu plataforma</li>
+<li><strong>Verifica la instalacion</strong>: Abre una nueva terminal y ejecuta:</li>
 </ol>
 
 <pre><code class="language-bash">   go version
-   # Should show: go version go1.24 or higher
+   # Deberia mostrar: go version go1.24 o superior
 </code></pre>
 
-<p><strong>Installation Help</strong>: If you need detailed installation instructions, see the <a href="https://go.dev/doc/install">official Go installation guide</a>.</p>
+<p><strong>Ayuda con la instalacion</strong>: Si necesitas instrucciones detalladas de instalacion, consulta la <a href="https://go.dev/doc/install">guia oficial de instalacion de Go</a>.</p>
 
-<h2>Step 2: Clone the Go Source Code</h2>
+<h2>Paso 2: Clonar el Codigo Fuente de Go</h2>
 
-<p>Let&rsquo;s clone the official Go repository. We use <code>--depth 1</code> to avoid downloading the full history, making the clone much faster:</p>
+<p>Vamos a clonar el repositorio oficial de Go. Usamos <code>--depth 1</code> para evitar descargar todo el historial, lo que hace que la clonacion sea mucho mas rapida:</p>
 
-<p>For consistency across the workshop, we&rsquo;ll use Go version 1.26.1.</p>
+<p>Para mantener la consistencia a lo largo del taller, usaremos la version 1.26.1 de Go.</p>
 
 <pre><code class="language-bash">git clone --depth 1 --branch go1.26.1 https://go.googlesource.com/go
 cd go
 </code></pre>
 
-<h2>Step 3: Verify Go Version 1.26.1</h2>
+<h2>Paso 3: Verificar la Version Go 1.26.1</h2>
 
-<p>Verify you&rsquo;re on the correct version:</p>
+<p>Verifica que estas en la version correcta:</p>
 
 <pre><code class="language-bash">git describe --tags
-# Should show: go1.26.1
+# Deberia mostrar: go1.26.1
 </code></pre>
 
-<h2>What We Accomplished</h2>
+<h2>Lo que Hemos Logrado</h2>
 
 <ul>
-<li>Installed or verified Go 1.24+ for bootstrapping</li>
-<li>Cloned the official Go repository at version 1.26.1</li>
-<li>Environment is ready for building Go from source</li>
+<li>Instalamos o verificamos Go 1.24+ para el bootstrapping</li>
+<li>Clonamos el repositorio oficial de Go en la version 1.26.1</li>
+<li>El entorno esta listo para compilar Go desde el codigo fuente</li>
 </ul>
 
-<h2>Next Steps</h2>
+<h2>Siguientes Pasos</h2>
 
-<p>Perfect! Your environment is now set up and ready. In <a href="01-compile-go-unchanged.html">Exercise 1: Compiling Go Without Changes</a>, you&rsquo;ll build the Go toolchain from source and explore the Go compiler structure while it&rsquo;s building!</p>
+<p>Perfecto. Tu entorno esta configurado y listo. En el <a href="01-compile-go-unchanged.html">Ejercicio 1: Compilar Go sin Cambios</a>, compilaras la toolchain de Go desde el codigo fuente y exploraras la estructura del compilador de Go mientras se compila.</p>
 
         </article>
 
         <nav class="exercise-nav">
             
-            <a href="index.html" class="nav-button">← Home</a>
+            <a href="index.html" class="nav-button">← Inicio</a>
             
             
-            <a href="01-compile-go-unchanged.html" class="nav-button">Next: Exercise 1 →</a>
+            <a href="01-compile-go-unchanged.html" class="nav-button">Siguiente: Ejercicio 1 →</a>
             
         </nav>
     </div>
@@ -148,7 +148,7 @@ cd go
     <footer>
         <div class="container">
             <p>Having fun with the Go Source Code</p>
-            <p>Created by <strong>Jesús Espino</strong></p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
                 <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
