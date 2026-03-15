@@ -218,7 +218,7 @@ func fixRelativeLinks(html string) string {
 	})
 
 	// Fix links that are already in the format XX-name.md
-	re = regexp.MustCompile(`href="([0-9]{2}-[^"]+)\.md"`)
+	re = regexp.MustCompile(`href="(?:\./)?([0-9]{2}-[^"]+)\.md"`)
 	html = re.ReplaceAllString(html, `href="$1.html"`)
 
 	return html
