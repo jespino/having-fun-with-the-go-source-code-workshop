@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,20 +56,24 @@
         <article class="exercise-content">
             <h1>🕰️ Exercise 7: Patient Go - Making Go Wait for Goroutines</h1>
 
-<p>In this exercise, you&rsquo;ll modify the Go runtime to wait for all goroutines to complete before the program exits. Currently, when <code>main()</code> returns, Go immediately terminates even if goroutines are still running. We&rsquo;ll make Go &ldquo;patient&rdquo; by waiting for all goroutines to finish!</p>
+<blockquote>
+<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/understanding-go-runtime/">The Bootstrap</a> and <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> on Internals for Interns for a deep dive into Go&rsquo;s runtime startup and goroutine scheduling.</p>
+</blockquote>
 
-<h2>🎯 Learning Objectives</h2>
+<p>In this exercise, you&rsquo;ll modify the Go runtime to wait for all goroutines to complete before the program exits. Currently, when <code>main()</code> returns, Go immediately terminates even if goroutines are still running. We&rsquo;ll make Go &ldquo;patient&rdquo; by waiting for all goroutines to finish.</p>
+
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand Go&rsquo;s program termination process</li>
-<li>✅ Know how to count active goroutines</li>
-<li>✅ Modify the main runtime function to change program behavior</li>
-<li>✅ Understand the trade-offs of automatic goroutine waiting</li>
+<li>Understand Go&rsquo;s program termination process</li>
+<li>Know how to count active goroutines</li>
+<li>Modify the main runtime function to change program behavior</li>
+<li>Understand the trade-offs of automatic goroutine waiting</li>
 </ul>
 
-<h2>🧠 Background: Go&rsquo;s Current Termination Behavior</h2>
+<h2>Background: Go&rsquo;s Current Termination Behavior</h2>
 
 <p>Currently, when you write:</p>
 
@@ -102,7 +106,7 @@ func main() {
 Goroutine finished!
 </code></pre>
 
-<h2>🔍 Step 1: Understanding the Runtime Main Function</h2>
+<h2>Step 1: Understanding the Runtime Main Function</h2>
 
 <p>The Go runtime&rsquo;s <code>main()</code> function in <code>runtime/proc.go</code> is responsible for running your program&rsquo;s <code>main()</code> function. Let&rsquo;s examine how this works:</p>
 
@@ -139,7 +143,7 @@ fn()
 
 <p>Currently, the tear-down starts immediately after your <code>main()</code> returns, without waiting for other goroutines.</p>
 
-<h2>🔧 Step 2: Add Goroutine Waiting Logic</h2>
+<h2>Step 2: Add Goroutine Waiting Logic</h2>
 
 <p>We&rsquo;ll add code to wait until only 1 goroutine remains (the main goroutine itself).</p>
 
@@ -162,7 +166,7 @@ for gcount(false) &gt; 1 {
 }
 </code></pre>
 
-<h3>🔍 Understanding the Code</h3>
+<h3>Understanding the Code</h3>
 
 <ul>
 <li><strong><code>gcount(false)</code></strong> - Runtime function that returns the number of active goroutines (the <code>false</code> argument excludes system goroutines from the count)</li>
@@ -171,7 +175,7 @@ for gcount(false) &gt; 1 {
 <li><strong>Loop terminates</strong> - When only the main goroutine remains (count = 1)</li>
 </ul>
 
-<h2>📝 Step 3: Rebuild Go Toolchain</h2>
+<h2>Step 3: Rebuild Go Toolchain</h2>
 
 <pre><code class="language-bash">cd go/src
 ./make.bash
@@ -179,7 +183,7 @@ for gcount(false) &gt; 1 {
 
 <p>This rebuilds the runtime with your patient goroutine waiting logic.</p>
 
-<h2>🧪 Step 4: Test Basic Goroutine Waiting</h2>
+<h2>Step 4: Test Basic Goroutine Waiting</h2>
 
 <p>Create a test file to verify the behavior:</p>
 
@@ -219,30 +223,30 @@ Goroutine 1 finished!
 Goroutine 2 finished!
 </code></pre>
 
-<p>🎉 Success! Go now waits for all goroutines to complete!</p>
+<p>Success! Go now waits for all goroutines to complete.</p>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>🔄 <strong>Program Termination</strong>: How Go programs exit and cleanup</li>
-<li>📊 <strong>Goroutine Tracking</strong>: The <code>gcount()</code> function tracks active goroutines</li>
-<li>⏸️ <strong>Cooperative Scheduling</strong>: <code>Gosched()</code> yields to allow other goroutines to run</li>
-<li>🔧 <strong>Runtime Modification</strong>: How a small change affects all Go programs</li>
-<li>⚖️ <strong>Design Trade-offs</strong>: Benefits and drawbacks of automatic waiting</li>
+<li><strong>Program Termination</strong>: How Go programs exit and cleanup</li>
+<li><strong>Goroutine Tracking</strong>: The <code>gcount()</code> function tracks active goroutines</li>
+<li><strong>Cooperative Scheduling</strong>: <code>Gosched()</code> yields to allow other goroutines to run</li>
+<li><strong>Runtime Modification</strong>: How a small change affects all Go programs</li>
+<li><strong>Design Trade-offs</strong>: Benefits and drawbacks of automatic waiting</li>
 </ul>
 
-<h2>💡 Extension Ideas</h2>
+<h2>Extension Ideas</h2>
 
-<p>Try these additional modifications: 🚀</p>
+<p>Try these additional modifications:</p>
 
 <ol>
-<li>➕ Add a timeout: Wait maximum 10 seconds for goroutines</li>
-<li>➕ Add logging: Print when waiting starts and which goroutines remain</li>
-<li>➕ Make it configurable: Use environment variable to enable/disable</li>
-<li>➕ Add a warning: Detect infinite loops in goroutines</li>
+<li>Add a timeout: Wait maximum 10 seconds for goroutines</li>
+<li>Add logging: Print when waiting starts and which goroutines remain</li>
+<li>Make it configurable: Use environment variable to enable/disable</li>
+<li>Add a warning: Detect infinite loops in goroutines</li>
 </ol>
 
-<h2>🧹 Cleanup</h2>
+<h2>Cleanup</h2>
 
 <p>To restore standard Go behavior:</p>
 
@@ -252,7 +256,7 @@ cd ..
 ./make.bash
 </code></pre>
 
-<h2>📊 Summary</h2>
+<h2>Summary</h2>
 
 <p>You&rsquo;ve successfully modified Go&rsquo;s runtime to be &ldquo;patient&rdquo; and wait for all goroutines!</p>
 
@@ -260,7 +264,7 @@ cd ..
 After:   main() returns → wait for goroutines → all complete → exit
 
 Changes: runtime/proc.go main() function
-Result:  No goroutine left behind! 🎯
+Result:  No goroutine left behind!
 </code></pre>
 
 <p>This modification demonstrates:</p>
@@ -272,7 +276,7 @@ Result:  No goroutine left behind! 🎯
 <li>Real-world trade-offs in language design</li>
 </ul>
 
-<p>Your Go is now patient! 🕰️✨</p>
+<p>Your Go is now patient.</p>
 
 <hr />
 
@@ -292,7 +296,7 @@ Result:  No goroutine left behind! 🎯
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

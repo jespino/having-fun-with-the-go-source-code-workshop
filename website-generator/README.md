@@ -4,12 +4,12 @@ This Go program generates the workshop website from the markdown exercise files.
 
 ## Features
 
-- ✅ Converts markdown exercises to HTML pages
-- ✅ Generates index page with exercise overview
-- ✅ Includes CSS styling
-- ✅ Automatic navigation links (previous/next)
-- ✅ Preserves all markdown formatting, emojis, and code blocks
-- ✅ Fixes relative links to work in HTML format
+- Converts markdown exercises to HTML pages
+- Generates index page with exercise overview
+- Includes CSS styling
+- Automatic navigation links (previous/next)
+- Preserves all markdown formatting and code blocks
+- Fixes relative links to work in HTML format
 
 ## Usage
 

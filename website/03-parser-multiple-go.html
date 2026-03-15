@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,24 +56,28 @@
         <article class="exercise-content">
             <h1>🔄 Exercise 3: Multiple &ldquo;go&rdquo; Keywords - Parser Enhancement</h1>
 
-<p>In this exercise, you&rsquo;ll modify the Go parser to accept multiple consecutive &ldquo;go&rdquo; keywords for starting goroutines! 🚀 This will teach you how to enhance parser logic to handle repetitive syntax patterns while maintaining the same semantic behavior.</p>
+<blockquote>
+<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/the-go-parser/">The Parser</a> on Internals for Interns for a deep dive into how Go&rsquo;s parser builds Abstract Syntax Trees.</p>
+</blockquote>
 
-<h2>🎯 Learning Objectives</h2>
+<p>In this exercise, you&rsquo;ll modify the Go parser to accept multiple consecutive &ldquo;go&rdquo; keywords for starting goroutines! This will teach you how to enhance parser logic to handle repetitive syntax patterns while maintaining the same semantic behavior.</p>
+
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand Go&rsquo;s parser structure and token consumption</li>
-<li>✅ Know how to modify parser logic for syntax extensions</li>
-<li>✅ Test parser modifications with working code</li>
+<li>Understand Go&rsquo;s parser structure and token consumption</li>
+<li>Know how to modify parser logic for syntax extensions</li>
+<li>Test parser modifications with working code</li>
 </ul>
 
-<h2>🔍 Step 1: Navigate to the Parser</h2>
+<h2>Step 1: Navigate to the Parser</h2>
 
 <pre><code class="language-bash">cd go/src/cmd/compile/internal/syntax
 </code></pre>
 
-<h3>🔑 Understanding the Current Parser Logic</h3>
+<h3>Understanding the Current Parser Logic</h3>
 
 <p>Let&rsquo;s examine how the parser currently handles the &ldquo;go&rdquo; statement in <code>parser.go</code>. Look around line 2675:</p>
 
@@ -131,7 +135,7 @@ if s.Tok == _Go {
 ...
 </code></pre>
 
-<h3>🔧 Understanding the Code Change</h3>
+<h3>Understanding the Code Change</h3>
 
 <ul>
 <li><strong><code>if s.Tok == _Go</code></strong>: Only apply multiple keyword logic to &ldquo;go&rdquo; statements (not &ldquo;defer&rdquo;)</li>
@@ -197,7 +201,7 @@ func main() {
 <pre><code class="language-bash">/path/to/workshop/go/bin/go run test.go
 </code></pre>
 
-<p>You should see output like: ✨</p>
+<p>You should see output like:</p>
 
 <pre><code>Testing multiple go keywords...
 Hello from single go!
@@ -224,28 +228,28 @@ All done!
 <li><strong>Targeted Change</strong>: Only affects &ldquo;go&rdquo; statements, not &ldquo;defer&rdquo; statements</li>
 </ol>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>🔄 <strong>Parser Logic</strong>: How Go processes token sequences into statements</li>
-<li>📝 <strong>Token Consumption</strong>: Techniques for consuming multiple tokens of the same type</li>
-<li>🧪 <strong>Parser Testing</strong>: Validating parser changes with diverse test cases</li>
+<li><strong>Parser Logic</strong>: How Go processes token sequences into statements</li>
+<li><strong>Token Consumption</strong>: Techniques for consuming multiple tokens of the same type</li>
+<li><strong>Parser Testing</strong>: Validating parser changes with diverse test cases</li>
 </ul>
 
-<h2>💡 Extension Ideas</h2>
+<h2>Extension Ideas</h2>
 
-<p>Try these additional modifications: 🚀</p>
+<p>Try these additional modifications:</p>
 
 <ol>
-<li>➕ Add similar support for &ldquo;defer defer defer&rdquo; (more challenging!)</li>
-<li>➕ Add a maximum limit (e.g., max 5 consecutive &ldquo;go&rdquo; keywords)</li>
-<li>📊 Track how many &ldquo;go&rdquo; keywords were used for debugging</li>
-<li>🎨 Make the multiple keywords affect goroutine priority</li>
+<li>Add similar support for &ldquo;defer defer defer&rdquo; (more challenging!)</li>
+<li>Add a maximum limit (e.g., max 5 consecutive &ldquo;go&rdquo; keywords)</li>
+<li>Track how many &ldquo;go&rdquo; keywords were used for debugging</li>
+<li>Make the multiple keywords affect goroutine priority</li>
 </ol>
 
-<h2>➡️ Next Steps</h2>
+<h2>Next Steps</h2>
 
-<p>Excellent work! 🎉 You&rsquo;ve successfully enhanced Go&rsquo;s parser to handle repetitive syntax patterns.</p>
+<p>You&rsquo;ve successfully enhanced Go&rsquo;s parser to handle repetitive syntax patterns.</p>
 
 <p>In <a href="04-compiler-inlining-parameters.html">Exercise 4: Compiler Inlining Parameters</a>, we&rsquo;ll shift focus to explore how Go&rsquo;s compiler optimization works, learning to tune inlining parameters for binary size control.</p>
 
@@ -273,7 +277,7 @@ go go go go myFunction()
 // but the semantic behavior remains the same!
 </code></pre>
 
-<p>This exercise demonstrated how parser-level modifications can add expressive syntactic sugar while preserving the underlying language semantics! 🚀✨</p>
+<p>This exercise demonstrated how parser-level modifications can add expressive syntactic sugar while preserving the underlying language semantics.</p>
 
 <hr />
 
@@ -293,7 +297,7 @@ go go go go myFunction()
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

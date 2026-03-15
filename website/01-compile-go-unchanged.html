@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,38 +56,38 @@
         <article class="exercise-content">
             <h1>🔨 Exercise 1: Compiling Go Without Changes</h1>
 
-<p>In this exercise, you&rsquo;ll learn how to build the Go toolchain from the source code without making any modifications. This is an essential skill before we start making changes to the language! ⚡</p>
+<p>In this exercise, you&rsquo;ll learn how to build the Go toolchain from the source code without making any modifications. This is an essential skill before we start making changes to the language!</p>
 
-<h2>🎯 Learning Objectives</h2>
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand the Go build process and bootstrap concept</li>
-<li>✅ Successfully compile Go from source</li>
-<li>✅ Know how to explore Go source code structure</li>
-<li>✅ Know how to test your custom Go build</li>
+<li>Understand the Go build process and bootstrap concept</li>
+<li>Successfully compile Go from source</li>
+<li>Know how to explore Go source code structure</li>
+<li>Know how to test your custom Go build</li>
 </ul>
 
-<h2>🥾 Step 1: Understanding the Bootstrap Process</h2>
+<h2>Step 1: Understanding the Bootstrap Process</h2>
 
-<p>Go is written in Go itself! 🤔 This creates a &ldquo;chicken and egg&rdquo; problem - how do you compile Go without having Go? The solution is bootstrapping:</p>
+<p>Go is written in Go itself! This creates a &ldquo;chicken and egg&rdquo; problem - how do you compile Go without having Go? The solution is bootstrapping:</p>
 
 <ol>
-<li>📦 The Go team provides pre-compiled binaries</li>
-<li>🔨 These binaries compile the current Go source code</li>
-<li>✨ The newly compiled version can then be used for development</li>
+<li>The Go team provides pre-compiled binaries</li>
+<li>These binaries compile the current Go source code</li>
+<li>The newly compiled version can then be used for development</li>
 </ol>
 
-<p>Let&rsquo;s check if you have Go installed (needed for bootstrapping): 🔍</p>
+<p>Let&rsquo;s check if you have Go installed (needed for bootstrapping):</p>
 
 <pre><code class="language-bash">go version
 # Must show version 1.24 or newer
 </code></pre>
 
-<p><strong>⚠️ Critical</strong>: You must have Go 1.24 or newer installed to build Go 1.26.1. If you don&rsquo;t have Go installed or your version is too old, install the latest version from <a href="https://golang.org/dl/">https://golang.org/dl/</a> 📥</p>
+<p><strong>⚠️ Critical</strong>: You must have Go 1.24 or newer installed to build Go 1.26.1. If you don&rsquo;t have Go installed or your version is too old, install the latest version from <a href="https://golang.org/dl/">https://golang.org/dl/</a></p>
 
-<h2>📂 Step 2: Navigate to the Go Source Directory</h2>
+<h2>Step 2: Navigate to the Go Source Directory</h2>
 
 <pre><code class="language-bash">cd go/src
 pwd
@@ -98,9 +98,9 @@ git describe --tags
 # Should show: go1.26.1
 </code></pre>
 
-<h2>🚀 Step 3: Start the Build Process</h2>
+<h2>Step 3: Start the Build Process</h2>
 
-<p>Go provides different scripts for building. Let&rsquo;s start with <code>make.bash</code> which builds the toolchain, then explore the source code while it&rsquo;s running! ⚡</p>
+<p>Go provides different scripts for building. Let&rsquo;s start with <code>make.bash</code> which builds the toolchain, then explore the source code while it&rsquo;s running!</p>
 
 <p><strong>On Unix-like systems (Linux, macOS):</strong></p>
 
@@ -112,37 +112,36 @@ git describe --tags
 <pre><code class="language-cmd">make.bat
 </code></pre>
 
-<p>This script will: 📋</p>
+<p>This script will:</p>
 
 <ol>
-<li>🔨 Build the Go toolchain (compiler, linker, runtime, standard library)</li>
-<li>⏱️ Take approximately 2-10 minutes depending on your system</li>
+<li>Build the Go toolchain (compiler, linker, runtime, standard library)</li>
+<li>Take approximately 2-10 minutes depending on your system</li>
 </ol>
 
-<p><strong>📝 Note:</strong> The first time you run this, it will take longer as it needs to compile everything from scratch.</p>
+<p><strong>Note:</strong> The first time you run this, it will take longer as it needs to compile everything from scratch.</p>
 
-<h3>🤔 What about <code>all.bash</code> and <code>run.bash</code>?</h3>
+<h3>What about <code>all.bash</code> and <code>run.bash</code>?</h3>
 
 <p>You might wonder about other scripts in the <code>src/</code> directory:</p>
 
 <ul>
-<li><strong>🔨 <code>make.bash</code></strong>: Builds the Go toolchain only (what we&rsquo;re using)</li>
-<li><strong>🧪 <code>run.bash</code></strong>: Runs the comprehensive test suite (requires Go to be built first)<br />
-</li>
-<li><strong>📦 <code>all.bash</code></strong>: Convenience script that runs <code>make.bash</code> + <code>run.bash</code> + prints build info</li>
+<li><strong><code>make.bash</code></strong>: Builds the Go toolchain only (what we&rsquo;re using)</li>
+<li><strong><code>run.bash</code></strong>: Runs the comprehensive test suite (requires Go to be built first)</li>
+<li><strong><code>all.bash</code></strong>: Convenience script that runs <code>make.bash</code> + <code>run.bash</code> + prints build info</li>
 </ul>
 
 <p>For this workshop, <code>make.bash</code> is perfect because:</p>
 
 <ul>
-<li>✅ Faster build time means less waiting</li>
-<li>✅ We just need a working Go build for our experiments</li>
-<li>✅ We can run tests later if needed with <code>run.bash</code></li>
+<li>Faster build time means less waiting</li>
+<li>We just need a working Go build for our experiments</li>
+<li>We can run tests later if needed with <code>run.bash</code></li>
 </ul>
 
-<h2>🔍 Step 4: Explore Source Code While Building</h2>
+<h2>Step 4: Explore Source Code While Building</h2>
 
-<p>While the build is running, open a <strong>new terminal</strong> or <strong>IDE</strong> and let&rsquo;s explore the Go source code structure! This is a great time to understand what we&rsquo;re building. 🧭</p>
+<p>While the build is running, open a <strong>new terminal</strong> or <strong>IDE</strong> and let&rsquo;s explore the Go source code structure! This is a great time to understand what we&rsquo;re building.</p>
 
 <p><strong>In your new terminal:</strong></p>
 
@@ -150,26 +149,26 @@ git describe --tags
 ls -la
 </code></pre>
 
-<h3>📁 Repository Structure</h3>
+<h3>Repository Structure</h3>
 
 <p>Key directories you should see:</p>
 
 <ul>
-<li><strong>📁 <code>src/</code></strong>: Contains the Go source code
+<li><strong><code>src/</code></strong>: Contains the Go source code
 
 <ul>
-<li>🛠️ <code>src/cmd/</code>: Command-line tools (go, gofmt, etc.)</li>
-<li>⚙️ <code>src/runtime/</code>: Go runtime system</li>
-<li>🌳 <code>src/go/</code>: Go language packages (parser, AST, etc.)</li>
+<li><code>src/cmd/</code>: Command-line tools (go, gofmt, etc.)</li>
+<li><code>src/runtime/</code>: Go runtime system</li>
+<li><code>src/go/</code>: Go language packages (parser, AST, etc.)</li>
 </ul></li>
-<li><strong>🧪 <code>test/</code></strong>: Test files for the Go language</li>
-<li><strong>📋 <code>api/</code></strong>: API compatibility data</li>
-<li><strong>📚 <code>doc/</code></strong>: Documentation</li>
+<li><strong><code>test/</code></strong>: Test files for the Go language</li>
+<li><strong><code>api/</code></strong>: API compatibility data</li>
+<li><strong><code>doc/</code></strong>: Documentation</li>
 </ul>
 
-<h3>🏗️ Examine the Go Compiler Structure</h3>
+<h3>Examine the Go Compiler Structure</h3>
 
-<p>The Go compiler is located in <code>src/cmd/compile/</code>. Let&rsquo;s explore it: 🔧</p>
+<p>The Go compiler is located in <code>src/cmd/compile/</code>. Let&rsquo;s explore it:</p>
 
 <pre><code class="language-bash">cd src/cmd/compile
 ls -la
@@ -178,20 +177,20 @@ ls -la
 <p>Key files and directories:</p>
 
 <ul>
-<li><strong>🚪 <code>main.go</code></strong>: Entry point of the compiler</li>
-<li><strong>📦 <code>internal/</code></strong>: Internal compiler packages
+<li><strong><code>main.go</code></strong>: Entry point of the compiler</li>
+<li><strong><code>internal/</code></strong>: Internal compiler packages
 
 <ul>
-<li>🔤 <code>internal/syntax/</code>: Lexer/parser (scanner, parser)</li>
-<li>✅ <code>internal/types2/</code>: Type checker</li>
-<li>🔄 <code>internal/ir/</code>: Intermediate representation</li>
-<li>⚡ <code>internal/gc/</code>: Code generation</li>
+<li><code>internal/syntax/</code>: Lexer/parser (scanner, parser)</li>
+<li><code>internal/types2/</code>: Type checker</li>
+<li><code>internal/ir/</code>: Intermediate representation</li>
+<li><code>internal/gc/</code>: Code generation</li>
 </ul></li>
 </ul>
 
-<h2>📊 Step 5: Understanding the Build Output</h2>
+<h2>Step 5: Understanding the Build Output</h2>
 
-<p><strong>Switch back to your original terminal</strong> where the build is running. As the build progresses, you should see output like: 👀</p>
+<p><strong>Switch back to your original terminal</strong> where the build is running. As the build progresses, you should see output like:</p>
 
 <pre><code>Building Go cmd/dist using /usr/local/go. (go1.26.1 darwin/amd64)
 Building Go toolchain1 using /usr/local/go.
@@ -210,9 +209,9 @@ Building packages and commands for darwin/amd64.
 <li>The toolchain3 and toolchain2 should be identical</li>
 </ul>
 
-<h2>📍 Step 6: Locate Your Compiled Go Binary</h2>
+<h2>Step 6: Locate Your Compiled Go Binary</h2>
 
-<p>After successful compilation, your new Go binary will be in: 🎯</p>
+<p>After successful compilation, your new Go binary will be in:</p>
 
 <pre><code class="language-bash">ls -la /path/to/workshop/go/bin
 </code></pre>
@@ -220,14 +219,14 @@ Building packages and commands for darwin/amd64.
 <p>You should see:</p>
 
 <ul>
-<li>🚀 <code>go</code> - The main Go command</li>
-<li>🎨 <code>gofmt</code> - Go formatter</li>
-<li>🛠️ Other Go tools</li>
+<li><code>go</code> - The main Go command</li>
+<li><code>gofmt</code> - Go formatter</li>
+<li>Other Go tools</li>
 </ul>
 
-<h2>🧪 Step 7: Test Your Custom Go Build</h2>
+<h2>Step 7: Test Your Custom Go Build</h2>
 
-<p>Let&rsquo;s test your newly compiled Go: ✨</p>
+<p>Let&rsquo;s test your newly compiled Go:</p>
 
 <pre><code class="language-bash"># Check version of your compiled Go
 ../bin/go version
@@ -260,17 +259,17 @@ func main() {
 
 <p>This happens because <code>GOROOT</code> may be set by your system Go installation, pointing the new binary to the wrong standard library and tools. Unsetting it lets the binary auto-detect its own root directory based on its location.</p>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>🥾 <strong>Bootstrap Process</strong>: Go compiles itself using an existing Go installation</li>
-<li>🏗️ <strong>Go Source Structure</strong>: Well-organized codebase with clear separation (cmd/, runtime/, etc.)</li>
-<li>⚡ <strong>Build Process</strong>: <code>./make.bash</code> builds everything</li>
+<li><strong>Bootstrap Process</strong>: Go compiles itself using an existing Go installation</li>
+<li><strong>Go Source Structure</strong>: Well-organized codebase with clear separation (cmd/, runtime/, etc.)</li>
+<li><strong>Build Process</strong>: <code>./make.bash</code> builds everything</li>
 </ul>
 
-<h2>🎉 Next Steps</h2>
+<h2>Next Steps</h2>
 
-<p>Congratulations! 🎊 You now have a working Go toolchain built from source.</p>
+<p>Congratulations! You now have a working Go toolchain built from source.</p>
 
 <p>You can now proceed with any of the following exercises to learn about different parts of Go:</p>
 
@@ -302,7 +301,7 @@ func main() {
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

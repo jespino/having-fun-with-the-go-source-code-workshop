@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,19 +56,23 @@
         <article class="exercise-content">
             <h1>🕵️‍♂️ Exercise 8: Goroutine Sleep Detective - Runtime State Monitoring</h1>
 
-<p>In this exercise, you&rsquo;ll modify the Go runtime scheduler to log goroutine state transitions! 🔍 Every time a goroutine goes to sleep waiting for something, it will announce itself: &ldquo;Hello, I&rsquo;m goroutine 42, going to sleep waiting for channel receive&rdquo;!</p>
+<blockquote>
+<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> on Internals for Interns for a deep dive into Go&rsquo;s goroutine scheduling and state transitions.</p>
+</blockquote>
 
-<h2>🎯 Learning Objectives</h2>
+<p>In this exercise, you&rsquo;ll modify the Go runtime scheduler to log goroutine state transitions. Every time a goroutine goes to sleep waiting for something, it will announce itself: &ldquo;Hello, I&rsquo;m goroutine 42, going to sleep waiting for channel receive&rdquo;.</p>
+
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand Go&rsquo;s goroutine scheduler state transitions</li>
-<li>✅ Know where goroutines block in the runtime</li>
-<li>✅ Modify the scheduler for debugging insights</li>
+<li>Understand Go&rsquo;s goroutine scheduler state transitions</li>
+<li>Know where goroutines block in the runtime</li>
+<li>Modify the scheduler for debugging insights</li>
 </ul>
 
-<h2>🧠 Background: Goroutine States</h2>
+<h2>Background: Goroutine States</h2>
 
 <p>Go manages goroutines through different states:</p>
 
@@ -82,7 +86,7 @@
 
 <p>When a goroutine needs to wait (for channels, mutexes, sleep, etc.), it &ldquo;parks&rdquo; and transitions to <code>_Gwaiting</code> state.</p>
 
-<h2>🔍 Step 1: Understanding the Park Mechanism</h2>
+<h2>Step 1: Understanding the Park Mechanism</h2>
 
 <p>The <code>gopark</code> function is called by ALL synchronization primitives when a goroutine needs to wait.</p>
 
@@ -163,7 +167,7 @@ if gp.goid &gt; 1 { // Skip system goroutines 0 and 1
 casgstatus(gp, _Grunning, _Gwaiting)
 </code></pre>
 
-<h3>🔧 Understanding the Code</h3>
+<h3>Understanding the Code</h3>
 
 <ul>
 <li><strong><code>gp.goid</code></strong> - Unique goroutine ID</li>
@@ -222,7 +226,7 @@ Hello, I'm goroutine 5, going to sleep waiting for GOMAXPROCS updater (idle)
 Received: Hello!
 </code></pre>
 
-<p>🎉 You can now see goroutines blocking!</p>
+<p>You can now see goroutines blocking.</p>
 
 <h2>Understanding What We Did</h2>
 
@@ -242,25 +246,25 @@ Received: Hello!
 <li><code>GC</code></li>
 </ul>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>🔄 <strong>Goroutine Lifecycle</strong>: How goroutines transition between states</li>
-<li>🅿️  <strong>Park Mechanism</strong>: The <code>gopark</code> and <code>park_m</code> functions</li>
-<li>🔒 <strong>Synchronization Internals</strong>: Where channels, mutexes, and select cause blocking</li>
-<li>🛠️ <strong>Runtime Debugging</strong>: How to add observability to the Go runtime</li>
-<li>👀 <strong>Concurrency Visibility</strong>: Real-time observation of blocking operations</li>
+<li><strong>Goroutine Lifecycle</strong>: How goroutines transition between states</li>
+<li><strong>Park Mechanism</strong>: The <code>gopark</code> and <code>park_m</code> functions</li>
+<li><strong>Synchronization Internals</strong>: Where channels, mutexes, and select cause blocking</li>
+<li><strong>Runtime Debugging</strong>: How to add observability to the Go runtime</li>
+<li><strong>Concurrency Visibility</strong>: Real-time observation of blocking operations</li>
 </ul>
 
-<h2>💡 Extension Ideas</h2>
+<h2>Extension Ideas</h2>
 
-<p>Try these additional modifications: 🚀</p>
+<p>Try these additional modifications:</p>
 
 <ol>
-<li>➕ Add goroutine wakeup logging (when they resume running)</li>
-<li>➕ Add emojis for different wait reasons (📢 channel, 🔒 mutex, 😴 sleep)</li>
-<li>➕ Include timestamps to measure blocking duration</li>
-<li>➕ Filter logging by specific wait reasons only</li>
+<li>Add goroutine wakeup logging (when they resume running)</li>
+<li>Add icons for different wait reasons (channel, mutex, sleep)</li>
+<li>Include timestamps to measure blocking duration</li>
+<li>Filter logging by specific wait reasons only</li>
 </ol>
 
 <h2>Cleanup</h2>
@@ -282,7 +286,7 @@ Hello, I'm goroutine 19, going to sleep waiting for sync mutex lock
 Hello, I'm goroutine 20, going to sleep waiting for sleep
 </code></pre>
 
-<p>This exercise revealed the internal workings of Go&rsquo;s scheduler and how synchronization primitives interact with the runtime! 🕵️‍♂️✨</p>
+<p>This exercise revealed the internal workings of Go&rsquo;s scheduler and how synchronization primitives interact with the runtime.</p>
 
 <hr />
 
@@ -302,7 +306,7 @@ Hello, I'm goroutine 20, going to sleep waiting for sleep
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

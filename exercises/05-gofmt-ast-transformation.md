@@ -2,20 +2,20 @@
 
 > 📖 **Want to learn more?** Read [The Parser](https://internals-for-interns.com/posts/the-go-parser/) on Internals for Interns for a deep dive into how Go builds and works with Abstract Syntax Trees.
 
-In this exercise, you'll modify Go's formatting tool `gofmt` to use 4 spaces instead of tabs, and then add a custom AST transformation to automatically replace the word "hello" with "helo" in string literals and comments! 🔄 This will teach you how Go's formatter works, how printer modes control indentation, and how to add custom transformations to the AST processing pipeline.
+In this exercise, you'll modify Go's formatting tool `gofmt` to use 4 spaces instead of tabs, and then add a custom AST transformation to automatically replace the word "hello" with "helo" in string literals and comments. This will teach you how Go's formatter works, how printer modes control indentation, and how to add custom transformations to the AST processing pipeline.
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand how gofmt controls indentation and printer modes
-- ✅ Learn to modify formatting behavior across gofmt and go/format package
-- ✅ Understand how gofmt processes Go source code through AST manipulation
-- ✅ Know how to modify string literals and comments in the AST
-- ✅ Explore Go's AST (Abstract Syntax Tree) structure
-- ✅ Create custom source code transformations
+- Understand how gofmt controls indentation and printer modes
+- Learn to modify formatting behavior across gofmt and go/format package
+- Understand how gofmt processes Go source code through AST manipulation
+- Know how to modify string literals and comments in the AST
+- Explore Go's AST (Abstract Syntax Tree) structure
+- Create custom source code transformations
 
-## 🧠 Background: How gofmt Works
+## Background: How gofmt Works
 
 gofmt operates through these stages:
 
@@ -31,14 +31,14 @@ The indentation behavior is controlled by two key constants:
   - `printer.TabIndent` → Use tabs for indentation
   - `printerNormalizeNumbers` → Normalize number literals
 
-### 🌳 AST Structure
+### AST Structure
 
 Go represents source code as a tree of nodes we are going to use here this two nodes:
 
 - **`*ast.BasicLit`** → String literals, numbers, etc.
 - **`*ast.Comment`** → Comments in source code
 
-## 🔍 Step 1: Navigate to gofmt Source
+## Step 1: Navigate to gofmt Source
 
 ```bash
 cd go/src/cmd/gofmt
@@ -50,7 +50,7 @@ Key files:
 - **`gofmt.go`** → Main program logic and file processing
 - **`simplify.go`** → AST simplification transformations
 
-## 📏 Step 2: Change Indentation to 4 Spaces
+## Step 2: Change Indentation to 4 Spaces
 
 Before adding custom transformations, let's change gofmt to use 4 spaces instead of tabs for indentation.
 
@@ -101,14 +101,14 @@ const (
 	printerMode = printer.UseSpaces | printerNormalizeNumbers
 ```
 
-### 🔧 Understanding the Changes
+### Understanding the Changes
 
 - **`tabWidth = 4`**: Each indentation level uses 4 spaces
 - **Removing `TabIndent`**: Without this flag, the printer uses only spaces (no tab characters)
 - **`UseSpaces`**: Ensures spaces are used for padding and alignment
 - **Both files must match**: gofmt and go/format must use the same settings for consistency
 
-## 🔨 Step 3: Rebuild and Test Indentation
+## Step 3: Rebuild and Test Indentation
 
 ```bash
 cd ../../../  # back to go/src
@@ -154,7 +154,7 @@ func main() {
 }
 ```
 
-🎉 Each indentation level now uses 4 spaces instead of tabs!
+Each indentation level now uses 4 spaces instead of tabs.
 
 ## Step 4: Add Hello→Helo Transformation
 
@@ -186,7 +186,7 @@ func transformHelloToHelo(file *ast.File) {
 }
 ```
 
-### 🔧 Understanding the Code
+### Understanding the Code
 
 - **`ast.Inspect()`** - Traverses all nodes in the AST
 - **`*ast.BasicLit`** - Matches string literals
@@ -272,7 +272,7 @@ func main() {
 }
 ```
 
-🎉 Two changes applied:
+Two changes applied:
 
 1. All "hello" instances are replaced with "helo"
 2. Indentation uses 4 spaces instead of tabs
@@ -299,26 +299,26 @@ The file is now permanently transformed with "helo" instead of "hello" and using
 6. **Integration**: Called transformation during gofmt processing
 7. **Testing**: Verified both indentation and transformation changes
 
-## 🎓 What We Learned
+## What We Learned
 
-- 📏 **Printer Configuration**: How gofmt controls indentation through tabWidth and printerMode
-- 🔄 **Package Consistency**: Why gofmt and go/format must stay in sync
-- 🌳 **AST Manipulation**: How to traverse and modify Go's Abstract Syntax Tree
-- 🔧 **Tool Modification**: How to extend existing Go tools with multiple changes
-- 🔍 **Code Transformation**: Implementing systematic source code changes
-- 🏗️ **Build Process**: Rebuilding Go toolchain components
-- 🧪 **Testing**: Verifying custom tool behavior
+- **Printer Configuration**: How gofmt controls indentation through tabWidth and printerMode
+- **Package Consistency**: Why gofmt and go/format must stay in sync
+- **AST Manipulation**: How to traverse and modify Go's Abstract Syntax Tree
+- **Tool Modification**: How to extend existing Go tools with multiple changes
+- **Code Transformation**: Implementing systematic source code changes
+- **Build Process**: Rebuilding Go toolchain components
+- **Testing**: Verifying custom tool behavior
 
-## 💡 Extension Ideas
+## Extension Ideas
 
-Try these additional modifications: 🚀
+Try these additional modifications:
 
-1. ➕ Add a command-line flag to enable/disable the transformation
-2. ➕ Support multiple word replacements (hello→helo, world→universe)
-3. ➕ Add case-sensitive option
-4. ➕ Only replace whole words (not substrings within words)
-5. ➕ Make tabWidth configurable via command-line flag
-6. ➕ Add option to switch between tabs and spaces
+1. Add a command-line flag to enable/disable the transformation
+2. Support multiple word replacements (hello→helo, world→universe)
+3. Add case-sensitive option
+4. Only replace whole words (not substrings within words)
+5. Make tabWidth configurable via command-line flag
+6. Add option to switch between tabs and spaces
 
 Example flag addition:
 ```go
@@ -356,7 +356,7 @@ Changes:  tabWidth=4 + remove TabIndent flag
          + ast.Inspect() → pattern match → replace text
 ```
 
-You now understand how tools like `gofmt`, `goimports`, and `go fix` work at both the printer and AST levels! ⚡🌳
+You now understand how tools like `gofmt`, `goimports`, and `go fix` work at both the printer and AST levels.
 
 ---
 

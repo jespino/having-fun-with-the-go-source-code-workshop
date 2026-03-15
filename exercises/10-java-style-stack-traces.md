@@ -1,16 +1,16 @@
 # ☕ Exercise 10: Java-Style Stack Traces - Making Go Panics Look Familiar
 
-In this exercise, you'll modify Go's stack trace formatting to match Java's style! 🔄 Instead of Go's stack traces, we'll create Java-style traces.
+In this exercise, you'll modify Go's stack trace formatting to match Java's style. Instead of Go's stack traces, we'll create Java-style traces.
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand how Go formats stack traces in the runtime
-- ✅ Know where panic messages are generated
-- ✅ Modify runtime output formatting
+- Understand how Go formats stack traces in the runtime
+- Know where panic messages are generated
+- Modify runtime output formatting
 
-## 🧠 Background: Stack Trace Styles
+## Background: Stack Trace Styles
 
 We're transforming Go's stacktrace format:
 
@@ -35,7 +35,7 @@ Exception in thread "main" go.runtime.Panic: Something went wrong
     at main.methodA(main.go:7)
 ```
 
-## 🔍 Step 1: Create a Test Program
+## Step 1: Create a Test Program
 
 Create a `stack_trace_demo.go` file:
 
@@ -192,20 +192,20 @@ Exception in thread "main" go.runtime.Panic: Something went wrong
 4. **Removed Debug Info**: Commented out `gotraceback()` call and eliminated hex offsets, frame pointers
 5. **Basename Only**: Extract filename from full path using loop
 
-## 🎓 What We Learned
+## What We Learned
 
-- 🔍 **Runtime Formatting**: How Go generates stack traces
-- 📝 **Panic Handling**: Where panic messages originate
-- 🎨 **Output Control**: Modifying runtime print statements
+- **Runtime Formatting**: How Go generates stack traces
+- **Panic Handling**: Where panic messages originate
+- **Output Control**: Modifying runtime print statements
 
-## 💡 Extension Ideas
+## Extension Ideas
 
-Try these additional modifications: 🚀
+Try these additional modifications:
 
-1. ➕ Add color to the output (red for "Exception")
-2. ➕ Make it configurable via environment variable
-3. ➕ Add Python-style formatting as another option
-4. ➕ Include package path conversion (github.com/user/pkg → github.com.user.pkg)
+1. Add color to the output (red for "Exception")
+2. Make it configurable via environment variable
+3. Add Python-style formatting as another option
+4. Include package path conversion (github.com/user/pkg → github.com.user.pkg)
 
 ## Cleanup
 

@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,21 +56,25 @@
         <article class="exercise-content">
             <h1>⚡ Exercise 2: Adding the &ldquo;=&gt;&rdquo; Arrow Operator for Goroutines</h1>
 
-<p>In this exercise, you&rsquo;ll add a new &ldquo;=&gt;&rdquo; arrow operator to Go that works as an alternative syntax for starting goroutines! 🚀 This will teach you how to modify Go&rsquo;s scanner to recognize new operators and map them to existing functionality.</p>
+<blockquote>
+<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/the-go-lexer/">The Scanner</a> on Internals for Interns for a deep dive into how Go&rsquo;s lexer/scanner works.</p>
+</blockquote>
 
-<h2>🎯 Learning Objectives</h2>
+<p>In this exercise, you&rsquo;ll add a new &ldquo;=&gt;&rdquo; arrow operator to Go that works as an alternative syntax for starting goroutines. This will teach you how to modify Go&rsquo;s scanner to recognize new operators and map them to existing functionality.</p>
+
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand how Go&rsquo;s scanner tokenizes operators</li>
-<li>✅ Know how to add new operator syntax to Go</li>
-<li>✅ Modify the scanner&rsquo;s lexical analysis logic</li>
-<li>✅ Test your scanner modification with working code</li>
-<li>✅ Successfully extend Go&rsquo;s operator vocabulary</li>
+<li>Understand how Go&rsquo;s scanner tokenizes operators</li>
+<li>Know how to add new operator syntax to Go</li>
+<li>Modify the scanner&rsquo;s lexical analysis logic</li>
+<li>Test your scanner modification with working code</li>
+<li>Successfully extend Go&rsquo;s operator vocabulary</li>
 </ul>
 
-<h2>🧠 Background: How This Scanner Modification Works</h2>
+<h2>Background: How This Scanner Modification Works</h2>
 
 <p>This exercise demonstrates <strong>scanner-level modifications</strong> to add new operator syntax to Go. We&rsquo;ll modify the scanner logic to recognize a new operator sequence &ldquo;=&gt;&rdquo; and map it to an existing token. Here&rsquo;s what we&rsquo;ll accomplish:</p>
 
@@ -83,12 +87,12 @@
 
 <p>This approach allows us to create elegant alternative syntax without changing the deeper parts of the compiler!</p>
 
-<h2>🔍 Step 1: Navigate to the Scanner</h2>
+<h2>Step 1: Navigate to the Scanner</h2>
 
 <pre><code class="language-bash">cd go/src/cmd/compile/internal/syntax
 </code></pre>
 
-<h3>🔑 Understanding the Scanner Structure</h3>
+<h3>Understanding the Scanner Structure</h3>
 
 <p>Let&rsquo;s examine how the scanner handles the &ldquo;=&rdquo; operator in <code>scanner.go</code>. Look at line 325:</p>
 
@@ -132,7 +136,7 @@ case '=':
     s.tok = _Assign
 </code></pre>
 
-<h3>🔧 Understanding the Code Change</h3>
+<h3>Understanding the Code Change</h3>
 
 <ul>
 <li><strong><code>if s.ch == '&gt;'</code></strong>: Check if the next character after &ldquo;=&rdquo; is &ldquo;&gt;&rdquo; (remember <code>s.nextch()</code> already consumed the &ldquo;=&rdquo;)</li>
@@ -193,7 +197,7 @@ func main() {
 <pre><code class="language-bash">/path/to/workshop/go/bin/go run test.go
 </code></pre>
 
-<p>You should see output like: ✨</p>
+<p>You should see output like:</p>
 
 <pre><code>Testing =&gt; arrow operator...
 Hello from regular go!
@@ -201,7 +205,7 @@ Hello from arrow operator!
 All done!
 </code></pre>
 
-<h2>🧪 Step 5: Test Mixed Go Operators</h2>
+<h2>Step 5: Test Mixed Go Operators</h2>
 
 <p>Let&rsquo;s test mixed scenarios using both the traditional &ldquo;go&rdquo; keyword and our new &ldquo;=&gt;&rdquo; arrow operator:</p>
 
@@ -264,30 +268,30 @@ func main() {
 <li><strong>Minimal Change Impact</strong>: No parser or IR changes needed</li>
 </ol>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>🔤 <strong>Scanner Logic</strong>: How Go tokenizes operator sequences</li>
-<li>📝 <strong>Operator Recognition</strong>: Adding new operators through scanner modification</li>
-<li>🔄 <strong>Token Reuse</strong>: Mapping new syntax to existing tokens</li>
-<li>🧪 <strong>Testing Strategy</strong>: Validating scanner changes with real code</li>
-<li>🔨 <strong>Build Process</strong>: Rebuilding Go with scanner modifications</li>
+<li><strong>Scanner Logic</strong>: How Go tokenizes operator sequences</li>
+<li><strong>Operator Recognition</strong>: Adding new operators through scanner modification</li>
+<li><strong>Token Reuse</strong>: Mapping new syntax to existing tokens</li>
+<li><strong>Testing Strategy</strong>: Validating scanner changes with real code</li>
+<li><strong>Build Process</strong>: Rebuilding Go with scanner modifications</li>
 </ul>
 
-<h2>💡 Extension Ideas</h2>
+<h2>Extension Ideas</h2>
 
-<p>Try these additional modifications: 🚀</p>
+<p>Try these additional modifications:</p>
 
 <ol>
-<li>➕ Add &ldquo;:&gt;&rdquo; as another alternative to &ldquo;go&rdquo;</li>
-<li>➕ Add &ldquo;~&gt;&rdquo; for async operations</li>
-<li>🔤 Add &ldquo;&gt;&gt;&gt;&rdquo; as a triple-arrow operator</li>
-<li>🎨 Make the arrow operator work in different contexts</li>
+<li>Add &ldquo;:&gt;&rdquo; as another alternative to &ldquo;go&rdquo;</li>
+<li>Add &ldquo;~&gt;&rdquo; for async operations</li>
+<li>Add &ldquo;&gt;&gt;&gt;&rdquo; as a triple-arrow operator</li>
+<li>Make the arrow operator work in different contexts</li>
 </ol>
 
-<h2>➡️ Next Steps</h2>
+<h2>Next Steps</h2>
 
-<p>Great work! 🎉 You&rsquo;ve successfully added a new operator to Go&rsquo;s scanner. You now understand how to modify the scanner to create alternative syntax for existing functionality. This technique can be applied to create other operator shortcuts and syntax sugar in the language.</p>
+<p>You&rsquo;ve successfully added a new operator to Go&rsquo;s scanner. You now understand how to modify the scanner to create alternative syntax for existing functionality. This technique can be applied to create other operator shortcuts and syntax sugar in the language.</p>
 
 <p>In Exercise 3, we&rsquo;ll take a different approach and explore <strong>parser modifications</strong> - learning how to modify the parser to handle multiple consecutive tokens.</p>
 
@@ -312,7 +316,7 @@ go myFunction()
 // Both create goroutines the same way!
 </code></pre>
 
-<p>This exercise demonstrated how scanner-level modifications can add new syntax with minimal code changes! 🚀✨</p>
+<p>This exercise demonstrated how scanner-level modifications can add new syntax with minimal code changes.</p>
 
 <hr />
 
@@ -332,7 +336,7 @@ go myFunction()
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

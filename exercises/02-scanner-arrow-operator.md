@@ -2,19 +2,19 @@
 
 > 📖 **Want to learn more?** Read [The Scanner](https://internals-for-interns.com/posts/the-go-lexer/) on Internals for Interns for a deep dive into how Go's lexer/scanner works.
 
-In this exercise, you'll add a new "=>" arrow operator to Go that works as an alternative syntax for starting goroutines! 🚀 This will teach you how to modify Go's scanner to recognize new operators and map them to existing functionality.
+In this exercise, you'll add a new "=>" arrow operator to Go that works as an alternative syntax for starting goroutines. This will teach you how to modify Go's scanner to recognize new operators and map them to existing functionality.
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand how Go's scanner tokenizes operators
-- ✅ Know how to add new operator syntax to Go
-- ✅ Modify the scanner's lexical analysis logic
-- ✅ Test your scanner modification with working code
-- ✅ Successfully extend Go's operator vocabulary
+- Understand how Go's scanner tokenizes operators
+- Know how to add new operator syntax to Go
+- Modify the scanner's lexical analysis logic
+- Test your scanner modification with working code
+- Successfully extend Go's operator vocabulary
 
-## 🧠 Background: How This Scanner Modification Works
+## Background: How This Scanner Modification Works
 
 This exercise demonstrates **scanner-level modifications** to add new operator syntax to Go. We'll modify the scanner logic to recognize a new operator sequence "=>" and map it to an existing token. Here's what we'll accomplish:
 
@@ -25,13 +25,13 @@ This exercise demonstrates **scanner-level modifications** to add new operator s
 
 This approach allows us to create elegant alternative syntax without changing the deeper parts of the compiler!
 
-## 🔍 Step 1: Navigate to the Scanner
+## Step 1: Navigate to the Scanner
 
 ```bash
 cd go/src/cmd/compile/internal/syntax
 ```
 
-### 🔑 Understanding the Scanner Structure
+### Understanding the Scanner Structure
 
 Let's examine how the scanner handles the "=" operator in `scanner.go`. Look at line 325:
 
@@ -77,7 +77,7 @@ case '=':
     s.tok = _Assign
 ```
 
-### 🔧 Understanding the Code Change
+### Understanding the Code Change
 
 - **`if s.ch == '>'`**: Check if the next character after "=" is ">" (remember `s.nextch()` already consumed the "=")
 - **`s.nextch()`**: consumes the ">" character from the lexer
@@ -140,7 +140,7 @@ Execute the test program with your custom Go:
 /path/to/workshop/go/bin/go run test.go
 ```
 
-You should see output like: ✨
+You should see output like:
 
 ```
 Testing => arrow operator...
@@ -149,7 +149,7 @@ Hello from arrow operator!
 All done!
 ```
 
-## 🧪 Step 5: Test Mixed Go Operators
+## Step 5: Test Mixed Go Operators
 
 Let's test mixed scenarios using both the traditional "go" keyword and our new "=>" arrow operator:
 
@@ -213,26 +213,26 @@ cd /path/to/workshop/go/src
 3. **Preserved Existing Functionality**: "=" and "==" operators still work normally
 4. **Minimal Change Impact**: No parser or IR changes needed
 
-## 🎓 What We Learned
+## What We Learned
 
-- 🔤 **Scanner Logic**: How Go tokenizes operator sequences
-- 📝 **Operator Recognition**: Adding new operators through scanner modification
-- 🔄 **Token Reuse**: Mapping new syntax to existing tokens
-- 🧪 **Testing Strategy**: Validating scanner changes with real code
-- 🔨 **Build Process**: Rebuilding Go with scanner modifications
+- **Scanner Logic**: How Go tokenizes operator sequences
+- **Operator Recognition**: Adding new operators through scanner modification
+- **Token Reuse**: Mapping new syntax to existing tokens
+- **Testing Strategy**: Validating scanner changes with real code
+- **Build Process**: Rebuilding Go with scanner modifications
 
-## 💡 Extension Ideas
+## Extension Ideas
 
-Try these additional modifications: 🚀
+Try these additional modifications:
 
-1. ➕ Add ":>" as another alternative to "go"
-2. ➕ Add "~>" for async operations
-3. 🔤 Add ">>>" as a triple-arrow operator
-4. 🎨 Make the arrow operator work in different contexts
+1. Add ":>" as another alternative to "go"
+2. Add "~>" for async operations
+3. Add ">>>" as a triple-arrow operator
+4. Make the arrow operator work in different contexts
 
-## ➡️ Next Steps
+## Next Steps
 
-Great work! 🎉 You've successfully added a new operator to Go's scanner. You now understand how to modify the scanner to create alternative syntax for existing functionality. This technique can be applied to create other operator shortcuts and syntax sugar in the language.
+You've successfully added a new operator to Go's scanner. You now understand how to modify the scanner to create alternative syntax for existing functionality. This technique can be applied to create other operator shortcuts and syntax sugar in the language.
 
 In Exercise 3, we'll take a different approach and explore **parser modifications** - learning how to modify the parser to handle multiple consecutive tokens.
 
@@ -259,7 +259,7 @@ go myFunction()
 // Both create goroutines the same way!
 ```
 
-This exercise demonstrated how scanner-level modifications can add new syntax with minimal code changes! 🚀✨
+This exercise demonstrated how scanner-level modifications can add new syntax with minimal code changes.
 
 ---
 

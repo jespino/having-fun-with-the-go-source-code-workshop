@@ -2,18 +2,18 @@
 
 > 📖 **Want to learn more?** Read [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's runtime and goroutine scheduling.
 
-In this exercise, you'll modify Go's `select` statement to be deterministic instead of random! 🎲➡️📏 By default, Go randomizes which case is chosen when multiple channels are ready. We'll change it to always choose cases in the same order.
+In this exercise, you'll modify Go's `select` statement to be deterministic instead of random. By default, Go randomizes which case is chosen when multiple channels are ready. We'll change it to always choose cases in the same order.
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand how Go's `select` statement is implemented
-- ✅ Know why Go uses randomization (fairness vs. starvation)
-- ✅ Modify the runtime's channel selection algorithm
-- ✅ Test deterministic vs. random selection behavior
+- Understand how Go's `select` statement is implemented
+- Know why Go uses randomization (fairness vs. starvation)
+- Modify the runtime's channel selection algorithm
+- Test deterministic vs. random selection behavior
 
-## 🧠 Background: Go Randomizes Select
+## Background: Go Randomizes Select
 
 By default, when multiple channels are ready, Go randomizes which case executes:
 
@@ -37,7 +37,7 @@ case v := <-ch3:  // Only if ch1 and ch2 not ready
 // Predictable, source-order selection
 ```
 
-## 🔍 Step 1: Create a Test to See Current Randomization
+## Step 1: Create a Test to See Current Randomization
 
 Create a `random_select_demo.go` file:
 
@@ -129,7 +129,7 @@ pollorder[j] = uint16(i)
 pollorder[norder] = uint16(len(scases)-1-i)
 ```
 
-### 🔧 Understanding the Code Change
+### Understanding the Code Change
 
 
 - **`uint16(len(scases)-1-i)`**: Use inverse order here
@@ -168,21 +168,21 @@ Perfect! `ch1` is **always** chosen because is the first one in the code, no mor
 3. **Performance Boost**: Slightly faster (no random number generation)
 4. **Changed Semantics**: Same syntax, different runtime behavior
 
-## 🎓 What We Learned
+## What We Learned
 
-- 🔄 **Runtime Modification**: How to alter fundamental language behavior
-- ⚖️ **Design Trade-offs**: Fairness vs. determinism in concurrent systems
-- 📊 **Select Internals**: How `selectgo` and `pollorder` work
-- 🧪 **Behavioral Testing**: Validating semantic changes with test programs
+- **Runtime Modification**: How to alter fundamental language behavior
+- **Design Trade-offs**: Fairness vs. determinism in concurrent systems
+- **Select Internals**: How `selectgo` and `pollorder` work
+- **Behavioral Testing**: Validating semantic changes with test programs
 
-## 💡 Extension Ideas
+## Extension Ideas
 
-Try these additional modifications: 🚀
+Try these additional modifications:
 
-1. ➕ Add a reverse-order mode (check cases last to first)
-2. ➕ Add priority levels based on case position
-3. 📊 Track selection statistics for debugging
-4. 🎲 Make randomization configurable via environment variable
+1. Add a reverse-order mode (check cases last to first)
+2. Add priority levels based on case position
+3. Track selection statistics for debugging
+4. Make randomization configurable via environment variable
 
 ## Cleanup
 
@@ -215,7 +215,7 @@ case <-ch3: // Only if ch1 and ch2 not ready
 }
 ```
 
-This exercise demonstrated how runtime modifications can fundamentally change language behavior and exposed important trade-offs in concurrent system design! 🎯✨
+This exercise demonstrated how runtime modifications can fundamentally change language behavior and exposed important trade-offs in concurrent system design.
 
 ---
 

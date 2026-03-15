@@ -2,17 +2,17 @@
 
 > 📖 **Want to learn more?** Read [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's goroutine scheduling and state transitions.
 
-In this exercise, you'll modify the Go runtime scheduler to log goroutine state transitions! 🔍 Every time a goroutine goes to sleep waiting for something, it will announce itself: "Hello, I'm goroutine 42, going to sleep waiting for channel receive"!
+In this exercise, you'll modify the Go runtime scheduler to log goroutine state transitions. Every time a goroutine goes to sleep waiting for something, it will announce itself: "Hello, I'm goroutine 42, going to sleep waiting for channel receive".
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand Go's goroutine scheduler state transitions
-- ✅ Know where goroutines block in the runtime
-- ✅ Modify the scheduler for debugging insights
+- Understand Go's goroutine scheduler state transitions
+- Know where goroutines block in the runtime
+- Modify the scheduler for debugging insights
 
-## 🧠 Background: Goroutine States
+## Background: Goroutine States
 
 Go manages goroutines through different states:
 
@@ -24,7 +24,7 @@ Go manages goroutines through different states:
 
 When a goroutine needs to wait (for channels, mutexes, sleep, etc.), it "parks" and transitions to `_Gwaiting` state.
 
-## 🔍 Step 1: Understanding the Park Mechanism
+## Step 1: Understanding the Park Mechanism
 
 The `gopark` function is called by ALL synchronization primitives when a goroutine needs to wait.
 
@@ -109,7 +109,7 @@ if gp.goid > 1 { // Skip system goroutines 0 and 1
 casgstatus(gp, _Grunning, _Gwaiting)
 ```
 
-### 🔧 Understanding the Code
+### Understanding the Code
 
 - **`gp.goid`** - Unique goroutine ID
 - **`gp.waitreason.String()`** - Human-readable reason for waiting (channel, mutex, sleep, etc.)
@@ -170,7 +170,7 @@ Hello, I'm goroutine 5, going to sleep waiting for GOMAXPROCS updater (idle)
 Received: Hello!
 ```
 
-🎉 You can now see goroutines blocking!
+You can now see goroutines blocking.
 
 ## Understanding What We Did
 
@@ -186,22 +186,22 @@ Common wait reasons you'll see:
 - `sleep`
 - `GC`
 
-## 🎓 What We Learned
+## What We Learned
 
-- 🔄 **Goroutine Lifecycle**: How goroutines transition between states
-- 🅿️  **Park Mechanism**: The `gopark` and `park_m` functions
-- 🔒 **Synchronization Internals**: Where channels, mutexes, and select cause blocking
-- 🛠️ **Runtime Debugging**: How to add observability to the Go runtime
-- 👀 **Concurrency Visibility**: Real-time observation of blocking operations
+- **Goroutine Lifecycle**: How goroutines transition between states
+- **Park Mechanism**: The `gopark` and `park_m` functions
+- **Synchronization Internals**: Where channels, mutexes, and select cause blocking
+- **Runtime Debugging**: How to add observability to the Go runtime
+- **Concurrency Visibility**: Real-time observation of blocking operations
 
-## 💡 Extension Ideas
+## Extension Ideas
 
-Try these additional modifications: 🚀
+Try these additional modifications:
 
-1. ➕ Add goroutine wakeup logging (when they resume running)
-2. ➕ Add emojis for different wait reasons (📢 channel, 🔒 mutex, 😴 sleep)
-3. ➕ Include timestamps to measure blocking duration
-4. ➕ Filter logging by specific wait reasons only
+1. Add goroutine wakeup logging (when they resume running)
+2. Add icons for different wait reasons (channel, mutex, sleep)
+3. Include timestamps to measure blocking duration
+4. Filter logging by specific wait reasons only
 
 ## Cleanup
 
@@ -224,7 +224,7 @@ Hello, I'm goroutine 19, going to sleep waiting for sync mutex lock
 Hello, I'm goroutine 20, going to sleep waiting for sleep
 ```
 
-This exercise revealed the internal workings of Go's scheduler and how synchronization primitives interact with the runtime! 🕵️‍♂️✨
+This exercise revealed the internal workings of Go's scheduler and how synchronization primitives interact with the runtime.
 
 ---
 

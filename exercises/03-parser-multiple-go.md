@@ -2,23 +2,23 @@
 
 > 📖 **Want to learn more?** Read [The Parser](https://internals-for-interns.com/posts/the-go-parser/) on Internals for Interns for a deep dive into how Go's parser builds Abstract Syntax Trees.
 
-In this exercise, you'll modify the Go parser to accept multiple consecutive "go" keywords for starting goroutines! 🚀 This will teach you how to enhance parser logic to handle repetitive syntax patterns while maintaining the same semantic behavior.
+In this exercise, you'll modify the Go parser to accept multiple consecutive "go" keywords for starting goroutines! This will teach you how to enhance parser logic to handle repetitive syntax patterns while maintaining the same semantic behavior.
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand Go's parser structure and token consumption
-- ✅ Know how to modify parser logic for syntax extensions
-- ✅ Test parser modifications with working code
+- Understand Go's parser structure and token consumption
+- Know how to modify parser logic for syntax extensions
+- Test parser modifications with working code
 
-## 🔍 Step 1: Navigate to the Parser
+## Step 1: Navigate to the Parser
 
 ```bash
 cd go/src/cmd/compile/internal/syntax
 ```
 
-### 🔑 Understanding the Current Parser Logic
+### Understanding the Current Parser Logic
 
 Let's examine how the parser currently handles the "go" statement in `parser.go`. Look around line 2675:
 
@@ -79,7 +79,7 @@ if s.Tok == _Go {
 ...
 ```
 
-### 🔧 Understanding the Code Change
+### Understanding the Code Change
 
 - **`if s.Tok == _Go`**: Only apply multiple keyword logic to "go" statements (not "defer")
 - **`for p.tok == _Go`**: Keep consuming "go" tokens while they appear consecutively
@@ -147,7 +147,7 @@ Execute the test program with your custom Go:
 /path/to/workshop/go/bin/go run test.go
 ```
 
-You should see output like: ✨
+You should see output like:
 
 ```
 Testing multiple go keywords...
@@ -174,24 +174,24 @@ cd /path/to/workshop/go/src
 3. **Semantic Preservation**: Multiple "go" keywords still create exactly one goroutine
 4. **Targeted Change**: Only affects "go" statements, not "defer" statements
 
-## 🎓 What We Learned
+## What We Learned
 
-- 🔄 **Parser Logic**: How Go processes token sequences into statements
-- 📝 **Token Consumption**: Techniques for consuming multiple tokens of the same type
-- 🧪 **Parser Testing**: Validating parser changes with diverse test cases
+- **Parser Logic**: How Go processes token sequences into statements
+- **Token Consumption**: Techniques for consuming multiple tokens of the same type
+- **Parser Testing**: Validating parser changes with diverse test cases
 
-## 💡 Extension Ideas
+## Extension Ideas
 
-Try these additional modifications: 🚀
+Try these additional modifications:
 
-1. ➕ Add similar support for "defer defer defer" (more challenging!)
-2. ➕ Add a maximum limit (e.g., max 5 consecutive "go" keywords)
-3. 📊 Track how many "go" keywords were used for debugging
-4. 🎨 Make the multiple keywords affect goroutine priority
+1. Add similar support for "defer defer defer" (more challenging!)
+2. Add a maximum limit (e.g., max 5 consecutive "go" keywords)
+3. Track how many "go" keywords were used for debugging
+4. Make the multiple keywords affect goroutine priority
 
-## ➡️ Next Steps
+## Next Steps
 
-Excellent work! 🎉 You've successfully enhanced Go's parser to handle repetitive syntax patterns.
+You've successfully enhanced Go's parser to handle repetitive syntax patterns.
 
 In [Exercise 4: Compiler Inlining Parameters](./04-compiler-inlining-parameters.md), we'll shift focus to explore how Go's compiler optimization works, learning to tune inlining parameters for binary size control.
 
@@ -221,7 +221,7 @@ go go go go myFunction()
 // but the semantic behavior remains the same!
 ```
 
-This exercise demonstrated how parser-level modifications can add expressive syntactic sugar while preserving the underlying language semantics! 🚀✨
+This exercise demonstrated how parser-level modifications can add expressive syntactic sugar while preserving the underlying language semantics.
 
 ---
 

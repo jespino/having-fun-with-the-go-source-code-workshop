@@ -1,34 +1,34 @@
 # 🔨 Exercise 1: Compiling Go Without Changes
 
-In this exercise, you'll learn how to build the Go toolchain from the source code without making any modifications. This is an essential skill before we start making changes to the language! ⚡
+In this exercise, you'll learn how to build the Go toolchain from the source code without making any modifications. This is an essential skill before we start making changes to the language!
 
-## 🎯 Learning Objectives
+## Learning Objectives
 
 By the end of this exercise, you will:
 
-- ✅ Understand the Go build process and bootstrap concept
-- ✅ Successfully compile Go from source
-- ✅ Know how to explore Go source code structure
-- ✅ Know how to test your custom Go build
+- Understand the Go build process and bootstrap concept
+- Successfully compile Go from source
+- Know how to explore Go source code structure
+- Know how to test your custom Go build
 
-## 🥾 Step 1: Understanding the Bootstrap Process
+## Step 1: Understanding the Bootstrap Process
 
-Go is written in Go itself! 🤔 This creates a "chicken and egg" problem - how do you compile Go without having Go? The solution is bootstrapping:
+Go is written in Go itself! This creates a "chicken and egg" problem - how do you compile Go without having Go? The solution is bootstrapping:
 
-1. 📦 The Go team provides pre-compiled binaries
-2. 🔨 These binaries compile the current Go source code
-3. ✨ The newly compiled version can then be used for development
+1. The Go team provides pre-compiled binaries
+2. These binaries compile the current Go source code
+3. The newly compiled version can then be used for development
 
-Let's check if you have Go installed (needed for bootstrapping): 🔍
+Let's check if you have Go installed (needed for bootstrapping):
 
 ```bash
 go version
 # Must show version 1.24 or newer
 ```
 
-**⚠️ Critical**: You must have Go 1.24 or newer installed to build Go 1.26.1. If you don't have Go installed or your version is too old, install the latest version from <https://golang.org/dl/> 📥
+**⚠️ Critical**: You must have Go 1.24 or newer installed to build Go 1.26.1. If you don't have Go installed or your version is too old, install the latest version from <https://golang.org/dl/>
 
-## 📂 Step 2: Navigate to the Go Source Directory
+## Step 2: Navigate to the Go Source Directory
 
 ```bash
 cd go/src
@@ -40,9 +40,9 @@ git describe --tags
 # Should show: go1.26.1
 ```
 
-## 🚀 Step 3: Start the Build Process
+## Step 3: Start the Build Process
 
-Go provides different scripts for building. Let's start with `make.bash` which builds the toolchain, then explore the source code while it's running! ⚡
+Go provides different scripts for building. Let's start with `make.bash` which builds the toolchain, then explore the source code while it's running!
 
 **On Unix-like systems (Linux, macOS):**
 
@@ -56,30 +56,30 @@ Go provides different scripts for building. Let's start with `make.bash` which b
 make.bat
 ```
 
-This script will: 📋
+This script will:
 
-1. 🔨 Build the Go toolchain (compiler, linker, runtime, standard library)
-2. ⏱️ Take approximately 2-10 minutes depending on your system
+1. Build the Go toolchain (compiler, linker, runtime, standard library)
+2. Take approximately 2-10 minutes depending on your system
 
-**📝 Note:** The first time you run this, it will take longer as it needs to compile everything from scratch.
+**Note:** The first time you run this, it will take longer as it needs to compile everything from scratch.
 
-### 🤔 What about `all.bash` and `run.bash`?
+### What about `all.bash` and `run.bash`?
 
 You might wonder about other scripts in the `src/` directory:
 
-- **🔨 `make.bash`**: Builds the Go toolchain only (what we're using)
-- **🧪 `run.bash`**: Runs the comprehensive test suite (requires Go to be built first)  
-- **📦 `all.bash`**: Convenience script that runs `make.bash` + `run.bash` + prints build info
+- **`make.bash`**: Builds the Go toolchain only (what we're using)
+- **`run.bash`**: Runs the comprehensive test suite (requires Go to be built first)
+- **`all.bash`**: Convenience script that runs `make.bash` + `run.bash` + prints build info
 
 For this workshop, `make.bash` is perfect because:
 
-- ✅ Faster build time means less waiting
-- ✅ We just need a working Go build for our experiments
-- ✅ We can run tests later if needed with `run.bash`
+- Faster build time means less waiting
+- We just need a working Go build for our experiments
+- We can run tests later if needed with `run.bash`
 
-## 🔍 Step 4: Explore Source Code While Building
+## Step 4: Explore Source Code While Building
 
-While the build is running, open a **new terminal** or **IDE** and let's explore the Go source code structure! This is a great time to understand what we're building. 🧭
+While the build is running, open a **new terminal** or **IDE** and let's explore the Go source code structure! This is a great time to understand what we're building.
 
 **In your new terminal:**
 
@@ -88,21 +88,21 @@ cd /path/to/workshop/go  # Navigate to your Go source directory
 ls -la
 ```
 
-### 📁 Repository Structure
+### Repository Structure
 
 Key directories you should see:
 
-- **📁 `src/`**: Contains the Go source code
-  - 🛠️ `src/cmd/`: Command-line tools (go, gofmt, etc.)
-  - ⚙️ `src/runtime/`: Go runtime system
-  - 🌳 `src/go/`: Go language packages (parser, AST, etc.)
-- **🧪 `test/`**: Test files for the Go language
-- **📋 `api/`**: API compatibility data
-- **📚 `doc/`**: Documentation
+- **`src/`**: Contains the Go source code
+  - `src/cmd/`: Command-line tools (go, gofmt, etc.)
+  - `src/runtime/`: Go runtime system
+  - `src/go/`: Go language packages (parser, AST, etc.)
+- **`test/`**: Test files for the Go language
+- **`api/`**: API compatibility data
+- **`doc/`**: Documentation
 
-### 🏗️ Examine the Go Compiler Structure
+### Examine the Go Compiler Structure
 
-The Go compiler is located in `src/cmd/compile/`. Let's explore it: 🔧
+The Go compiler is located in `src/cmd/compile/`. Let's explore it:
 
 ```bash
 cd src/cmd/compile
@@ -111,16 +111,16 @@ ls -la
 
 Key files and directories:
 
-- **🚪 `main.go`**: Entry point of the compiler
-- **📦 `internal/`**: Internal compiler packages
-  - 🔤 `internal/syntax/`: Lexer/parser (scanner, parser)
-  - ✅ `internal/types2/`: Type checker
-  - 🔄 `internal/ir/`: Intermediate representation
-  - ⚡ `internal/gc/`: Code generation
+- **`main.go`**: Entry point of the compiler
+- **`internal/`**: Internal compiler packages
+  - `internal/syntax/`: Lexer/parser (scanner, parser)
+  - `internal/types2/`: Type checker
+  - `internal/ir/`: Intermediate representation
+  - `internal/gc/`: Code generation
 
-## 📊 Step 5: Understanding the Build Output
+## Step 5: Understanding the Build Output
 
-**Switch back to your original terminal** where the build is running. As the build progresses, you should see output like: 👀
+**Switch back to your original terminal** where the build is running. As the build progresses, you should see output like:
 
 ```
 Building Go cmd/dist using /usr/local/go. (go1.26.1 darwin/amd64)
@@ -138,9 +138,9 @@ This shows the multi-stage bootstrap process:
 - Finally the toolchain3 is generated using the toolchain2.
 - The toolchain3 and toolchain2 should be identical
 
-## 📍 Step 6: Locate Your Compiled Go Binary
+## Step 6: Locate Your Compiled Go Binary
 
-After successful compilation, your new Go binary will be in: 🎯
+After successful compilation, your new Go binary will be in:
 
 ```bash
 ls -la /path/to/workshop/go/bin
@@ -148,13 +148,13 @@ ls -la /path/to/workshop/go/bin
 
 You should see:
 
-- 🚀 `go` - The main Go command
-- 🎨 `gofmt` - Go formatter
-- 🛠️ Other Go tools
+- `go` - The main Go command
+- `gofmt` - Go formatter
+- Other Go tools
 
-## 🧪 Step 7: Test Your Custom Go Build
+## Step 7: Test Your Custom Go Build
 
-Let's test your newly compiled Go: ✨
+Let's test your newly compiled Go:
 
 ```bash
 # Check version of your compiled Go
@@ -191,15 +191,15 @@ unset GOROOT
 
 This happens because `GOROOT` may be set by your system Go installation, pointing the new binary to the wrong standard library and tools. Unsetting it lets the binary auto-detect its own root directory based on its location.
 
-## 🎓 What We Learned
+## What We Learned
 
-- 🥾 **Bootstrap Process**: Go compiles itself using an existing Go installation
-- 🏗️ **Go Source Structure**: Well-organized codebase with clear separation (cmd/, runtime/, etc.)
-- ⚡ **Build Process**: `./make.bash` builds everything
+- **Bootstrap Process**: Go compiles itself using an existing Go installation
+- **Go Source Structure**: Well-organized codebase with clear separation (cmd/, runtime/, etc.)
+- **Build Process**: `./make.bash` builds everything
 
-## 🎉 Next Steps
+## Next Steps
 
-Congratulations! 🎊 You now have a working Go toolchain built from source.
+Congratulations! You now have a working Go toolchain built from source.
 
 You can now proceed with any of the following exercises to learn about different parts of Go:
 

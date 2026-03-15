@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercise 5: gofmt Transformation - &#34;hello&#34; to &#34;helo&#34; - Go Source Code Workshop</title>
+    <title>Exercise 5: gofmt Modification - Indentation &amp; AST Transformation - Go Source Code Workshop</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,22 +56,26 @@
         <article class="exercise-content">
             <h1>⚡ Exercise 5: gofmt Modification - Indentation &amp; AST Transformation</h1>
 
-<p>In this exercise, you&rsquo;ll modify Go&rsquo;s formatting tool <code>gofmt</code> to use 4 spaces instead of tabs, and then add a custom AST transformation to automatically replace the word &ldquo;hello&rdquo; with &ldquo;helo&rdquo; in string literals and comments! 🔄 This will teach you how Go&rsquo;s formatter works, how printer modes control indentation, and how to add custom transformations to the AST processing pipeline.</p>
+<blockquote>
+<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/the-go-parser/">The Parser</a> on Internals for Interns for a deep dive into how Go builds and works with Abstract Syntax Trees.</p>
+</blockquote>
 
-<h2>🎯 Learning Objectives</h2>
+<p>In this exercise, you&rsquo;ll modify Go&rsquo;s formatting tool <code>gofmt</code> to use 4 spaces instead of tabs, and then add a custom AST transformation to automatically replace the word &ldquo;hello&rdquo; with &ldquo;helo&rdquo; in string literals and comments. This will teach you how Go&rsquo;s formatter works, how printer modes control indentation, and how to add custom transformations to the AST processing pipeline.</p>
+
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand how gofmt controls indentation and printer modes</li>
-<li>✅ Learn to modify formatting behavior across gofmt and go/format package</li>
-<li>✅ Understand how gofmt processes Go source code through AST manipulation</li>
-<li>✅ Know how to modify string literals and comments in the AST</li>
-<li>✅ Explore Go&rsquo;s AST (Abstract Syntax Tree) structure</li>
-<li>✅ Create custom source code transformations</li>
+<li>Understand how gofmt controls indentation and printer modes</li>
+<li>Learn to modify formatting behavior across gofmt and go/format package</li>
+<li>Understand how gofmt processes Go source code through AST manipulation</li>
+<li>Know how to modify string literals and comments in the AST</li>
+<li>Explore Go&rsquo;s AST (Abstract Syntax Tree) structure</li>
+<li>Create custom source code transformations</li>
 </ul>
 
-<h2>🧠 Background: How gofmt Works</h2>
+<h2>Background: How gofmt Works</h2>
 
 <p>gofmt operates through these stages:</p>
 
@@ -94,7 +98,7 @@
 </ul></li>
 </ul>
 
-<h3>🌳 AST Structure</h3>
+<h3>AST Structure</h3>
 
 <p>Go represents source code as a tree of nodes we are going to use here this two nodes:</p>
 
@@ -103,7 +107,7 @@
 <li><strong><code>*ast.Comment</code></strong> → Comments in source code</li>
 </ul>
 
-<h2>🔍 Step 1: Navigate to gofmt Source</h2>
+<h2>Step 1: Navigate to gofmt Source</h2>
 
 <pre><code class="language-bash">cd go/src/cmd/gofmt
 ls -la
@@ -116,7 +120,7 @@ ls -la
 <li><strong><code>simplify.go</code></strong> → AST simplification transformations</li>
 </ul>
 
-<h2>📏 Step 2: Change Indentation to 4 Spaces</h2>
+<h2>Step 2: Change Indentation to 4 Spaces</h2>
 
 <p>Before adding custom transformations, let&rsquo;s change gofmt to use 4 spaces instead of tabs for indentation.</p>
 
@@ -165,7 +169,7 @@ ls -la
 	printerMode = printer.UseSpaces | printerNormalizeNumbers
 </code></pre>
 
-<h3>🔧 Understanding the Changes</h3>
+<h3>Understanding the Changes</h3>
 
 <ul>
 <li><strong><code>tabWidth = 4</code></strong>: Each indentation level uses 4 spaces</li>
@@ -174,7 +178,7 @@ ls -la
 <li><strong>Both files must match</strong>: gofmt and go/format must use the same settings for consistency</li>
 </ul>
 
-<h2>🔨 Step 3: Rebuild and Test Indentation</h2>
+<h2>Step 3: Rebuild and Test Indentation</h2>
 
 <pre><code class="language-bash">cd ../../../  # back to go/src
 ./make.bash
@@ -216,7 +220,7 @@ func main() {
 }
 </code></pre>
 
-<p>🎉 Each indentation level now uses 4 spaces instead of tabs!</p>
+<p>Each indentation level now uses 4 spaces instead of tabs.</p>
 
 <h2>Step 4: Add Hello→Helo Transformation</h2>
 
@@ -247,7 +251,7 @@ func transformHelloToHelo(file *ast.File) {
 }
 </code></pre>
 
-<h3>🔧 Understanding the Code</h3>
+<h3>Understanding the Code</h3>
 
 <ul>
 <li><strong><code>ast.Inspect()</code></strong> - Traverses all nodes in the AST</li>
@@ -329,7 +333,7 @@ func main() {
 }
 </code></pre>
 
-<p>🎉 Two changes applied:</p>
+<p>Two changes applied:</p>
 
 <ol>
 <li>All &ldquo;hello&rdquo; instances are replaced with &ldquo;helo&rdquo;</li>
@@ -359,29 +363,29 @@ cat hello_test.go
 <li><strong>Testing</strong>: Verified both indentation and transformation changes</li>
 </ol>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>📏 <strong>Printer Configuration</strong>: How gofmt controls indentation through tabWidth and printerMode</li>
-<li>🔄 <strong>Package Consistency</strong>: Why gofmt and go/format must stay in sync</li>
-<li>🌳 <strong>AST Manipulation</strong>: How to traverse and modify Go&rsquo;s Abstract Syntax Tree</li>
-<li>🔧 <strong>Tool Modification</strong>: How to extend existing Go tools with multiple changes</li>
-<li>🔍 <strong>Code Transformation</strong>: Implementing systematic source code changes</li>
-<li>🏗️ <strong>Build Process</strong>: Rebuilding Go toolchain components</li>
-<li>🧪 <strong>Testing</strong>: Verifying custom tool behavior</li>
+<li><strong>Printer Configuration</strong>: How gofmt controls indentation through tabWidth and printerMode</li>
+<li><strong>Package Consistency</strong>: Why gofmt and go/format must stay in sync</li>
+<li><strong>AST Manipulation</strong>: How to traverse and modify Go&rsquo;s Abstract Syntax Tree</li>
+<li><strong>Tool Modification</strong>: How to extend existing Go tools with multiple changes</li>
+<li><strong>Code Transformation</strong>: Implementing systematic source code changes</li>
+<li><strong>Build Process</strong>: Rebuilding Go toolchain components</li>
+<li><strong>Testing</strong>: Verifying custom tool behavior</li>
 </ul>
 
-<h2>💡 Extension Ideas</h2>
+<h2>Extension Ideas</h2>
 
-<p>Try these additional modifications: 🚀</p>
+<p>Try these additional modifications:</p>
 
 <ol>
-<li>➕ Add a command-line flag to enable/disable the transformation</li>
-<li>➕ Support multiple word replacements (hello→helo, world→universe)</li>
-<li>➕ Add case-sensitive option</li>
-<li>➕ Only replace whole words (not substrings within words)</li>
-<li>➕ Make tabWidth configurable via command-line flag</li>
-<li>➕ Add option to switch between tabs and spaces</li>
+<li>Add a command-line flag to enable/disable the transformation</li>
+<li>Support multiple word replacements (hello→helo, world→universe)</li>
+<li>Add case-sensitive option</li>
+<li>Only replace whole words (not substrings within words)</li>
+<li>Make tabWidth configurable via command-line flag</li>
+<li>Add option to switch between tabs and spaces</li>
 </ol>
 
 <p>Example flag addition:</p>
@@ -418,7 +422,7 @@ Changes:  tabWidth=4 + remove TabIndent flag
          + ast.Inspect() → pattern match → replace text
 </code></pre>
 
-<p>You now understand how tools like <code>gofmt</code>, <code>goimports</code>, and <code>go fix</code> work at both the printer and AST levels! ⚡🌳</p>
+<p>You now understand how tools like <code>gofmt</code>, <code>goimports</code>, and <code>go fix</code> work at both the printer and AST levels.</p>
 
 <hr />
 
@@ -438,7 +442,7 @@ Changes:  tabWidth=4 + remove TabIndent flag
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

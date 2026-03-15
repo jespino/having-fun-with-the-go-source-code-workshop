@@ -281,7 +281,7 @@ const exerciseTemplate = `<!DOCTYPE html>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -306,7 +306,7 @@ const exerciseTemplate = `<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
@@ -365,7 +365,7 @@ const indexTemplate = `<!DOCTYPE html>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -375,24 +375,24 @@ const indexTemplate = `<!DOCTYPE html>
 
     <div class="container">
         <header class="hero">
-            <h1>🚀 Having fun with the Go Source Code</h1>
-            <p class="lead">Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime. 🎯</p>
-            <p class="version-note"><strong>📌 This workshop uses Go version 1.26.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.</p>
+            <h1>Having fun with the Go Source Code</h1>
+            <p class="lead">Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime.</p>
+            <p class="version-note"><strong>This workshop uses Go version 1.26.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.</p>
         </header>
 
         <section class="prerequisites">
-            <h2>📋 Prerequisites</h2>
+            <h2>Prerequisites</h2>
             <ul>
-                <li>🐹 Basic knowledge of Go programming</li>
-                <li>💻 Familiarity with command line tools</li>
-                <li>🗂️ Git installed on your system</li>
-                <li><strong>⚡ Go compiler version 1.24 or newer</strong> (required for bootstrapping the build process)</li>
-                <li>💾 At least 4GB of free disk space</li>
+                <li>Basic knowledge of Go programming</li>
+                <li>Familiarity with command line tools</li>
+                <li>Git installed on your system</li>
+                <li><strong>Go compiler version 1.24 or newer</strong> (required for bootstrapping the build process)</li>
+                <li>At least 4GB of free disk space</li>
             </ul>
         </section>
 
         <section class="overview">
-            <h2>🎓 Workshop Overview</h2>
+            <h2>Workshop Overview</h2>
             <p>This workshop consists of {{len .Exercises}} exercises that will take you through the process from building Go from source, and making modifications at different places in the compiler, tooling and runtime. You'll gain some insights about the Go internals, from things like the lexer or parser, to runtime behaviors:</p>
 
             <div class="exercises-grid">
@@ -409,33 +409,33 @@ const indexTemplate = `<!DOCTYPE html>
         </section>
 
         <section class="getting-started">
-            <h2>🚀 Getting Started</h2>
+            <h2>Getting Started</h2>
             <ol>
-                <li>🌱 Start with <a href="00-introduction-setup.html">Exercise 0</a> to set up your environment</li>
-                <li>📚 Work through the exercises in order</li>
-                <li>🔗 After exercise 1, you can pick and choose the exercise that you want.</li>
+                <li>Start with <a href="00-introduction-setup.html">Exercise 0</a> to set up your environment</li>
+                <li>Work through the exercises in order</li>
+                <li>After exercise 1, you can pick and choose the exercise that you want.</li>
             </ol>
         </section>
 
         <section class="tips">
-            <h2>💡 Tips for Success</h2>
+            <h2>Tips for Success</h2>
             <ul>
-                <li>⏰ Take your time with each exercise - compiler internals are complex!</li>
-                <li>🔍 Don't hesitate to explore the Go source code beyond what's required</li>
-                <li>🌿 Use <code>git</code> to track your changes and revert when needed</li>
-                <li>🧪 Test your modifications thoroughly with various Go programs</li>
+                <li>Take your time with each exercise - compiler internals are complex!</li>
+                <li>Don't hesitate to explore the Go source code beyond what's required</li>
+                <li>Use <code>git</code> to track your changes and revert when needed</li>
+                <li>Test your modifications thoroughly with various Go programs</li>
             </ul>
         </section>
 
         <section class="resources">
-            <h2>📖 Resources</h2>
+            <h2>Resources</h2>
             <ul>
-                <li>🏗️ <a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go Compiler Overview</a></li>
-                <li>📋 <a href="https://go.dev/ref/spec">Go Language Specification</a></li>
-                <li>🔧 <a href="https://pkg.go.dev/runtime">Go Runtime Documentation</a></li>
+                <li><a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go Compiler Overview</a></li>
+                <li><a href="https://go.dev/ref/spec">Go Language Specification</a></li>
+                <li><a href="https://pkg.go.dev/runtime">Go Runtime Documentation</a></li>
             </ul>
 
-            <h3>🎥 Video References</h3>
+            <h3>Video References</h3>
             <p>These workshop exercises are based on insights from my talks:</p>
             <div class="video-grid">
                 <div class="video-container">
@@ -452,16 +452,16 @@ const indexTemplate = `<!DOCTYPE html>
         </section>
 
         <section class="completion">
-            <h2>🏆 Workshop Completion</h2>
+            <h2>Workshop Completion</h2>
             <p>Upon completing all exercises, you'll have:</p>
             <ul>
-                <li>✅ <strong>Built Go from source</strong> and understood the bootstrap process</li>
-                <li>✅ <strong>Modified language syntax</strong> by changing scanner and parser behavior</li>
-                <li>✅ <strong>Customized development tools</strong> like gofmt and compiler optimizations</li>
-                <li>✅ <strong>Implemented SSA optimizations</strong> in the compiler backend</li>
-                <li>✅ <strong>Modified runtime behavior</strong> including program entry points and scheduler monitoring</li>
-                <li>✅ <strong>Altered concurrency algorithms</strong> like select statement randomization</li>
-                <li>✅ <strong>Customized error reporting</strong> with Java-style stack trace formatting</li>
+                <li><strong>Built Go from source</strong> and understood the bootstrap process</li>
+                <li><strong>Modified language syntax</strong> by changing scanner and parser behavior</li>
+                <li><strong>Customized development tools</strong> like gofmt and compiler optimizations</li>
+                <li><strong>Implemented SSA optimizations</strong> in the compiler backend</li>
+                <li><strong>Modified runtime behavior</strong> including program entry points and scheduler monitoring</li>
+                <li><strong>Altered concurrency algorithms</strong> like select statement randomization</li>
+                <li><strong>Customized error reporting</strong> with Java-style stack trace formatting</li>
             </ul>
 
             <p><strong>Congratulations!</strong> You'll have gained the confidence to keep exploring the Go source code. This knowledge enables you to:</p>
@@ -473,7 +473,7 @@ const indexTemplate = `<!DOCTYPE html>
         </section>
 
         <section class="contributing">
-            <h2>🤝 Contributing</h2>
+            <h2>Contributing</h2>
             <p>Found an issue, have an improvement idea or want to add more exercises? Please <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop/issues">open an issue</a> or submit a pull request!</p>
         </section>
 
@@ -484,7 +484,7 @@ const indexTemplate = `<!DOCTYPE html>
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>

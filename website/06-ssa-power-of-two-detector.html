@@ -44,7 +44,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-home">🚀 Having fun with the Go Source Code</a>
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
@@ -56,21 +56,25 @@
         <article class="exercise-content">
             <h1>🔍 Exercise 6: SSA Pass - Detecting Division by Powers of Two</h1>
 
+<blockquote>
+<p>📖 <strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/the-go-ssa/">The SSA Phase</a> on Internals for Interns for a deep dive into Go&rsquo;s SSA optimization passes.</p>
+</blockquote>
+
 <p>In this exercise, you&rsquo;ll learn how Go&rsquo;s SSA (Static Single Assignment) compiler passes work by creating a custom optimization pass that detects division operations by powers of two.</p>
 
-<h2>🎯 Learning Objectives</h2>
+<h2>Learning Objectives</h2>
 
 <p>By the end of this exercise, you will:</p>
 
 <ul>
-<li>✅ Understand Go&rsquo;s SSA compiler pass architecture</li>
-<li>✅ Know how to traverse SSA blocks and values</li>
-<li>✅ Create a custom analysis pass from scratch</li>
-<li>✅ Integrate your pass into the compiler pipeline</li>
-<li>✅ Use SSA dumps to verify your pass works</li>
+<li>Understand Go&rsquo;s SSA compiler pass architecture</li>
+<li>Know how to traverse SSA blocks and values</li>
+<li>Create a custom analysis pass from scratch</li>
+<li>Integrate your pass into the compiler pipeline</li>
+<li>Use SSA dumps to verify your pass works</li>
 </ul>
 
-<h2>🧠 Background: SSA Compiler Passes</h2>
+<h2>Background: SSA Compiler Passes</h2>
 
 <p>The Go compiler transforms your code through multiple passes:</p>
 
@@ -85,7 +89,7 @@
 
 <p>We are going to work with the SSA form to know about the possibility of optimizing powers of two.</p>
 
-<h2>🔍 Step 1: Understanding SSA Pass Structure</h2>
+<h2>Step 1: Understanding SSA Pass Structure</h2>
 
 <p>SSA passes are registered in <code>compile.go</code> and operate on functions. Let&rsquo;s examine the structure:</p>
 
@@ -109,7 +113,7 @@
 <li><strong>required</strong> - Whether this pass must run</li>
 </ul>
 
-<h2>🔧 Step 2: Create the Power of Two Detector Pass</h2>
+<h2>Step 2: Create the Power of Two Detector Pass</h2>
 
 <p>Create a new file to hold our detector pass:</p>
 
@@ -164,7 +168,7 @@ func detectDivByPowerOfTwo(f *Func) {
 }
 </code></pre>
 
-<h3>🔍 Understanding the Code</h3>
+<h3>Understanding the Code</h3>
 
 <ul>
 <li><strong><code>f *Func</code></strong> - The SSA function being analyzed</li>
@@ -191,7 +195,7 @@ func detectDivByPowerOfTwo(f *Func) {
 
 <p>This runs your detector early in the pipeline, before other optimizations might eliminate the division.</p>
 
-<h2>📝 Step 4: Rebuild the Compiler</h2>
+<h2>Step 4: Rebuild the Compiler</h2>
 
 <pre><code class="language-bash">cd go/src
 ./make.bash
@@ -199,7 +203,7 @@ func detectDivByPowerOfTwo(f *Func) {
 
 <p>This compiles your new pass into the Go compiler.</p>
 
-<h2>🧪 Step 5: Create Test Programs</h2>
+<h2>Step 5: Create Test Programs</h2>
 
 <p>Create <code>test_divisions.go</code>:</p>
 
@@ -238,7 +242,7 @@ func main() {
 <pre><code>[PowerOfTwo Detector] Function main.testDivisions: found 4 division(s) by power of 2
 </code></pre>
 
-<p>Your detector found the 4 divisions by powers of 2! 🎉</p>
+<p>Your detector found the 4 divisions by powers of 2.</p>
 
 <h2>Step 7: Test with Debug Output</h2>
 
@@ -258,27 +262,27 @@ func main() {
 
 <p>This shows exact locations and shift amounts!</p>
 
-<h2>🎓 What We Learned</h2>
+<h2>What We Learned</h2>
 
 <ul>
-<li>🏗️ <strong>SSA Pass Architecture</strong>: How to create and register compiler passes</li>
-<li>🔍 <strong>SSA Traversal</strong>: Walking through blocks and values to analyze code</li>
-<li>🎯 <strong>Operation Detection</strong>: Identifying specific SSA operations</li>
-<li>📊 <strong>Analysis vs Transformation</strong>: Our pass analyzes but doesn&rsquo;t modify (yet!)</li>
+<li><strong>SSA Pass Architecture</strong>: How to create and register compiler passes</li>
+<li><strong>SSA Traversal</strong>: Walking through blocks and values to analyze code</li>
+<li><strong>Operation Detection</strong>: Identifying specific SSA operations</li>
+<li><strong>Analysis vs Transformation</strong>: Our pass analyzes but doesn&rsquo;t modify (yet!)</li>
 </ul>
 
-<h2>💡 Extension Ideas</h2>
+<h2>Extension Ideas</h2>
 
-<p>Try these additional enhancements: 🚀</p>
+<p>Try these additional enhancements:</p>
 
 <ol>
-<li>➕ <strong>Actually implement the optimization</strong>: Replace division with shifts</li>
-<li>➕ <strong>Detect multiplication by powers of 2</strong>: Could use left shifts instead</li>
-<li>➕ <strong>Count total optimizations</strong>: Track how many across entire build</li>
-<li>➕ <strong>Report efficiency gains</strong>: Estimate cycle savings from the optimization</li>
+<li><strong>Actually implement the optimization</strong>: Replace division with shifts</li>
+<li><strong>Detect multiplication by powers of 2</strong>: Could use left shifts instead</li>
+<li><strong>Count total optimizations</strong>: Track how many across entire build</li>
+<li><strong>Report efficiency gains</strong>: Estimate cycle savings from the optimization</li>
 </ol>
 
-<h2>🧹 Cleanup</h2>
+<h2>Cleanup</h2>
 
 <p>To remove your custom pass:</p>
 
@@ -289,7 +293,7 @@ cd ../../src
 ./make.bash
 </code></pre>
 
-<h2>📊 Summary</h2>
+<h2>Summary</h2>
 
 <p>You&rsquo;ve successfully created a custom SSA compiler pass that detects optimization opportunities!</p>
 
@@ -302,7 +306,7 @@ Location:      Early in compiler pipeline
 Example:       x / 8  →  Reports: &quot;could be &gt;&gt; 3&quot;
 </code></pre>
 
-<p>This demonstrates how Go&rsquo;s compiler infrastructure allows custom analysis and optimization passes. Real optimizations use the same patterns - they just modify the SSA instead of only reporting! 🚀✨</p>
+<p>This demonstrates how Go&rsquo;s compiler infrastructure allows custom analysis and optimization passes. Real optimizations use the same patterns - they just modify the SSA instead of only reporting.</p>
 
 <hr />
 
@@ -322,7 +326,7 @@ Example:       x / 8  →  Reports: &quot;could be &gt;&gt; 3&quot;
 
     <footer>
         <div class="container">
-            <p>🚀 Having fun with the Go Source Code</p>
+            <p>Having fun with the Go Source Code</p>
             <p>Created by <strong>Jesús Espino</strong></p>
             <div class="footer-links">
                 <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
