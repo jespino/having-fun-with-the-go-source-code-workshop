@@ -191,11 +191,15 @@ echo &quot;Functions that can be inlined during Go compiler build&quot;
 <p>Edit <code>go/src/cmd/compile/internal/inline/inl.go</code> around line 50:</p>
 
 <pre><code class="language-go">const (
-    inlineMaxBudget       = 200   // Increased from 80
-    inlineExtraCallCost   = 20    // Decreased from 57
-    inlineBigFunctionMaxCost = 50 // Increased from 20
+    inlineMaxBudget       = 95    // Increased from 80
+    inlineExtraCallCost   = 40    // Decreased from 57
+    inlineBigFunctionMaxCost = 30 // Increased from 20
 )
 </code></pre>
+
+<blockquote>
+<p><strong>⚠️ Note:</strong> Be careful not to increase these values too much! In Go 1.26.1, the runtime has strict write barrier constraints, and increasing the inlining budget beyond ~95 causes the compiler to inline functions into contexts where write barriers are prohibited, breaking the build. This is itself a great lesson about the delicate balance of compiler parameters.</p>
+</blockquote>
 
 <p><strong>Rebuild the compiler:</strong></p>
 
@@ -281,11 +285,12 @@ cp ../bin/go ../bin/go-no-inline
 ./make.bash
 </code></pre>
 
-<p><strong>⚠️ Expected Result:</strong> This will likely fail to compile or produce a broken compiler! This demonstrates that there are limits to how aggressive inlining can be. You may see compilation errors or the build may hang.</p>
+<p><strong>⚠️ Expected Result:</strong> This will fail to compile! You&rsquo;ll see &ldquo;write barrier prohibited by caller&rdquo; errors. This happens because the compiler inlines runtime functions into contexts where write barriers are not allowed, creating illegal call chains.</p>
 
 <p>If it fails (which is expected), you&rsquo;ll learn that:
-- Extreme inlining can cause compilation to fail
-- There are practical limits to compiler optimizations
+- Extreme inlining causes write barrier violations in the runtime
+- The Go runtime has <code>//go:nowritebarrierrec</code> annotations that prohibit write barriers in certain call chains
+- When inlining exposes these chains, the compiler correctly rejects the build
 - The default parameters are carefully balanced for good reason</p>
 
 <h2>📋 Step 5: Analyze Results</h2>
@@ -360,20 +365,21 @@ echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inli
 
 <h3>📊 Typical Results You Should See</h3>
 
-<p>With the Go compiler binary, you should observe dramatic size differences based on actual measurements:</p>
+<p>With the Go compiler binary, you should observe noticeable size differences:</p>
 
 <ul>
-<li><strong>No Inlining</strong>: Smallest binary (~25MB / 25,176 KB)</li>
-<li><strong>Conservative</strong>: Small binary (~26MB / 25,968 KB)</li>
-<li><strong>Default</strong>: Balanced size (~27MB / 27,544 KB)</li>
-<li><strong>Aggressive</strong>: Largest binary (~36MB / 35,904 KB) - <strong>30% larger than default!</strong></li>
+<li><strong>No Inlining</strong>: Smallest binary</li>
+<li><strong>Conservative</strong>: Slightly smaller than default</li>
+<li><strong>Default</strong>: Balanced size</li>
+<li><strong>Aggressive</strong>: Larger binary than default</li>
 </ul>
 
 <p><strong>Key Insights:</strong></p>
 
 <ul>
-<li><strong>Aggressive inlining</strong> can increase binary size by <strong>8+ MB</strong> (30% larger)</li>
-<li><strong>No inlining vs Default</strong> shows a <strong>2+ MB difference</strong> (8% smaller)</li>
+<li>Even modest inlining parameter changes produce measurable binary size differences</li>
+<li>The range from no-inlining to aggressive shows the impact of this optimization</li>
+<li>More aggressive values are limited by runtime constraints (write barriers)</li>
 </ul>
 
 <p>The exact sizes depend on your system, but you should see similar dramatic differences!</p>
