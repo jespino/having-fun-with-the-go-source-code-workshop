@@ -1,5 +1,7 @@
 # 🕵️‍♂️ Exercise 8: Goroutine Sleep Detective - Runtime State Monitoring
 
+> 📖 **Want to learn more?** Read [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's goroutine scheduling and state transitions.
+
 In this exercise, you'll modify the Go runtime scheduler to log goroutine state transitions! 🔍 Every time a goroutine goes to sleep waiting for something, it will announce itself: "Hello, I'm goroutine 42, going to sleep waiting for channel receive"!
 
 ## 🎯 Learning Objectives

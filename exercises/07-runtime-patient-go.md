@@ -1,5 +1,7 @@
 # 🕰️ Exercise 7: Patient Go - Making Go Wait for Goroutines
 
+> 📖 **Want to learn more?** Read [The Bootstrap](https://internals-for-interns.com/posts/understanding-go-runtime/) and [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's runtime startup and goroutine scheduling.
+
 In this exercise, you'll modify the Go runtime to wait for all goroutines to complete before the program exits. Currently, when `main()` returns, Go immediately terminates even if goroutines are still running. We'll make Go "patient" by waiting for all goroutines to finish!
 
 ## 🎯 Learning Objectives

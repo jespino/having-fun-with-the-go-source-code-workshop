@@ -1,5 +1,7 @@
 # ⚡ Exercise 2: Adding the "=>" Arrow Operator for Goroutines
 
+> 📖 **Want to learn more?** Read [The Scanner](https://internals-for-interns.com/posts/the-go-lexer/) on Internals for Interns for a deep dive into how Go's lexer/scanner works.
+
 In this exercise, you'll add a new "=>" arrow operator to Go that works as an alternative syntax for starting goroutines! 🚀 This will teach you how to modify Go's scanner to recognize new operators and map them to existing functionality.
 
 ## 🎯 Learning Objectives

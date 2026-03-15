@@ -1,5 +1,7 @@
 # 🔄 Exercise 3: Multiple "go" Keywords - Parser Enhancement
 
+> 📖 **Want to learn more?** Read [The Parser](https://internals-for-interns.com/posts/the-go-parser/) on Internals for Interns for a deep dive into how Go's parser builds Abstract Syntax Trees.
+
 In this exercise, you'll modify the Go parser to accept multiple consecutive "go" keywords for starting goroutines! 🚀 This will teach you how to enhance parser logic to handle repetitive syntax patterns while maintaining the same semantic behavior.
 
 ## 🎯 Learning Objectives

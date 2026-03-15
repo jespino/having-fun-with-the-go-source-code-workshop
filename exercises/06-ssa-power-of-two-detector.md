@@ -1,5 +1,7 @@
 # 🔍 Exercise 6: SSA Pass - Detecting Division by Powers of Two
 
+> 📖 **Want to learn more?** Read [The SSA Phase](https://internals-for-interns.com/posts/the-go-ssa/) on Internals for Interns for a deep dive into Go's SSA optimization passes.
+
 In this exercise, you'll learn how Go's SSA (Static Single Assignment) compiler passes work by creating a custom optimization pass that detects division operations by powers of two.
 
 ## 🎯 Learning Objectives

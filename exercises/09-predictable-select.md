@@ -1,5 +1,7 @@
 # 🎯 Exercise 9: Predictable Select - Making Select Statements Deterministic
 
+> 📖 **Want to learn more?** Read [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's runtime and goroutine scheduling.
+
 In this exercise, you'll modify Go's `select` statement to be deterministic instead of random! 🎲➡️📏 By default, Go randomizes which case is chosen when multiple channels are ready. We'll change it to always choose cases in the same order.
 
 ## 🎯 Learning Objectives

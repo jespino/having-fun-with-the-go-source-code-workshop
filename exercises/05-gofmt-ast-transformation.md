@@ -1,5 +1,7 @@
 # ⚡ Exercise 5: gofmt Modification - Indentation & AST Transformation
 
+> 📖 **Want to learn more?** Read [The Parser](https://internals-for-interns.com/posts/the-go-parser/) on Internals for Interns for a deep dive into how Go builds and works with Abstract Syntax Trees.
+
 In this exercise, you'll modify Go's formatting tool `gofmt` to use 4 spaces instead of tabs, and then add a custom AST transformation to automatically replace the word "hello" with "helo" in string literals and comments! 🔄 This will teach you how Go's formatter works, how printer modes control indentation, and how to add custom transformations to the AST processing pipeline.
 
 ## 🎯 Learning Objectives
