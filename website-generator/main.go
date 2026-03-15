@@ -15,7 +15,6 @@ import (
 type Exercise struct {
 	Number      int
 	Title       string
-	Emoji       string
 	Description string
 	Filename    string
 	Content     template.HTML
@@ -30,20 +29,19 @@ type IndexData struct {
 var exerciseMetadata = []struct {
 	Filename    string
 	Title       string
-	Emoji       string
 	Description string
 }{
-	{"00-introduction-setup.md", "Introduction and Setup", "🌱", "Get started by cloning and setting up the Go source code environment."},
-	{"01-compile-go-unchanged.md", "Compiling Go Without Changes", "🔨", "Learn to build the Go toolchain from source without any modifications."},
-	{"02-scanner-arrow-operator.md", "Adding the \"=>\" Arrow Operator for Goroutines", "⚡", "Learn scanner/lexer modification by adding \"=>\" as an alternative syntax for starting goroutines."},
-	{"03-parser-multiple-go.md", "Multiple \"go\" Keywords - Parser Enhancement", "🔄", "Learn parser modification by enabling multiple consecutive \"go\" keywords (go go go myFunction)."},
-	{"04-compiler-inlining-parameters.md", "Inline Parameters - Function Inlining Experiments", "⚙️", "Explore the inliner behavior by modifying function inlining parameters."},
-	{"05-gofmt-ast-transformation.md", "gofmt Modification - Indentation & AST Transformation", "⚡", "Modify gofmt to use 4 spaces instead of tabs and add a custom AST transformation replacing \"hello\" with \"helo\"."},
-	{"06-ssa-power-of-two-detector.md", "SSA Pass - Detecting Division by Powers of Two", "🔍", "Create a custom SSA compiler pass that detects division operations by powers of two that could be optimized to bit shifts."},
-	{"07-runtime-patient-go.md", "Patient Go - Making Go Wait for Goroutines", "🕰️", "Modify the Go runtime to wait for all goroutines to complete before program termination."},
-	{"08-goroutine-sleep-detective.md", "Goroutine Sleep Detective - Runtime State Monitoring", "🕵️‍♂️", "Add logging to the Go scheduler to monitor goroutines going to sleep."},
-	{"09-predictable-select.md", "Predictable Select - Removing Randomness from Go's Select Statement", "🎯", "Modify Go's select statement implementation to be deterministic instead of random."},
-	{"10-java-style-stack-traces.md", "Java-Style Stack Traces - Making Go Panics Look Familiar", "☕", "Transform Go's verbose stack traces into Java-style formatting."},
+	{"00-introduction-setup.md", "Introduction and Setup", "Get started by cloning and setting up the Go source code environment."},
+	{"01-compile-go-unchanged.md", "Compiling Go Without Changes", "Learn to build the Go toolchain from source without any modifications."},
+	{"02-scanner-arrow-operator.md", "Adding the \"=>\" Arrow Operator for Goroutines", "Learn scanner/lexer modification by adding \"=>\" as an alternative syntax for starting goroutines."},
+	{"03-parser-multiple-go.md", "Multiple \"go\" Keywords - Parser Enhancement", "Learn parser modification by enabling multiple consecutive \"go\" keywords (go go go myFunction)."},
+	{"04-compiler-inlining-parameters.md", "Inline Parameters - Function Inlining Experiments", "Explore the inliner behavior by modifying function inlining parameters."},
+	{"05-gofmt-ast-transformation.md", "gofmt Modification - Indentation & AST Transformation", "Modify gofmt to use 4 spaces instead of tabs and add a custom AST transformation replacing \"hello\" with \"helo\"."},
+	{"06-ssa-power-of-two-detector.md", "SSA Pass - Detecting Division by Powers of Two", "Create a custom SSA compiler pass that detects division operations by powers of two that could be optimized to bit shifts."},
+	{"07-runtime-patient-go.md", "Patient Go - Making Go Wait for Goroutines", "Modify the Go runtime to wait for all goroutines to complete before program termination."},
+	{"08-goroutine-sleep-detective.md", "Goroutine Sleep Detective - Runtime State Monitoring", "Add logging to the Go scheduler to monitor goroutines going to sleep."},
+	{"09-predictable-select.md", "Predictable Select - Removing Randomness from Go's Select Statement", "Modify Go's select statement implementation to be deterministic instead of random."},
+	{"10-java-style-stack-traces.md", "Java-Style Stack Traces - Making Go Panics Look Familiar", "Transform Go's verbose stack traces into Java-style formatting."},
 }
 
 func main() {
@@ -99,7 +97,6 @@ func main() {
 func generateExercisePage(exercisesDir, outputDir string, meta struct {
 	Filename    string
 	Title       string
-	Emoji       string
 	Description string
 }, index int) (Exercise, error) {
 	// Read markdown file
@@ -129,7 +126,6 @@ func generateExercisePage(exercisesDir, outputDir string, meta struct {
 	exercise := Exercise{
 		Number:      index,
 		Title:       meta.Title,
-		Emoji:       meta.Emoji,
 		Description: meta.Description,
 		Filename:    htmlFilename,
 		Content:     template.HTML(htmlContent),
@@ -400,7 +396,7 @@ const indexTemplate = `<!DOCTYPE html>
                 <a href="{{.Filename}}" class="exercise-card-link">
                     <div class="exercise-card">
                         <div class="exercise-number">Exercise {{.Number}}</div>
-                        <h3>{{.Emoji}} {{.Title}}</h3>
+                        <h3>{{.Title}}</h3>
                         <p>{{.Description}}</p>
                     </div>
                 </a>

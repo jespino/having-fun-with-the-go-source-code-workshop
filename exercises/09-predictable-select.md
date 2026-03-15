@@ -1,4 +1,4 @@
-# 🎯 Exercise 9: Predictable Select - Making Select Statements Deterministic
+# Exercise 9: Predictable Select - Making Select Statements Deterministic
 
 > 📖 **Want to learn more?** Read [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's runtime and goroutine scheduling.
 

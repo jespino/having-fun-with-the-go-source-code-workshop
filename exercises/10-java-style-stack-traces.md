@@ -1,4 +1,4 @@
-# ☕ Exercise 10: Java-Style Stack Traces - Making Go Panics Look Familiar
+# Exercise 10: Java-Style Stack Traces - Making Go Panics Look Familiar
 
 In this exercise, you'll modify Go's stack trace formatting to match Java's style. Instead of Go's stack traces, we'll create Java-style traces.
 

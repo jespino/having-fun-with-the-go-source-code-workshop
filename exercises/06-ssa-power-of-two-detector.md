@@ -1,4 +1,4 @@
-# 🔍 Exercise 6: SSA Pass - Detecting Division by Powers of Two
+# Exercise 6: SSA Pass - Detecting Division by Powers of Two
 
 > 📖 **Want to learn more?** Read [The SSA Phase](https://internals-for-interns.com/posts/the-go-ssa/) on Internals for Interns for a deep dive into Go's SSA optimization passes.
 

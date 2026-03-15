@@ -1,4 +1,4 @@
-# 🔨 Exercise 1: Compiling Go Without Changes
+# Exercise 1: Compiling Go Without Changes
 
 In this exercise, you'll learn how to build the Go toolchain from the source code without making any modifications. This is an essential skill before we start making changes to the language!
 

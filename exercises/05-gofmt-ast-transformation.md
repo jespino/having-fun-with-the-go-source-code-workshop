@@ -1,4 +1,4 @@
-# ⚡ Exercise 5: gofmt Modification - Indentation & AST Transformation
+# Exercise 5: gofmt Modification - Indentation & AST Transformation
 
 > 📖 **Want to learn more?** Read [The Parser](https://internals-for-interns.com/posts/the-go-parser/) on Internals for Interns for a deep dive into how Go builds and works with Abstract Syntax Trees.
 

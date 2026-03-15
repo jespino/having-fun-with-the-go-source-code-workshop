@@ -1,4 +1,4 @@
-# 🕰️ Exercise 7: Patient Go - Making Go Wait for Goroutines
+# Exercise 7: Patient Go - Making Go Wait for Goroutines
 
 > 📖 **Want to learn more?** Read [The Bootstrap](https://internals-for-interns.com/posts/understanding-go-runtime/) and [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's runtime startup and goroutine scheduling.
 

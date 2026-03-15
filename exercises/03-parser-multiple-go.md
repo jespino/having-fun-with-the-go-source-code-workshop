@@ -1,4 +1,4 @@
-# 🔄 Exercise 3: Multiple "go" Keywords - Parser Enhancement
+# Exercise 3: Multiple "go" Keywords - Parser Enhancement
 
 > 📖 **Want to learn more?** Read [The Parser](https://internals-for-interns.com/posts/the-go-parser/) on Internals for Interns for a deep dive into how Go's parser builds Abstract Syntax Trees.
 

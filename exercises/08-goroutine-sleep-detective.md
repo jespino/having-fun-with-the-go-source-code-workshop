@@ -1,4 +1,4 @@
-# 🕵️‍♂️ Exercise 8: Goroutine Sleep Detective - Runtime State Monitoring
+# Exercise 8: Goroutine Sleep Detective - Runtime State Monitoring
 
 > 📖 **Want to learn more?** Read [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) on Internals for Interns for a deep dive into Go's goroutine scheduling and state transitions.
 

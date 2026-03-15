@@ -1,4 +1,4 @@
-# ⚡ Exercise 4: Compiler Inlining Parameters - Tuning for Binary Size Control
+# Exercise 4: Compiler Inlining Parameters - Tuning for Binary Size Control
 
 > 📖 **Want to learn more?** Read [The IR](https://internals-for-interns.com/posts/the-go-ir/) on Internals for Interns for a deep dive into Go's intermediate representation, including how function inlining decisions are made.
 

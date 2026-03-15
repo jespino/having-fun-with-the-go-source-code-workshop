@@ -1,4 +1,4 @@
-# ⚡ Exercise 2: Adding the "=>" Arrow Operator for Goroutines
+# Exercise 2: Adding the "=>" Arrow Operator for Goroutines
 
 > 📖 **Want to learn more?** Read [The Scanner](https://internals-for-interns.com/posts/the-go-lexer/) on Internals for Interns for a deep dive into how Go's lexer/scanner works.
 

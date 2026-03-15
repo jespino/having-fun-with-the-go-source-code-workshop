@@ -1,4 +1,4 @@
-# 🌱 Exercise 0: Introduction and Setup
+# Exercise 0: Introduction and Setup
 
 Welcome to the Go Source Code Workshop! In this introductory exercise, you'll set up your environment and get familiar with the Go source code repository.
 
