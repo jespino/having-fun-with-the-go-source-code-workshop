@@ -114,7 +114,7 @@ a:hover {
 .hero {
     text-align: center;
     padding: 3rem 2rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: var(--primary-color);
     color: white;
     border-radius: 12px;
     margin: 2rem 0;
@@ -232,7 +232,7 @@ pre::before {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #00ADD8, #5DC9E2, #CE3262);
+    background: var(--primary-color);
     border-radius: 12px 12px 0 0;
 }
 
@@ -344,7 +344,7 @@ li {
 .cta-button {
     display: inline-block;
     padding: 1rem 2rem;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: var(--primary-color);
     color: white !important;
     text-decoration: none !important;
     border-radius: 8px;
