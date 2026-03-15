@@ -163,6 +163,10 @@ Upon completing all exercises, you'll have:
 
 Found an issue, have an improvement idea or want to add more exercises? Please [open an issue](https://github.com/jespino/having-fun-with-the-go-source-code-workshop/issues) or submit a pull request!
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
 **Happy coding and welcome to the world of Go internals!**
