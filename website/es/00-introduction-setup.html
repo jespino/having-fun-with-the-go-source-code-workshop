@@ -55,22 +55,22 @@
 
     <div class="container">
         <article class="exercise-content">
-            <h1>Ejercicio 0: Introduccion y Configuracion del Entorno</h1>
+            <h1>Ejercicio 0: Introducción y Configuración del Entorno</h1>
 
-<p>Bienvenido al taller de codigo fuente de Go. En este ejercicio introductorio, prepararas tu entorno de desarrollo y te familiarizaras con el repositorio del codigo fuente de Go.</p>
+<p>Bienvenido al taller de código fuente de Go. En este ejercicio introductorio, prepararás tu entorno de desarrollo y te familiarizarás con el repositorio del código fuente de Go.</p>
 
 <h2>Objetivos de Aprendizaje</h2>
 
-<p>Al finalizar este ejercicio, seras capaz de:</p>
+<p>Al finalizar este ejercicio, serás capaz de:</p>
 
 <ul>
 <li>Tener un entorno de desarrollo de Go funcional</li>
-<li>Saber como obtener el codigo fuente de Go</li>
+<li>Saber cómo obtener el código fuente de Go</li>
 </ul>
 
 <h2>Requisitos Previos</h2>
 
-<p>Asegurate de tener lo siguiente instalado:</p>
+<p>Asegúrate de tener lo siguiente instalado:</p>
 
 <ul>
 <li>Git</li>
@@ -79,59 +79,59 @@
 
 <h2>Paso 1: Instalar o Actualizar Go</h2>
 
-<p><strong>⚠️ Importante</strong>: Necesitas una instalacion existente de Go (version 1.24 o superior) para compilar Go desde el codigo fuente. Esto se conoce como &ldquo;bootstrapping&rdquo;: usar un compilador de Go existente para compilar el nuevo.</p>
+<p><strong>⚠️ Importante</strong>: Necesitas una instalación existente de Go (versión 1.24 o superior) para compilar Go desde el código fuente. Esto se conoce como &ldquo;bootstrapping&rdquo;: usar un compilador de Go existente para compilar el nuevo.</p>
 
-<h3>Verifica tu Version Actual de Go</h3>
+<h3>Verifica tu Versión Actual de Go</h3>
 
 <pre><code class="language-bash">go version
-# Deberia mostrar: go version go1.24 o superior
+# Debería mostrar: go version go1.24 o superior
 </code></pre>
 
-<h3>Si Go no esta Instalado o es una Version Antigua</h3>
+<h3>Si Go no está Instalado o es una Versión Antigua</h3>
 
-<p>Si no tienes Go instalado, o tu version es anterior a la 1.24:</p>
+<p>Si no tienes Go instalado, o tu versión es anterior a la 1.24:</p>
 
 <ol>
 <li><strong>Descarga Go</strong>: Visita <a href="https://go.dev/dl/">https://go.dev/dl/</a> y descarga el instalador apropiado para tu sistema operativo</li>
-<li><strong>Instala Go</strong>: Sigue la guia oficial de instalacion para tu plataforma</li>
-<li><strong>Verifica la instalacion</strong>: Abre una nueva terminal y ejecuta:</li>
+<li><strong>Instala Go</strong>: Sigue la guía oficial de instalación para tu plataforma</li>
+<li><strong>Verifica la instalación</strong>: Abre una nueva terminal y ejecuta:</li>
 </ol>
 
 <pre><code class="language-bash">   go version
-   # Deberia mostrar: go version go1.24 o superior
+   # Debería mostrar: go version go1.24 o superior
 </code></pre>
 
-<p><strong>Ayuda con la instalacion</strong>: Si necesitas instrucciones detalladas de instalacion, consulta la <a href="https://go.dev/doc/install">guia oficial de instalacion de Go</a>.</p>
+<p><strong>Ayuda con la instalación</strong>: Si necesitas instrucciones detalladas de instalación, consulta la <a href="https://go.dev/doc/install">guía oficial de instalación de Go</a>.</p>
 
-<h2>Paso 2: Clonar el Codigo Fuente de Go</h2>
+<h2>Paso 2: Clonar el Código Fuente de Go</h2>
 
-<p>Vamos a clonar el repositorio oficial de Go. Usamos <code>--depth 1</code> para evitar descargar todo el historial, lo que hace que la clonacion sea mucho mas rapida:</p>
+<p>Vamos a clonar el repositorio oficial de Go. Usamos <code>--depth 1</code> para evitar descargar todo el historial, lo que hace que la clonación sea mucho más rápida:</p>
 
-<p>Para mantener la consistencia a lo largo del taller, usaremos la version 1.26.1 de Go.</p>
+<p>Para mantener la consistencia a lo largo del taller, usaremos la versión 1.26.1 de Go.</p>
 
 <pre><code class="language-bash">git clone --depth 1 --branch go1.26.1 https://go.googlesource.com/go
 cd go
 </code></pre>
 
-<h2>Paso 3: Verificar la Version Go 1.26.1</h2>
+<h2>Paso 3: Verificar la Versión Go 1.26.1</h2>
 
-<p>Verifica que estas en la version correcta:</p>
+<p>Verifica que estás en la versión correcta:</p>
 
 <pre><code class="language-bash">git describe --tags
-# Deberia mostrar: go1.26.1
+# Debería mostrar: go1.26.1
 </code></pre>
 
 <h2>Lo que Hemos Logrado</h2>
 
 <ul>
 <li>Instalamos o verificamos Go 1.24+ para el bootstrapping</li>
-<li>Clonamos el repositorio oficial de Go en la version 1.26.1</li>
-<li>El entorno esta listo para compilar Go desde el codigo fuente</li>
+<li>Clonamos el repositorio oficial de Go en la versión 1.26.1</li>
+<li>El entorno está listo para compilar Go desde el código fuente</li>
 </ul>
 
 <h2>Siguientes Pasos</h2>
 
-<p>Perfecto. Tu entorno esta configurado y listo. En el <a href="01-compile-go-unchanged.html">Ejercicio 1: Compilar Go sin Cambios</a>, compilaras la toolchain de Go desde el codigo fuente y exploraras la estructura del compilador de Go mientras se compila.</p>
+<p>Perfecto. Tu entorno está configurado y listo. En el <a href="01-compile-go-unchanged.html">Ejercicio 1: Compilar Go sin Cambios</a>, compilarás la toolchain de Go desde el código fuente y explorarás la estructura del compilador de Go mientras se compila.</p>
 
         </article>
 

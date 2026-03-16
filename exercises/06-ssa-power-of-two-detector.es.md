@@ -1,29 +1,29 @@
-# Ejercicio 6: Pasada SSA - Deteccion de Divisiones por Potencias de Dos
+# Ejercicio 6: Pasada SSA - Detección de Divisiones por Potencias de Dos
 
 > 📖 **¿Quieres aprender más?** Lee [The SSA Phase](https://internals-for-interns.com/es/posts/the-go-ssa/) en Internals for Interns para profundizar en las pasadas de optimización SSA de Go.
 
-En este ejercicio, aprenderas como funcionan las pasadas del compilador SSA (Static Single Assignment) de Go creando una pasada de optimizacion personalizada que detecta operaciones de division por potencias de dos.
+En este ejercicio, aprenderás cómo funcionan las pasadas del compilador SSA (Static Single Assignment) de Go creando una pasada de optimización personalizada que detecta operaciones de división por potencias de dos.
 
 ## Objetivos de Aprendizaje
 
-Al finalizar este ejercicio, seras capaz de:
+Al finalizar este ejercicio, serás capaz de:
 
 - Entender la arquitectura de pasadas del compilador SSA de Go
-- Saber como recorrer bloques y valores SSA
-- Crear una pasada de analisis personalizada desde cero
+- Saber cómo recorrer bloques y valores SSA
+- Crear una pasada de análisis personalizada desde cero
 - Integrar tu pasada en el pipeline del compilador
 - Usar los volcados SSA para verificar que tu pasada funciona
 
 ## Contexto: Pasadas del Compilador SSA
 
-El compilador de Go transforma tu codigo a traves de multiples pasadas:
+El compilador de Go transforma tu código a través de múltiples pasadas:
 
-1. **Parseo** - Convertir el codigo fuente a AST
-2. **Verificacion de Tipos** - Comprobar que los tipos son correctos
-3. **Generacion de IR** - Convertir a forma IR (representacion intermedia)
-3. **Generacion de SSA** - Convertir a forma SSA (Static Single Assignment)
-4. **Pasadas de Optimizacion** - Transformar el SSA (nuestro enfoque)
-5. **Generacion de Codigo** - Producir codigo maquina
+1. **Parseo** - Convertir el código fuente a AST
+2. **Verificación de Tipos** - Comprobar que los tipos son correctos
+3. **Generación de IR** - Convertir a forma IR (representación intermedia)
+3. **Generación de SSA** - Convertir a forma SSA (Static Single Assignment)
+4. **Pasadas de Optimización** - Transformar el SSA (nuestro enfoque)
+5. **Generación de Código** - Producir código máquina
 
 Vamos a trabajar con la forma SSA para conocer la posibilidad de optimizar potencias de dos.
 
@@ -35,7 +35,7 @@ Las pasadas SSA se registran en `compile.go` y operan sobre funciones. Examinemo
 cd go/src/cmd/compile/internal/ssa
 ```
 
-Abre `compile.go` y busca `var passes` (alrededor de la linea 457). Veras:
+Abre `compile.go` y busca `var passes` (alrededor de la línea 457). Verás:
 
 ```go
 var passes = [...]pass{
@@ -47,13 +47,13 @@ var passes = [...]pass{
 
 Cada pasada tiene:
 
-- **name** - Se muestra en la salida de depuracion
-- **fn** - Funcion que realiza la transformacion
+- **name** - Se muestra en la salida de depuración
+- **fn** - Función que realiza la transformación
 - **required** - Si la pasada debe ejecutarse obligatoriamente
 
-## Paso 2: Crear la Pasada de Deteccion de Potencias de Dos
+## Paso 2: Crear la Pasada de Detección de Potencias de Dos
 
-Crea un nuevo archivo para nuestra pasada de deteccion:
+Crea un nuevo archivo para nuestra pasada de detección:
 
 ```bash
 cd go/src/cmd/compile/internal/ssa
@@ -108,22 +108,22 @@ func detectDivByPowerOfTwo(f *Func) {
 }
 ```
 
-### Entendiendo el Codigo
+### Entendiendo el Código
 
-- **`f *Func`** - La funcion SSA que se esta analizando
-- **`f.Blocks`** - Todos los bloques basicos de la funcion
+- **`f *Func`** - La función SSA que se está analizando
+- **`f.Blocks`** - Todos los bloques básicos de la función
 - **`b.Values`** - Todos los valores SSA (operaciones) en un bloque
-- **`v.Op`** - El tipo de operacion (division, suma, etc.)
-- **`v.Args`** - Los operandos de la operacion
+- **`v.Op`** - El tipo de operación (división, suma, etc.)
+- **`v.Args`** - Los operandos de la operación
 - **`divisor.AuxInt`** - El valor de la constante
-- **`isPowerOfTwo()`** - Funcion auxiliar que ya existe en `rewrite.go`
-- **`bits.TrailingZeros64()`** - Calcula cuantos bits hay que desplazar
+- **`isPowerOfTwo()`** - Función auxiliar que ya existe en `rewrite.go`
+- **`bits.TrailingZeros64()`** - Calcula cuántos bits hay que desplazar
 
 ## Paso 3: Registrar la Pasada en el Compilador
 
 **Edita `compile.go`:**
 
-Busca el array `var passes` (alrededor de la linea 457) y anade tu pasada como la **primera** entrada:
+Busca el array `var passes` (alrededor de la línea 457) y añade tu pasada como la **primera** entrada:
 
 ```go
 var passes = [...]pass{
@@ -132,7 +132,7 @@ var passes = [...]pass{
 	// ... rest of the passes
 ```
 
-Esto ejecuta tu detector al principio del pipeline, antes de que otras optimizaciones puedan eliminar la division.
+Esto ejecuta tu detector al principio del pipeline, antes de que otras optimizaciones puedan eliminar la división.
 
 ## Paso 4: Recompilar el Compilador
 
@@ -173,7 +173,7 @@ func main() {
 }
 ```
 
-## Paso 6: Ejecutar y Ver la Deteccion
+## Paso 6: Ejecutar y Ver la Detección
 
 ```bash
 ../go/bin/go build test_divisions.go
@@ -184,11 +184,11 @@ func main() {
 [PowerOfTwo Detector] Function main.testDivisions: found 4 division(s) by power of 2
 ```
 
-Tu detector encontro las 4 divisiones por potencias de 2.
+Tu detector encontró las 4 divisiones por potencias de 2.
 
-## Paso 7: Probar con Salida de Depuracion
+## Paso 7: Probar con Salida de Depuración
 
-Para obtener informacion detallada sobre cada deteccion:
+Para obtener información detallada sobre cada detección:
 
 ```bash
 GOSSAFUNC=testDivisions ../go/bin/go build -gcflags="-d=ssa/detect_div_by_power_of_two/debug=1" test_divisions.go
@@ -207,19 +207,19 @@ Esto muestra las ubicaciones exactas y las cantidades de desplazamiento.
 
 ## Lo que Aprendimos
 
-- **Arquitectura de Pasadas SSA**: Como crear y registrar pasadas del compilador
-- **Recorrido SSA**: Como navegar por bloques y valores para analizar codigo
-- **Deteccion de Operaciones**: Como identificar operaciones SSA especificas
-- **Analisis vs Transformacion**: Nuestra pasada analiza pero no modifica (todavia)
+- **Arquitectura de Pasadas SSA**: Cómo crear y registrar pasadas del compilador
+- **Recorrido SSA**: Cómo navegar por bloques y valores para analizar código
+- **Detección de Operaciones**: Cómo identificar operaciones SSA específicas
+- **Análisis vs Transformación**: Nuestra pasada analiza pero no modifica (¡todavía!)
 
-## Ideas de Extension
+## Ideas de Extensión
 
 Prueba estas mejoras adicionales:
 
-1. **Implementar la optimizacion real**: Reemplazar las divisiones por desplazamientos
-2. **Detectar multiplicaciones por potencias de 2**: Podrian usar desplazamientos a la izquierda
-3. **Contar el total de optimizaciones**: Llevar la cuenta a lo largo de toda la compilacion
-4. **Reportar ganancias de eficiencia**: Estimar el ahorro de ciclos por la optimizacion
+1. **Implementar la optimización real**: Reemplazar las divisiones por desplazamientos
+2. **Detectar multiplicaciones por potencias de 2**: Podrían usar desplazamientos a la izquierda
+3. **Contar el total de optimizaciones**: Llevar la cuenta a lo largo de toda la compilación
+4. **Reportar ganancias de eficiencia**: Estimar el ahorro de ciclos por la optimización
 
 ## Limpieza
 
@@ -235,20 +235,20 @@ cd ../../src
 
 ## Resumen
 
-Has creado con exito una pasada personalizada del compilador SSA que detecta oportunidades de optimizacion.
+¡Has creado con éxito una pasada personalizada del compilador SSA que detecta oportunidades de optimización!
 
 ```
 Nombre de la pasada: "detect div by power of two"
-Entrada:             Representacion SSA de la funcion
-Analisis:            Encuentra operaciones x / (potencia de 2)
+Entrada:             Representación SSA de la función
+Análisis:            Encuentra operaciones x / (potencia de 2)
 Salida:              Reporta optimizaciones potenciales
-Ubicacion:           Al principio del pipeline del compilador
+Ubicación:           Al principio del pipeline del compilador
 
 Ejemplo:             x / 8  →  Reporta: "could be >> 3"
 ```
 
-Esto demuestra como la infraestructura del compilador de Go permite pasadas personalizadas de analisis y optimizacion. Las optimizaciones reales usan los mismos patrones, solo que modifican el SSA en lugar de limitarse a reportar.
+Esto demuestra cómo la infraestructura del compilador de Go permite pasadas personalizadas de análisis y optimización. Las optimizaciones reales usan los mismos patrones, solo que modifican el SSA en lugar de limitarse a reportar.
 
 ---
 
-*Continua con el [Ejercicio 7](07-runtime-patient-go.es.md) o vuelve al [taller principal](../README.md)*
+*Continúa con el [Ejercicio 7](07-runtime-patient-go.es.md) o vuelve al [taller principal](../README.md)*

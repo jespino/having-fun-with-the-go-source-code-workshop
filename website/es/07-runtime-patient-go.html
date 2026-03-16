@@ -61,20 +61,20 @@
 <p>📖 <strong>¿Quieres aprender más?</strong> Lee <a href="https://internals-for-interns.com/es/posts/understanding-go-runtime/">The Bootstrap</a> y <a href="https://internals-for-interns.com/es/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para profundizar en el arranque del runtime de Go y la planificación de goroutines.</p>
 </blockquote>
 
-<p>En este ejercicio, modificaras el runtime de Go para que espere a que todas las goroutines terminen antes de que el programa finalice. Actualmente, cuando <code>main()</code> retorna, Go termina inmediatamente incluso si hay goroutines todavia en ejecucion. Haremos que Go sea &ldquo;paciente&rdquo; esperando a que todas las goroutines terminen.</p>
+<p>En este ejercicio, modificarás el runtime de Go para que espere a que todas las goroutines terminen antes de que el programa finalice. Actualmente, cuando <code>main()</code> retorna, Go termina inmediatamente incluso si hay goroutines todavía en ejecución. Haremos que Go sea &ldquo;paciente&rdquo; esperando a que todas las goroutines terminen.</p>
 
 <h2>Objetivos de Aprendizaje</h2>
 
-<p>Al finalizar este ejercicio, seras capaz de:</p>
+<p>Al finalizar este ejercicio, serás capaz de:</p>
 
 <ul>
-<li>Entender el proceso de terminacion de programas en Go</li>
-<li>Saber como contar las goroutines activas</li>
-<li>Modificar la funcion principal del runtime para cambiar el comportamiento del programa</li>
-<li>Entender los compromisos de la espera automatica de goroutines</li>
+<li>Entender el proceso de terminación de programas en Go</li>
+<li>Saber cómo contar las goroutines activas</li>
+<li>Modificar la función principal del runtime para cambiar el comportamiento del programa</li>
+<li>Entender los compromisos de la espera automática de goroutines</li>
 </ul>
 
-<h2>Contexto: Comportamiento Actual de Terminacion de Go</h2>
+<h2>Contexto: Comportamiento Actual de Terminación de Go</h2>
 
 <p>Actualmente, cuando escribes:</p>
 
@@ -107,22 +107,22 @@ func main() {
 Goroutine finished!
 </code></pre>
 
-<h2>Paso 1: Entender la Funcion Main del Runtime</h2>
+<h2>Paso 1: Entender la Función Main del Runtime</h2>
 
-<p>La funcion <code>main()</code> del runtime de Go en <code>runtime/proc.go</code> es la responsable de ejecutar la funcion <code>main()</code> de tu programa. Examinemos como funciona:</p>
+<p>La función <code>main()</code> del runtime de Go en <code>runtime/proc.go</code> es la responsable de ejecutar la función <code>main()</code> de tu programa. Examinemos cómo funciona:</p>
 
 <pre><code class="language-bash">cd go/src/runtime
 </code></pre>
 
-<p>Abre <code>proc.go</code> y busca la funcion <code>main()</code>. Cerca del principio (alrededor de las lineas 136-137), veras como el runtime se enlaza con el main de tu programa:</p>
+<p>Abre <code>proc.go</code> y busca la función <code>main()</code>. Cerca del principio (alrededor de las líneas 136-137), verás cómo el runtime se enlaza con el main de tu programa:</p>
 
 <pre><code class="language-go">//go:linkname main_main main.main
 func main_main()
 </code></pre>
 
-<p>Esta directiva <code>//go:linkname</code> le dice al linker que conecte la funcion <code>main_main</code> del runtime con la funcion <code>main.main</code> de tu programa. Asi es como el runtime puede llamar a codigo de tu paquete main.</p>
+<p>Esta directiva <code>//go:linkname</code> le dice al linker que conecte la función <code>main_main</code> del runtime con la función <code>main.main</code> de tu programa. Así es como el runtime puede llamar a código de tu paquete main.</p>
 
-<p>Mas abajo en la misma funcion <code>main()</code> (alrededor de la linea 289), veras donde se llama:</p>
+<p>Más abajo en la misma función <code>main()</code> (alrededor de la línea 289), verás dónde se llama:</p>
 
 <pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
 fn()
@@ -130,33 +130,33 @@ fn()
 ... // tear-down process continues
 </code></pre>
 
-<p><strong>Como funciona:</strong></p>
+<p><strong>Cómo funciona:</strong></p>
 
 <ol>
 <li>Se ejecuta el proceso de bootstrap del runtime de Go</li>
-<li>La funcion <code>main()</code> del runtime se ejecuta primero</li>
-<li>Un poco mas de proceso de bootstrap</li>
-<li>Se llama a <code>main_main</code> (que es la funcion <code>main()</code> de tu programa via linkname)</li>
-<li>Tu funcion <code>main()</code> se ejecuta - <strong>la responsabilidad se delega a tu codigo</strong></li>
-<li>Cuando tu <code>main()</code> retorna, el control vuelve a la funcion <code>main()</code> del runtime</li>
-<li>El runtime continua con el <strong>proceso de desmontaje</strong> del programa (limpieza y salida)</li>
+<li>La función <code>main()</code> del runtime se ejecuta primero</li>
+<li>Un poco más de proceso de bootstrap</li>
+<li>Se llama a <code>main_main</code> (que es la función <code>main()</code> de tu programa vía linkname)</li>
+<li>Tu función <code>main()</code> se ejecuta - <strong>la responsabilidad se delega a tu código</strong></li>
+<li>Cuando tu <code>main()</code> retorna, el control vuelve a la función <code>main()</code> del runtime</li>
+<li>El runtime continúa con el <strong>proceso de desmontaje</strong> del programa (limpieza y salida)</li>
 </ol>
 
-<p>Actualmente, el desmontaje comienza inmediatamente despues de que tu <code>main()</code> retorna, sin esperar a otras goroutines.</p>
+<p>Actualmente, el desmontaje comienza inmediatamente después de que tu <code>main()</code> retorna, sin esperar a otras goroutines.</p>
 
-<h2>Paso 2: Anadir la Logica de Espera de Goroutines</h2>
+<h2>Paso 2: Añadir la Lógica de Espera de Goroutines</h2>
 
-<p>Anadiremos codigo para esperar hasta que solo quede 1 goroutine (la propia goroutine principal).</p>
+<p>Añadiremos código para esperar hasta que solo quede 1 goroutine (la propia goroutine principal).</p>
 
 <p><strong>Edita <code>runtime/proc.go</code>:</strong></p>
 
-<p>Busca la seccion alrededor de las lineas 289-290 donde se llama a <code>main_main</code>:</p>
+<p>Busca la sección alrededor de las líneas 289-290 donde se llama a <code>main_main</code>:</p>
 
 <pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
 fn()
 </code></pre>
 
-<p>Anade la logica de espera justo despues de la llamada a <code>fn()</code>:</p>
+<p>Añade la lógica de espera justo después de la llamada a <code>fn()</code>:</p>
 
 <pre><code class="language-go">fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
 fn()
@@ -167,11 +167,11 @@ for gcount(false) &gt; 1 {
 }
 </code></pre>
 
-<h3>Entendiendo el Codigo</h3>
+<h3>Entendiendo el Código</h3>
 
 <ul>
-<li><strong><code>gcount(false)</code></strong> - Funcion del runtime que devuelve el numero de goroutines activas (el argumento <code>false</code> excluye las goroutines del sistema del conteo)</li>
-<li><strong><code>gcount(false) &gt; 1</code></strong> - Mientras haya mas goroutines aparte de la principal ejecutandose</li>
+<li><strong><code>gcount(false)</code></strong> - Función del runtime que devuelve el número de goroutines activas (el argumento <code>false</code> excluye las goroutines del sistema del conteo)</li>
+<li><strong><code>gcount(false) &gt; 1</code></strong> - Mientras haya más goroutines aparte de la principal ejecutándose</li>
 <li><strong><code>Gosched()</code></strong> - Cede el procesador, permitiendo que otras goroutines se ejecuten</li>
 <li><strong>El bucle termina</strong> - Cuando solo queda la goroutine principal (conteo = 1)</li>
 </ul>
@@ -182,9 +182,9 @@ for gcount(false) &gt; 1 {
 ./make.bash
 </code></pre>
 
-<p>Esto recompila el runtime con tu logica de espera paciente de goroutines.</p>
+<p>Esto recompila el runtime con tu lógica de espera paciente de goroutines.</p>
 
-<h2>Paso 4: Probar la Espera Basica de Goroutines</h2>
+<h2>Paso 4: Probar la Espera Básica de Goroutines</h2>
 
 <p>Crea un archivo de prueba para verificar el comportamiento:</p>
 
@@ -224,32 +224,32 @@ Goroutine 1 finished!
 Goroutine 2 finished!
 </code></pre>
 
-<p>Go ahora espera a que todas las goroutines terminen.</p>
+<p>¡Go ahora espera a que todas las goroutines terminen!</p>
 
 <h2>Lo que Aprendimos</h2>
 
 <ul>
-<li><strong>Terminacion de Programas</strong>: Como los programas Go finalizan y hacen limpieza</li>
-<li><strong>Seguimiento de Goroutines</strong>: La funcion <code>gcount()</code> rastrea las goroutines activas</li>
-<li><strong>Planificacion Cooperativa</strong>: <code>Gosched()</code> cede para permitir que otras goroutines se ejecuten</li>
-<li><strong>Modificacion del Runtime</strong>: Como un pequenio cambio afecta a todos los programas Go</li>
-<li><strong>Compromisos de Disenio</strong>: Beneficios e inconvenientes de la espera automatica</li>
+<li><strong>Terminación de Programas</strong>: Cómo los programas Go finalizan y hacen limpieza</li>
+<li><strong>Seguimiento de Goroutines</strong>: La función <code>gcount()</code> rastrea las goroutines activas</li>
+<li><strong>Planificación Cooperativa</strong>: <code>Gosched()</code> cede para permitir que otras goroutines se ejecuten</li>
+<li><strong>Modificación del Runtime</strong>: Cómo un pequeño cambio afecta a todos los programas Go</li>
+<li><strong>Compromisos de Diseño</strong>: Beneficios e inconvenientes de la espera automática</li>
 </ul>
 
-<h2>Ideas de Extension</h2>
+<h2>Ideas de Extensión</h2>
 
 <p>Prueba estas modificaciones adicionales:</p>
 
 <ol>
-<li>Anadir un timeout: Esperar un maximo de 10 segundos a las goroutines</li>
-<li>Anadir registro: Imprimir cuando comienza la espera y que goroutines quedan</li>
+<li>Añadir un timeout: Esperar un máximo de 10 segundos a las goroutines</li>
+<li>Añadir registro: Imprimir cuando comienza la espera y qué goroutines quedan</li>
 <li>Hacerlo configurable: Usar una variable de entorno para activar/desactivar</li>
-<li>Anadir una advertencia: Detectar bucles infinitos en goroutines</li>
+<li>Añadir una advertencia: Detectar bucles infinitos en goroutines</li>
 </ol>
 
 <h2>Limpieza</h2>
 
-<p>Para restaurar el comportamiento estandar de Go:</p>
+<p>Para restaurar el comportamiento estándar de Go:</p>
 
 <pre><code class="language-bash">cd go/src/runtime
 git checkout proc.go
@@ -259,29 +259,29 @@ cd ..
 
 <h2>Resumen</h2>
 
-<p>Has modificado con exito el runtime de Go para que sea &ldquo;paciente&rdquo; y espere a todas las goroutines.</p>
+<p>¡Has modificado con éxito el runtime de Go para que sea &ldquo;paciente&rdquo; y espere a todas las goroutines!</p>
 
 <pre><code>Antes:   main() retorna → salida inmediata → goroutines abandonadas
-Despues: main() retorna → espera a las goroutines → todas terminan → salida
+Después: main() retorna → espera a las goroutines → todas terminan → salida
 
-Cambios: funcion main() en runtime/proc.go
-Resultado: Ninguna goroutine se queda atras
+Cambios: función main() en runtime/proc.go
+Resultado: ¡Ninguna goroutine se queda atrás!
 </code></pre>
 
-<p>Esta modificacion demuestra:</p>
+<p>Esta modificación demuestra:</p>
 
 <ul>
-<li>Comprension profunda del runtime de Go</li>
-<li>Como funciona la terminacion de programas</li>
-<li>La relacion entre main() y las goroutines</li>
-<li>Compromisos reales en el disenio de lenguajes</li>
+<li>Comprensión profunda del runtime de Go</li>
+<li>Cómo funciona la terminación de programas</li>
+<li>La relación entre main() y las goroutines</li>
+<li>Compromisos reales en el diseño de lenguajes</li>
 </ul>
 
 <p>Tu Go ahora es paciente.</p>
 
 <hr />
 
-<p><em>Continua con el <a href="08-goroutine-sleep-detective.html">Ejercicio 8</a> o vuelve al <a href="index.html">taller principal</a></em></p>
+<p><em>Continúa con el <a href="08-goroutine-sleep-detective.html">Ejercicio 8</a> o vuelve al <a href="index.html">taller principal</a></em></p>
 
         </article>
 

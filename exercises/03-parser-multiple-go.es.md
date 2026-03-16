@@ -1,16 +1,16 @@
-# Ejercicio 3: Multiples Palabras Clave "go" - Mejora del Parser
+# Ejercicio 3: Múltiples Palabras Clave "go" - Mejora del Parser
 
 > 📖 **¿Quieres saber más?** Lee [The Parser](https://internals-for-interns.com/es/posts/the-go-parser/) en Internals for Interns para una explicación detallada de cómo el parser de Go construye Árboles de Sintaxis Abstracta.
 
-En este ejercicio, modificaras el parser de Go para aceptar multiples palabras clave "go" consecutivas al iniciar goroutines. Esto te ensenara como mejorar la logica del parser para manejar patrones de sintaxis repetitivos manteniendo el mismo comportamiento semantico.
+En este ejercicio, modificarás el parser de Go para aceptar múltiples palabras clave "go" consecutivas al iniciar goroutines. Esto te enseñará cómo mejorar la lógica del parser para manejar patrones de sintaxis repetitivos manteniendo el mismo comportamiento semántico.
 
 ## Objetivos de Aprendizaje
 
-Al finalizar este ejercicio, seras capaz de:
+Al finalizar este ejercicio, serás capaz de:
 
 - Entender la estructura del parser de Go y el consumo de tokens
-- Saber como modificar la logica del parser para extensiones de sintaxis
-- Probar modificaciones del parser con codigo funcional
+- Saber cómo modificar la lógica del parser para extensiones de sintaxis
+- Probar modificaciones del parser con código funcional
 
 ## Paso 1: Navegar al Parser
 
@@ -18,9 +18,9 @@ Al finalizar este ejercicio, seras capaz de:
 cd go/src/cmd/compile/internal/syntax
 ```
 
-### Entender la Logica Actual del Parser
+### Entender la Lógica Actual del Parser
 
-Examinemos como el parser maneja actualmente la sentencia "go" en `parser.go`. Mira alrededor de la linea 2675:
+Examinemos cómo el parser maneja actualmente la sentencia "go" en `parser.go`. Mira alrededor de la línea 2675:
 
 ```go
 // go/src/cmd/compile/internal/syntax/parser.go:2673-2676
@@ -32,9 +32,9 @@ case _Go, _Defer:
 ...
 ```
 
-El parser reconoce el token `_Go` e inmediatamente llama a `p.callStmt()` para manejar la creacion de la goroutine.
+El parser reconoce el token `_Go` e inmediatamente llama a `p.callStmt()` para manejar la creación de la goroutine.
 
-Encuentra el metodo `callStmt()` en `parser.go` en la linea 977. Aqui es donde anadiremos nuestra logica de multiples "go":
+Encuentra el método `callStmt()` en `parser.go` en la línea 977. Aquí es donde añadiremos nuestra lógica de múltiples "go":
 
 ```go
 // go/src/cmd/compile/internal/syntax/parser.go:976-985
@@ -52,15 +52,15 @@ func (p *parser) callStmt() *CallStmt {
 }
 ```
 
-La linea clave es `s.Tok = p.tok` que captura si es una sentencia "defer" o "go", seguida de `p.next()` que consume el token.
+La línea clave es `s.Tok = p.tok` que captura si es una sentencia "defer" o "go", seguida de `p.next()` que consume el token.
 
-## Paso 2: Anadir Soporte para Multiples "go"
+## Paso 2: Añadir Soporte para Múltiples "go"
 
-Necesitamos modificar el metodo `callStmt()` para consumir multiples tokens "go" consecutivos manteniendo el mismo significado semantico.
+Necesitamos modificar el método `callStmt()` para consumir múltiples tokens "go" consecutivos manteniendo el mismo significado semántico.
 
 **Edita `parser.go`:**
 
-Encuentra la linea 985 donde se llama a `p.next()` y anade nuestra logica de multiples "go" justo despues:
+Encuentra la línea 985 donde se llama a `p.next()` y añade nuestra lógica de múltiples "go" justo después:
 
 ```go
 // go/src/cmd/compile/internal/syntax/parser.go:982-990
@@ -79,12 +79,12 @@ if s.Tok == _Go {
 ...
 ```
 
-### Entendiendo el Cambio en el Codigo
+### Entendiendo el Cambio en el Código
 
-- **`if s.Tok == _Go`**: Solo aplica la logica de multiples palabras clave a sentencias "go" (no a "defer")
+- **`if s.Tok == _Go`**: Solo aplica la lógica de múltiples palabras clave a sentencias "go" (no a "defer")
 - **`for p.tok == _Go`**: Sigue consumiendo tokens "go" mientras aparezcan consecutivamente
-- **`p.next()`**: Avanza mas alla de cada token "go" adicional
-- **Preservacion**: `s.Tok` sigue siendo `_Go`, por lo que el significado semantico no cambia
+- **`p.next()`**: Avanza más allá de cada token "go" adicional
+- **Preservación**: `s.Tok` sigue siendo `_Go`, por lo que el significado semántico no cambia
 
 ## Paso 3: Recompilar el Compilador
 
@@ -95,11 +95,11 @@ cd ../../../  # back to go/src
 ./make.bash
 ```
 
-Si hay errores de compilacion, revisa tus cambios y corrígelos.
+Si hay errores de compilación, revisa tus cambios y corrígelos.
 
-## Paso 4: Probar Multiples Palabras Clave "go"
+## Paso 4: Probar Múltiples Palabras Clave "go"
 
-Crea un programa de prueba para verificar que nuestra sintaxis de multiples "go" funciona:
+Crea un programa de prueba para verificar que nuestra sintaxis de múltiples "go" funciona:
 
 ```bash
 mkdir -p /tmp/multiple-go-test
@@ -147,7 +147,7 @@ Ejecuta el programa de prueba con tu Go personalizado:
 /path/to/workshop/go/bin/go run test.go
 ```
 
-Deberias ver una salida como esta:
+Deberías ver una salida como esta:
 
 ```
 Testing multiple go keywords...
@@ -160,7 +160,7 @@ All done!
 
 ## Paso 5: Ejecutar los Tests del Parser
 
-Asegurate de que no hemos roto el parser:
+Asegúrate de que no hemos roto el parser:
 
 ```bash
 cd /path/to/workshop/go/src
@@ -169,46 +169,46 @@ cd /path/to/workshop/go/src
 
 ## Lo que Hicimos
 
-1. **Mejora del Parser**: Modificamos `callStmt()` para manejar multiples tokens "go" consecutivos
-2. **Consumo de Tokens**: Anadimos un bucle para consumir tokens "go" adicionales despues del primero
-3. **Preservacion Semantica**: Multiples palabras clave "go" siguen creando exactamente una goroutine
+1. **Mejora del Parser**: Modificamos `callStmt()` para manejar múltiples tokens "go" consecutivos
+2. **Consumo de Tokens**: Añadimos un bucle para consumir tokens "go" adicionales después del primero
+3. **Preservación Semántica**: Múltiples palabras clave "go" siguen creando exactamente una goroutine
 4. **Cambio Dirigido**: Solo afecta a sentencias "go", no a sentencias "defer"
 
 ## Lo que Aprendimos
 
-- **Logica del Parser**: Como Go procesa secuencias de tokens para convertirlas en sentencias
-- **Consumo de Tokens**: Tecnicas para consumir multiples tokens del mismo tipo
+- **Lógica del Parser**: Cómo Go procesa secuencias de tokens para convertirlas en sentencias
+- **Consumo de Tokens**: Técnicas para consumir múltiples tokens del mismo tipo
 - **Testing del Parser**: Validar cambios del parser con casos de prueba diversos
 
-## Ideas de Extension
+## Ideas de Extensión
 
 Prueba estas modificaciones adicionales:
 
-1. Anadir soporte similar para "defer defer defer" (mas desafiante)
-2. Anadir un limite maximo (por ejemplo, maximo 5 palabras clave "go" consecutivas)
-3. Registrar cuantas palabras clave "go" se usaron para depuracion
-4. Hacer que las multiples palabras clave afecten la prioridad de la goroutine
+1. Añadir soporte similar para "defer defer defer" (más desafiante)
+2. Añadir un límite máximo (por ejemplo, máximo 5 palabras clave "go" consecutivas)
+3. Registrar cuántas palabras clave "go" se usaron para depuración
+4. Hacer que las múltiples palabras clave afecten la prioridad de la goroutine
 
 ## Siguientes Pasos
 
 Has mejorado exitosamente el parser de Go para manejar patrones de sintaxis repetitivos.
 
-En el [Ejercicio 4: Parametros de Inlining del Compilador](./04-compiler-inlining-parameters.md), cambiaremos el enfoque para explorar como funciona la optimizacion del compilador de Go, aprendiendo a ajustar los parametros de inlining para controlar el tamano del binario.
+En el [Ejercicio 4: Parámetros de Inlining del Compilador](./04-compiler-inlining-parameters.md), cambiaremos el enfoque para explorar cómo funciona la optimización del compilador de Go, aprendiendo a ajustar los parámetros de inlining para controlar el tamaño del binario.
 
 ## Limpieza
 
-Para restaurar el codigo fuente original de Go:
+Para restaurar el código fuente original de Go:
 
 ```bash
 cd /path/to/workshop/go/src/cmd/compile/internal/syntax
 git checkout parser.go
 cd ../../../
-./make.bash  # Recompilar con el codigo original
+./make.bash  # Recompilar con el código original
 ```
 
 ## Resumen
 
-Multiples palabras clave "go" ahora funcionan para iniciar goroutines:
+Múltiples palabras clave "go" ahora funcionan para iniciar goroutines:
 
 ```go
 // Todas son equivalentes y crean exactamente una goroutine:
@@ -218,11 +218,11 @@ go go go myFunction()
 go go go go myFunction()
 
 // El parser consume todos los tokens "go" consecutivos
-// pero el comportamiento semantico sigue siendo el mismo!
+// ¡pero el comportamiento semántico sigue siendo el mismo!
 ```
 
-Este ejercicio demostro como las modificaciones a nivel de parser pueden anadir azucar sintactico expresivo preservando la semantica subyacente del lenguaje.
+Este ejercicio demostró cómo las modificaciones a nivel de parser pueden añadir azúcar sintáctico expresivo preservando la semántica subyacente del lenguaje.
 
 ---
 
-*Continua al [Ejercicio 4](04-compiler-inlining-parameters.md) o vuelve al [taller principal](../README.md)*
+*Continúa al [Ejercicio 4](04-compiler-inlining-parameters.md) o vuelve al [taller principal](../README.md)*

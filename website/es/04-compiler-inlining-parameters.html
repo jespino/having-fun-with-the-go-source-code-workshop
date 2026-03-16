@@ -55,56 +55,56 @@
 
     <div class="container">
         <article class="exercise-content">
-            <h1>Ejercicio 4: Parametros de Inlining del Compilador - Ajuste para el Control del Tamanio del Binario</h1>
+            <h1>Ejercicio 4: Parámetros de Inlining del Compilador - Ajuste para el Control del Tamaño del Binario</h1>
 
 <blockquote>
 <p>📖 <strong>¿Quieres aprender más?</strong> Lee <a href="https://internals-for-interns.com/es/posts/the-go-ir/">The IR</a> en Internals for Interns para profundizar en la representación intermedia de Go, incluyendo cómo se toman las decisiones de inlining de funciones.</p>
 </blockquote>
 
-<p>En este ejercicio, exploraras y modificaras los parametros de inlining de Go para ver sus efectos dramaticos en el tamanio del binario. Esto te ensenara como el compilador de Go decide cuando hacer inline de funciones y como ajustar estos parametros puede cambiar significativamente tus programas compilados.</p>
+<p>En este ejercicio, explorarás y modificarás los parámetros de inlining de Go para ver sus efectos dramáticos en el tamaño del binario. Esto te enseñará cómo el compilador de Go decide cuándo hacer inline de funciones y cómo ajustar estos parámetros puede cambiar significativamente tus programas compilados.</p>
 
 <h2>Objetivos de Aprendizaje</h2>
 
-<p>Al finalizar este ejercicio, seras capaz de:</p>
+<p>Al finalizar este ejercicio, serás capaz de:</p>
 
 <ul>
-<li>Entender el sistema de presupuesto de inlining de Go y sus parametros</li>
-<li>Saber donde se toman las decisiones de inlining en el compilador</li>
-<li>Modificar los umbrales de inlining para controlar el comportamiento de optimizacion</li>
-<li>Medir el impacto en el tamanio del binario</li>
+<li>Entender el sistema de presupuesto de inlining de Go y sus parámetros</li>
+<li>Saber dónde se toman las decisiones de inlining en el compilador</li>
+<li>Modificar los umbrales de inlining para controlar el comportamiento de optimización</li>
+<li>Medir el impacto en el tamaño del binario</li>
 </ul>
 
 <h2>Contexto: Inlining de Funciones en Go</h2>
 
-<p>El inlining de funciones es una optimizacion del compilador donde las llamadas a funciones se reemplazan por el cuerpo real de la funcion. Esto intercambia tamanio del binario por rendimiento:</p>
+<p>El inlining de funciones es una optimización del compilador donde las llamadas a funciones se reemplazan por el cuerpo real de la función. Esto intercambia tamaño del binario por rendimiento:</p>
 
 <p><strong>Beneficios:</strong></p>
 
 <ul>
 <li>Elimina la sobrecarga de las llamadas</li>
 <li>Permite optimizaciones adicionales en el punto de llamada</li>
-<li>Mejor utilizacion del pipeline de instrucciones</li>
+<li>Mejor utilización del pipeline de instrucciones</li>
 </ul>
 
 <p><strong>Costes:</strong></p>
 
 <ul>
-<li>Mayor tamanio del binario</li>
+<li>Mayor tamaño del binario</li>
 <li>Mayor uso de memoria (para el programa)</li>
 </ul>
 
-<p>Go utiliza un sofisticado <strong>sistema de presupuesto</strong> para decidir cuando el inlining es rentable.</p>
+<p>Go utiliza un sofisticado <strong>sistema de presupuesto</strong> para decidir cuándo el inlining es rentable.</p>
 
 <h2>Paso 1: Entender el Presupuesto de Inlining de Go</h2>
 
-<p>Examinemos los parametros actuales de inlining:</p>
+<p>Examinemos los parámetros actuales de inlining:</p>
 
 <pre><code class="language-bash">cd go/src/cmd/compile/internal/inline
 </code></pre>
 
-<p>Abre <code>inl.go</code> y busca los parametros clave alrededor de las lineas 49-85:</p>
+<p>Abre <code>inl.go</code> y busca los parámetros clave alrededor de las líneas 49-85:</p>
 
-<h3>Parametros Clave de Inlining</h3>
+<h3>Parámetros Clave de Inlining</h3>
 
 <p>De <code>go/src/cmd/compile/internal/inline/inl.go:49-85</code>:</p>
 
@@ -128,11 +128,11 @@ var (
 )
 </code></pre>
 
-<p><strong>Nota:</strong> <code>inlineHotMaxBudget</code> es una <code>var</code>, no una <code>const</code>, porque se usa con PGO (Profile Guided Optimization) y puede modificarse en tiempo de ejecucion.</p>
+<p><strong>Nota:</strong> <code>inlineHotMaxBudget</code> es una <code>var</code>, no una <code>const</code>, porque se usa con PGO (Profile Guided Optimization) y puede modificarse en tiempo de ejecución.</p>
 
-<h3>Como Funciona el Sistema de Presupuesto</h3>
+<h3>Cómo Funciona el Sistema de Presupuesto</h3>
 
-<p>Cada sentencia/expresion de Go tiene un <strong>coste</strong>:</p>
+<p>Cada sentencia/expresión de Go tiene un <strong>coste</strong>:</p>
 
 <ul>
 <li>Sentencias simples: 1 punto</li>
@@ -143,27 +143,27 @@ var (
 
 <p>El compilador suma los costes y los compara con el presupuesto.</p>
 
-<h2>Paso 2: Usar el Binario del Compilador de Go para Comparar Tamanios</h2>
+<h2>Paso 2: Usar el Binario del Compilador de Go para Comparar Tamaños</h2>
 
 <p>En lugar de crear programas de juguete, usemos el propio binario del compilador de Go como sujeto de prueba. El compilador de Go (<code>bin/go</code>) es perfecto para demostrar los efectos del inlining porque:</p>
 
 <ul>
-<li><strong>Base de codigo grande</strong> - Muestra diferencias de tamanio significativas</li>
-<li><strong>Codigo del mundo real</strong> - Contiene los patrones reales que estamos optimizando</li>
+<li><strong>Base de código grande</strong> - Muestra diferencias de tamaño significativas</li>
+<li><strong>Código del mundo real</strong> - Contiene los patrones reales que estamos optimizando</li>
 <li><strong>Relevancia para el taller</strong> - Lo estamos compilando a lo largo de los ejercicios</li>
-<li><strong>Resultados dramaticos</strong> - Lo suficientemente grande para mostrar un impacto significativo del inlining</li>
+<li><strong>Resultados dramáticos</strong> - Lo suficientemente grande para mostrar un impacto significativo del inlining</li>
 </ul>
 
 <h3>Probar Diferentes Configuraciones de Inlining en el Binario de Go</h3>
 
-<p>Recompilemos toda la cadena de herramientas de Go con diferentes configuraciones de inlining y comparemos los tamanios del binario <code>bin/go</code>:</p>
+<p>Recompilemos toda la cadena de herramientas de Go con diferentes configuraciones de inlining y comparemos los tamaños del binario <code>bin/go</code>:</p>
 
 <pre><code class="language-bash">cd go/src
 </code></pre>
 
-<h3>Compilacion Base - Configuracion por Defecto</h3>
+<h3>Compilación Base - Configuración por Defecto</h3>
 
-<p>Primero, compilemos con la configuracion de inlining por defecto y hagamos una copia de seguridad del binario:</p>
+<p>Primero, compilemos con la configuración de inlining por defecto y hagamos una copia de seguridad del binario:</p>
 
 <pre><code class="language-bash"># Build with default settings
 ./make.bash
@@ -176,9 +176,9 @@ ls -lh ../bin/go-default
 wc -c ../bin/go-default
 </code></pre>
 
-<h3>Verificar el Impacto Actual del Inlining en la Compilacion del Compilador de Go</h3>
+<h3>Verificar el Impacto Actual del Inlining en la Compilación del Compilador de Go</h3>
 
-<p>Podemos examinar como el inlining afecta al propio compilador de Go durante la compilacion:</p>
+<p>Podemos examinar cómo el inlining afecta al propio compilador de Go durante la compilación:</p>
 
 <pre><code class="language-bash"># See inlining decisions when compiling the Go compiler
 # This shows how inlining parameters affect the compiler's own build process
@@ -187,13 +187,13 @@ cd cmd/compile
 echo &quot;Functions that can be inlined during Go compiler build&quot;
 </code></pre>
 
-<h2>Paso 3: Modificar los Parametros de Inlining</h2>
+<h2>Paso 3: Modificar los Parámetros de Inlining</h2>
 
-<p>Ahora modifiquemos los parametros de inlining para ver sus efectos.</p>
+<p>¡Ahora modifiquemos los parámetros de inlining para ver sus efectos!</p>
 
 <h3>Experimento 1: Inlining Agresivo</h3>
 
-<p>Edita <code>go/src/cmd/compile/internal/inline/inl.go</code> alrededor de la linea 50:</p>
+<p>Edita <code>go/src/cmd/compile/internal/inline/inl.go</code> alrededor de la línea 50:</p>
 
 <pre><code class="language-go">const (
     inlineMaxBudget       = 95    // Increased from 80
@@ -203,7 +203,7 @@ echo &quot;Functions that can be inlined during Go compiler build&quot;
 </code></pre>
 
 <blockquote>
-<p><strong>⚠️ Nota:</strong> Ten cuidado de no aumentar estos valores demasiado. En Go 1.26.1, el runtime tiene restricciones estrictas de write barrier, y aumentar el presupuesto de inlining mas alla de ~95 hace que el compilador haga inline de funciones en contextos donde las write barriers estan prohibidas, rompiendo la compilacion. Esto en si mismo es una gran leccion sobre el delicado equilibrio de los parametros del compilador.</p>
+<p><strong>⚠️ Nota:</strong> ¡Ten cuidado de no aumentar estos valores demasiado! En Go 1.26.1, el runtime tiene restricciones estrictas de write barrier, y aumentar el presupuesto de inlining más allá de ~95 hace que el compilador haga inline de funciones en contextos donde las write barriers están prohibidas, rompiendo la compilación. Esto en sí mismo es una gran lección sobre el delicado equilibrio de los parámetros del compilador.</p>
 </blockquote>
 
 <p><strong>Recompila el compilador:</strong></p>
@@ -230,7 +230,7 @@ echo &quot;Percentage increase: $(echo &quot;scale=2; ($aggressive_size - $defau
 
 <h3>Experimento 2: Inlining Conservador</h3>
 
-<p>Ahora prueba con configuraciones conservadoras. Edita los parametros:</p>
+<p>Ahora prueba con configuraciones conservadoras. Edita los parámetros:</p>
 
 <pre><code class="language-go">const (
     inlineMaxBudget       = 40    // Decreased from 80
@@ -253,9 +253,9 @@ echo &quot;Default size: $(wc -c &lt; ../bin/go-default)&quot;
 echo &quot;Aggressive size: $(wc -c &lt; ../bin/go-aggressive)&quot;
 </code></pre>
 
-<h2>Paso 4: Analisis Exhaustivo del Tamanio del Binario</h2>
+<h2>Paso 4: Análisis Exhaustivo del Tamaño del Binario</h2>
 
-<p>Probemos configuraciones extremas de inlining para ver efectos dramaticos en el binario del compilador de Go:</p>
+<p>Probemos configuraciones extremas de inlining para ver efectos dramáticos en el binario del compilador de Go:</p>
 
 <h3>Experimento 3: Sin Inlining</h3>
 
@@ -275,9 +275,9 @@ echo &quot;Aggressive size: $(wc -c &lt; ../bin/go-aggressive)&quot;
 cp ../bin/go ../bin/go-no-inline
 </code></pre>
 
-<h3>Experimento 4: Inlining Extremo - Demostracion del Punto de Ruptura</h3>
+<h3>Experimento 4: Inlining Extremo - Demostración del Punto de Ruptura</h3>
 
-<p>Probemos configuraciones extremadamente agresivas para ver que pasa cuando llevamos el inlining demasiado lejos:</p>
+<p>Probemos configuraciones extremadamente agresivas para ver qué pasa cuando llevamos el inlining demasiado lejos:</p>
 
 <pre><code class="language-go">const (
     inlineMaxBudget       = 500   // Very high budget
@@ -290,17 +290,17 @@ cp ../bin/go ../bin/go-no-inline
 ./make.bash
 </code></pre>
 
-<p><strong>⚠️ Resultado esperado:</strong> Esto fallara al compilar. Veras errores de &ldquo;write barrier prohibited by caller&rdquo;. Esto ocurre porque el compilador hace inline de funciones del runtime en contextos donde las write barriers no estan permitidas, creando cadenas de llamadas ilegales.</p>
+<p><strong>⚠️ Resultado esperado:</strong> ¡Esto fallará al compilar! Verás errores de &ldquo;write barrier prohibited by caller&rdquo;. Esto ocurre porque el compilador hace inline de funciones del runtime en contextos donde las write barriers no están permitidas, creando cadenas de llamadas ilegales.</p>
 
-<p>Si falla (que es lo esperado), aprenderas que:
+<p>Si falla (que es lo esperado), aprenderás que:
 - El inlining extremo causa violaciones de write barrier en el runtime
-- El runtime de Go tiene anotaciones <code>//go:nowritebarrierrec</code> que prohiben write barriers en ciertas cadenas de llamadas
-- Cuando el inlining expone estas cadenas, el compilador rechaza correctamente la compilacion
-- Los parametros por defecto estan cuidadosamente equilibrados por una buena razon</p>
+- El runtime de Go tiene anotaciones <code>//go:nowritebarrierrec</code> que prohíben write barriers en ciertas cadenas de llamadas
+- Cuando el inlining expone estas cadenas, el compilador rechaza correctamente la compilación
+- Los parámetros por defecto están cuidadosamente equilibrados por una buena razón</p>
 
 <h2>Paso 5: Analizar los Resultados</h2>
 
-<p>Compara los tamanios del binario del compilador de Go:</p>
+<p>Compara los tamaños del binario del compilador de Go:</p>
 
 <pre><code class="language-bash">cd go
 
@@ -328,15 +328,15 @@ echo &quot;Aggressive vs Default: $(echo &quot;scale=2; ($aggressive_size - $def
 echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inline_size) * 100 / $no_inline_size&quot; | bc)%&quot;
 </code></pre>
 
-<h2>Que Hemos Modificado</h2>
+<h2>Qué Hemos Modificado</h2>
 
-<h3>Funciones de los Parametros Clave</h3>
+<h3>Funciones de los Parámetros Clave</h3>
 
 <table>
 <thead>
 <tr>
-<th>Parametro</th>
-<th>Proposito</th>
+<th>Parámetro</th>
+<th>Propósito</th>
 <th>Impacto</th>
 </tr>
 </thead>
@@ -344,80 +344,80 @@ echo &quot;Default vs No-inline: $(echo &quot;scale=2; ($default_size - $no_inli
 <tbody>
 <tr>
 <td><code>inlineMaxBudget</code></td>
-<td>Coste maximo para cualquier funcion inlined</td>
-<td>Mayor = mas inlining</td>
+<td>Coste máximo para cualquier función inlined</td>
+<td>Mayor = más inlining</td>
 </tr>
 
 <tr>
 <td><code>inlineExtraCallCost</code></td>
-<td>Penalizacion por llamadas a funciones dentro de funciones inlined</td>
-<td>Menor = mas agresivo</td>
+<td>Penalización por llamadas a funciones dentro de funciones inlined</td>
+<td>Menor = más agresivo</td>
 </tr>
 
 <tr>
 <td><code>inlineBigFunctionMaxCost</code></td>
-<td>Coste maximo al hacer inline en funciones grandes</td>
-<td>Mayor = mas inlining en funciones grandes</td>
+<td>Coste máximo al hacer inline en funciones grandes</td>
+<td>Mayor = más inlining en funciones grandes</td>
 </tr>
 
 <tr>
 <td><code>inlineBigFunctionNodes</code></td>
-<td>Umbral para la deteccion de funciones &ldquo;grandes&rdquo;</td>
-<td>Menor = mas funciones consideradas &ldquo;grandes&rdquo;</td>
+<td>Umbral para la detección de funciones &ldquo;grandes&rdquo;</td>
+<td>Menor = más funciones consideradas &ldquo;grandes&rdquo;</td>
 </tr>
 </tbody>
 </table>
 
-<h3>Resultados Tipicos que Deberias Observar</h3>
+<h3>Resultados Típicos que Deberías Observar</h3>
 
-<p>Con el binario del compilador de Go, deberias observar diferencias de tamanio notables:</p>
+<p>Con el binario del compilador de Go, deberías observar diferencias de tamaño notables:</p>
 
 <ul>
-<li><strong>Sin Inlining</strong>: Binario mas pequenio</li>
-<li><strong>Conservador</strong>: Ligeramente mas pequenio que el por defecto</li>
-<li><strong>Por defecto</strong>: Tamanio equilibrado</li>
-<li><strong>Agresivo</strong>: Binario mas grande que el por defecto</li>
+<li><strong>Sin Inlining</strong>: Binario más pequeño</li>
+<li><strong>Conservador</strong>: Ligeramente más pequeño que el por defecto</li>
+<li><strong>Por defecto</strong>: Tamaño equilibrado</li>
+<li><strong>Agresivo</strong>: Binario más grande que el por defecto</li>
 </ul>
 
 <p><strong>Ideas clave:</strong></p>
 
 <ul>
-<li>Incluso cambios modestos en los parametros de inlining producen diferencias medibles en el tamanio del binario</li>
-<li>El rango desde sin inlining hasta agresivo muestra el impacto de esta optimizacion</li>
-<li>Los valores mas agresivos estan limitados por restricciones del runtime (write barriers)</li>
+<li>Incluso cambios modestos en los parámetros de inlining producen diferencias medibles en el tamaño del binario</li>
+<li>El rango desde sin inlining hasta agresivo muestra el impacto de esta optimización</li>
+<li>Los valores más agresivos están limitados por restricciones del runtime (write barriers)</li>
 </ul>
 
-<p>Los tamanios exactos dependen de tu sistema, pero deberias ver diferencias dramaticas similares.</p>
+<p>Los tamaños exactos dependen de tu sistema, pero deberías ver diferencias dramáticas similares.</p>
 
 <h2>Lo que Aprendimos</h2>
 
 <ul>
-<li><strong>Sistema de Presupuesto</strong>: Como Go utiliza analisis basado en costes para las decisiones de inlining</li>
-<li><strong>Impacto de los Parametros</strong>: Como diferentes configuraciones afectan el tamanio del binario y el rendimiento</li>
-<li><strong>Tecnicas de Medicion</strong>: Uso de flags de depuracion para entender las decisiones del compilador</li>
-<li><strong>Compromisos</strong>: La tension fundamental entre tamanio del binario y rendimiento</li>
-<li><strong>Ajuste del Compilador</strong>: Como modificar el comportamiento del compilador para necesidades especificas</li>
+<li><strong>Sistema de Presupuesto</strong>: Cómo Go utiliza análisis basado en costes para las decisiones de inlining</li>
+<li><strong>Impacto de los Parámetros</strong>: Cómo diferentes configuraciones afectan el tamaño del binario y el rendimiento</li>
+<li><strong>Técnicas de Medición</strong>: Uso de flags de depuración para entender las decisiones del compilador</li>
+<li><strong>Compromisos</strong>: La tensión fundamental entre tamaño del binario y rendimiento</li>
+<li><strong>Ajuste del Compilador</strong>: Cómo modificar el comportamiento del compilador para necesidades específicas</li>
 </ul>
 
-<h2>Ideas de Extension</h2>
+<h2>Ideas de Extensión</h2>
 
 <p>Prueba estos experimentos adicionales:</p>
 
 <ol>
-<li>Crear un script para automatizar las pruebas con diferentes combinaciones de parametros</li>
-<li>Probar con programas Go del mundo real (como compilar el propio Go)</li>
-<li>Medir las diferencias en tiempo de compilacion con varias configuraciones</li>
-<li>Experimentar con los parametros de PGO (Profile-Guided Optimization)</li>
+<li>Crear un script para automatizar las pruebas con diferentes combinaciones de parámetros</li>
+<li>Probar con programas Go del mundo real (¡como compilar el propio Go!)</li>
+<li>Medir las diferencias en tiempo de compilación con varias configuraciones</li>
+<li>Experimentar con los parámetros de PGO (Profile-Guided Optimization)</li>
 <li>Analizar las diferencias en la salida de ensamblador entre llamadas con y sin inline</li>
 </ol>
 
 <h2>Siguientes Pasos</h2>
 
-<p>Has aprendido como ajustar el comportamiento de inlining de Go y has visto su impacto real en el tamanio del binario y el rendimiento. En los proximos ejercicios, exploraremos la modificacion de la herramienta gofmt.</p>
+<p>Has aprendido cómo ajustar el comportamiento de inlining de Go y has visto su impacto real en el tamaño del binario y el rendimiento. En los próximos ejercicios, exploraremos la modificación de la herramienta gofmt.</p>
 
 <h2>Limpieza</h2>
 
-<p>Para restaurar los parametros originales de inlining y limpiar los binarios de prueba:</p>
+<p>Para restaurar los parámetros originales de inlining y limpiar los binarios de prueba:</p>
 
 <pre><code class="language-bash">cd go/src/cmd/compile/internal/inline
 git checkout inl.go
@@ -434,18 +434,18 @@ rm -f ../bin/go-default ../bin/go-aggressive ../bin/go-conservative ../bin/go-no
 <h2>Conclusiones Clave</h2>
 
 <ol>
-<li><strong>El Inlining es un Compromiso</strong>: Mas inlining = binarios mas grandes pero potencialmente ejecucion mas rapida</li>
-<li><strong>Sistema de Presupuesto</strong>: Go utiliza un sofisticado analisis de costes para tomar decisiones de inlining</li>
-<li><strong>Impacto de los Parametros</strong>: Pequenios cambios en los parametros pueden tener efectos significativos en la salida</li>
-<li><strong>Herramientas de Depuracion</strong>: Go proporciona excelentes herramientas para entender las decisiones del compilador</li>
-<li><strong>Relevancia en el Mundo Real</strong>: Estos parametros afectan a cada programa Go que compilas</li>
+<li><strong>El Inlining es un Compromiso</strong>: Más inlining = binarios más grandes pero potencialmente ejecución más rápida</li>
+<li><strong>Sistema de Presupuesto</strong>: Go utiliza un sofisticado análisis de costes para tomar decisiones de inlining</li>
+<li><strong>Impacto de los Parámetros</strong>: Pequeños cambios en los parámetros pueden tener efectos significativos en la salida</li>
+<li><strong>Herramientas de Depuración</strong>: Go proporciona excelentes herramientas para entender las decisiones del compilador</li>
+<li><strong>Relevancia en el Mundo Real</strong>: Estos parámetros afectan a cada programa Go que compilas</li>
 </ol>
 
-<p>El equipo del compilador de Go ha ajustado cuidadosamente estos valores por defecto mediante pruebas de rendimiento exhaustivas, pero ahora entiendes como ajustarlos para tus necesidades especificas.</p>
+<p>El equipo del compilador de Go ha ajustado cuidadosamente estos valores por defecto mediante pruebas de rendimiento exhaustivas, pero ahora entiendes cómo ajustarlos para tus necesidades específicas.</p>
 
 <hr />
 
-<p><em>Continua con el <a href="05-gofmt-ast-transformation.html">Ejercicio 5</a> o vuelve al <a href="index.html">taller principal</a></em></p>
+<p><em>Continúa con el <a href="05-gofmt-ast-transformation.html">Ejercicio 5</a> o vuelve al <a href="index.html">taller principal</a></em></p>
 
         </article>
 

@@ -55,60 +55,60 @@
 
     <div class="container">
         <article class="exercise-content">
-            <h1>Ejercicio 5: Modificacion de gofmt - Indentacion y Transformacion del AST</h1>
+            <h1>Ejercicio 5: Modificación de gofmt - Indentación y Transformación del AST</h1>
 
 <blockquote>
 <p>📖 <strong>¿Quieres aprender más?</strong> Lee <a href="https://internals-for-interns.com/es/posts/the-go-parser/">The Parser</a> en Internals for Interns para profundizar en cómo Go construye y trabaja con los Árboles de Sintaxis Abstracta (AST).</p>
 </blockquote>
 
-<p>En este ejercicio, modificaras la herramienta de formateo de Go <code>gofmt</code> para que use 4 espacios en lugar de tabulaciones, y luego anadiras una transformacion personalizada del AST para reemplazar automaticamente la palabra &ldquo;hello&rdquo; por &ldquo;helo&rdquo; en cadenas de texto y comentarios. Esto te ensenara como funciona el formateador de Go, como los modos del printer controlan la indentacion y como anadir transformaciones personalizadas al pipeline de procesamiento del AST.</p>
+<p>En este ejercicio, modificarás la herramienta de formateo de Go <code>gofmt</code> para que use 4 espacios en lugar de tabulaciones, y luego añadirás una transformación personalizada del AST para reemplazar automáticamente la palabra &ldquo;hello&rdquo; por &ldquo;helo&rdquo; en cadenas de texto y comentarios. Esto te enseñará cómo funciona el formateador de Go, cómo los modos del printer controlan la indentación y cómo añadir transformaciones personalizadas al pipeline de procesamiento del AST.</p>
 
 <h2>Objetivos de Aprendizaje</h2>
 
-<p>Al finalizar este ejercicio, seras capaz de:</p>
+<p>Al finalizar este ejercicio, serás capaz de:</p>
 
 <ul>
-<li>Entender como gofmt controla la indentacion y los modos del printer</li>
+<li>Entender cómo gofmt controla la indentación y los modos del printer</li>
 <li>Aprender a modificar el comportamiento de formateo en gofmt y el paquete go/format</li>
-<li>Entender como gofmt procesa el codigo fuente de Go mediante la manipulacion del AST</li>
-<li>Saber como modificar cadenas de texto y comentarios en el AST</li>
+<li>Entender cómo gofmt procesa el código fuente de Go mediante la manipulación del AST</li>
+<li>Saber cómo modificar cadenas de texto y comentarios en el AST</li>
 <li>Explorar la estructura del AST (Abstract Syntax Tree) de Go</li>
-<li>Crear transformaciones de codigo fuente personalizadas</li>
+<li>Crear transformaciones de código fuente personalizadas</li>
 </ul>
 
-<h2>Contexto: Como Funciona gofmt</h2>
+<h2>Contexto: Cómo Funciona gofmt</h2>
 
-<p>gofmt opera a traves de estas etapas:</p>
+<p>gofmt opera a través de estas etapas:</p>
 
 <ol>
-<li><strong>Parsear</strong> → Convertir el codigo fuente a AST (Abstract Syntax Tree)</li>
+<li><strong>Parsear</strong> → Convertir el código fuente a AST (Abstract Syntax Tree)</li>
 <li><strong>Transformar</strong> → Aplicar reglas de formateo al AST</li>
-<li><strong>Imprimir</strong> → Convertir el AST modificado de vuelta a codigo fuente formateado con la indentacion especifica</li>
+<li><strong>Imprimir</strong> → Convertir el AST modificado de vuelta a código fuente formateado con la indentación específica</li>
 </ol>
 
-<p>El comportamiento de la indentacion esta controlado por dos constantes clave:</p>
+<p>El comportamiento de la indentación está controlado por dos constantes clave:</p>
 
 <ul>
-<li><strong><code>tabWidth</code></strong> → Ancho de la indentacion (por defecto: 8)</li>
+<li><strong><code>tabWidth</code></strong> → Ancho de la indentación (por defecto: 8)</li>
 <li><strong><code>printerMode</code></strong> → Flags que controlan el comportamiento del espaciado:
 
 <ul>
 <li><code>printer.UseSpaces</code> → Usar espacios para el relleno</li>
-<li><code>printer.TabIndent</code> → Usar tabulaciones para la indentacion</li>
-<li><code>printerNormalizeNumbers</code> → Normalizar literales numericos</li>
+<li><code>printer.TabIndent</code> → Usar tabulaciones para la indentación</li>
+<li><code>printerNormalizeNumbers</code> → Normalizar literales numéricos</li>
 </ul></li>
 </ul>
 
 <h3>Estructura del AST</h3>
 
-<p>Go representa el codigo fuente como un arbol de nodos. Vamos a usar estos dos nodos:</p>
+<p>Go representa el código fuente como un árbol de nodos. Vamos a usar estos dos nodos:</p>
 
 <ul>
-<li><strong><code>*ast.BasicLit</code></strong> → Cadenas de texto, numeros, etc.</li>
-<li><strong><code>*ast.Comment</code></strong> → Comentarios en el codigo fuente</li>
+<li><strong><code>*ast.BasicLit</code></strong> → Cadenas de texto, números, etc.</li>
+<li><strong><code>*ast.Comment</code></strong> → Comentarios en el código fuente</li>
 </ul>
 
-<h2>Paso 1: Navegar al Codigo Fuente de gofmt</h2>
+<h2>Paso 1: Navegar al Código Fuente de gofmt</h2>
 
 <pre><code class="language-bash">cd go/src/cmd/gofmt
 ls -la
@@ -117,19 +117,19 @@ ls -la
 <p>Archivos clave:</p>
 
 <ul>
-<li><strong><code>gofmt.go</code></strong> → Logica principal del programa y procesamiento de archivos</li>
-<li><strong><code>simplify.go</code></strong> → Transformaciones de simplificacion del AST</li>
+<li><strong><code>gofmt.go</code></strong> → Lógica principal del programa y procesamiento de archivos</li>
+<li><strong><code>simplify.go</code></strong> → Transformaciones de simplificación del AST</li>
 </ul>
 
-<h2>Paso 2: Cambiar la Indentacion a 4 Espacios</h2>
+<h2>Paso 2: Cambiar la Indentación a 4 Espacios</h2>
 
-<p>Antes de anadir transformaciones personalizadas, cambiemos gofmt para que use 4 espacios en lugar de tabulaciones para la indentacion.</p>
+<p>Antes de añadir transformaciones personalizadas, cambiemos gofmt para que use 4 espacios en lugar de tabulaciones para la indentación.</p>
 
 <h3>Modificar gofmt.go</h3>
 
 <p><strong>Edita <code>go/src/cmd/gofmt/gofmt.go</code>:</strong></p>
 
-<p>Busca las constantes alrededor de la linea 50 (busca el comentario &ldquo;Keep these in sync with go/format/format.go&rdquo;):</p>
+<p>Busca las constantes alrededor de la línea 50 (busca el comentario &ldquo;Keep these in sync with go/format/format.go&rdquo;):</p>
 
 <pre><code class="language-go">const (
 	tabWidth    = 8
@@ -143,20 +143,20 @@ ls -la
 	printerMode = printer.UseSpaces | printerNormalizeNumbers
 </code></pre>
 
-<p><strong>Que cambio:</strong></p>
+<p><strong>Qué cambió:</strong></p>
 
 <ul>
-<li><strong><code>tabWidth</code></strong>: Cambiado de <code>8</code> a <code>4</code> (4 espacios por nivel de indentacion)</li>
-<li><strong><code>printerMode</code></strong>: Eliminado el flag <code>printer.TabIndent</code> (esto elimina los caracteres de tabulacion y usa solo espacios)</li>
+<li><strong><code>tabWidth</code></strong>: Cambiado de <code>8</code> a <code>4</code> (4 espacios por nivel de indentación)</li>
+<li><strong><code>printerMode</code></strong>: Eliminado el flag <code>printer.TabIndent</code> (esto elimina los caracteres de tabulación y usa solo espacios)</li>
 </ul>
 
 <h3>Modificar el Paquete go/format</h3>
 
-<p>El paquete <code>go/format</code> tambien necesita actualizarse para mantener el comportamiento consistente.</p>
+<p>El paquete <code>go/format</code> también necesita actualizarse para mantener el comportamiento consistente.</p>
 
 <p><strong>Edita <code>go/src/go/format/format.go</code>:</strong></p>
 
-<p>Busca las constantes alrededor de la linea 29 (mismo comentario que arriba):</p>
+<p>Busca las constantes alrededor de la línea 29 (mismo comentario que arriba):</p>
 
 <pre><code class="language-go">const (
 	tabWidth    = 8
@@ -173,13 +173,13 @@ ls -la
 <h3>Entendiendo los Cambios</h3>
 
 <ul>
-<li><strong><code>tabWidth = 4</code></strong>: Cada nivel de indentacion usa 4 espacios</li>
-<li><strong>Eliminar <code>TabIndent</code></strong>: Sin este flag, el printer usa solo espacios (sin caracteres de tabulacion)</li>
-<li><strong><code>UseSpaces</code></strong>: Asegura que se usen espacios para el relleno y la alineacion</li>
-<li><strong>Ambos archivos deben coincidir</strong>: gofmt y go/format deben usar la misma configuracion para ser consistentes</li>
+<li><strong><code>tabWidth = 4</code></strong>: Cada nivel de indentación usa 4 espacios</li>
+<li><strong>Eliminar <code>TabIndent</code></strong>: Sin este flag, el printer usa solo espacios (sin caracteres de tabulación)</li>
+<li><strong><code>UseSpaces</code></strong>: Asegura que se usen espacios para el relleno y la alineación</li>
+<li><strong>Ambos archivos deben coincidir</strong>: gofmt y go/format deben usar la misma configuración para ser consistentes</li>
 </ul>
 
-<h2>Paso 3: Recompilar y Probar la Indentacion</h2>
+<h2>Paso 3: Recompilar y Probar la Indentación</h2>
 
 <pre><code class="language-bash">cd ../../../  # back to go/src
 ./make.bash
@@ -200,7 +200,7 @@ func main() {
 }
 </code></pre>
 
-<p>Prueba la nueva indentacion:</p>
+<p>Prueba la nueva indentación:</p>
 
 <pre><code class="language-bash">cd ..  # to go/ directory
 ./bin/gofmt indent_test.go
@@ -221,13 +221,13 @@ func main() {
 }
 </code></pre>
 
-<p>Cada nivel de indentacion ahora usa 4 espacios en lugar de tabulaciones.</p>
+<p>Cada nivel de indentación ahora usa 4 espacios en lugar de tabulaciones.</p>
 
-<h2>Paso 4: Anadir la Transformacion Hello→Helo</h2>
+<h2>Paso 4: Añadir la Transformación Hello→Helo</h2>
 
 <p><strong>Edita <code>gofmt.go</code>:</strong></p>
 
-<p>Anade esta funcion de transformacion alrededor de la linea 76 (despues de la funcion <code>usage()</code>):</p>
+<p>Añade esta función de transformación alrededor de la línea 76 (después de la función <code>usage()</code>):</p>
 
 <pre><code class="language-go">// transformHelloToHelo walks the AST and replaces &quot;hello&quot; with &quot;helo&quot;
 // in string literals and comments.
@@ -252,28 +252,28 @@ func transformHelloToHelo(file *ast.File) {
 }
 </code></pre>
 
-<h3>Entendiendo el Codigo</h3>
+<h3>Entendiendo el Código</h3>
 
 <ul>
 <li><strong><code>ast.Inspect()</code></strong> - Recorre todos los nodos del AST</li>
 <li><strong><code>*ast.BasicLit</code></strong> - Coincide con literales de cadena de texto</li>
-<li><strong><code>node.Kind == token.STRING</code></strong> - Verifica que sea una cadena de texto (no un numero)</li>
+<li><strong><code>node.Kind == token.STRING</code></strong> - Verifica que sea una cadena de texto (no un número)</li>
 <li><strong><code>*ast.Comment</code></strong> - Coincide con comentarios</li>
 <li><strong><code>strings.ReplaceAll()</code></strong> - Realiza el reemplazo</li>
 </ul>
 
-<h2>Paso 5: Integrar la Transformacion</h2>
+<h2>Paso 5: Integrar la Transformación</h2>
 
-<p><strong>Todavia en <code>gofmt.go</code>:</strong></p>
+<p><strong>Todavía en <code>gofmt.go</code>:</strong></p>
 
-<p>Busca la funcion <code>processFile</code> alrededor de la linea 238. Busca el bloque <code>if *simplifyAST</code> alrededor de la linea 263:</p>
+<p>Busca la función <code>processFile</code> alrededor de la línea 238. Busca el bloque <code>if *simplifyAST</code> alrededor de la línea 263:</p>
 
 <pre><code class="language-go">	if *simplifyAST {
 		simplify(file)
 	}
 </code></pre>
 
-<p>Anade nuestra transformacion justo despues:</p>
+<p>Añade nuestra transformación justo después:</p>
 
 <pre><code class="language-go">	if *simplifyAST {
 		simplify(file)
@@ -314,7 +314,7 @@ func main() {
 <pre><code class="language-bash">../go/bin/gofmt hello_test.go
 </code></pre>
 
-<p>Salida esperada (observa tanto la indentacion de 4 espacios COMO la transformacion hello→helo):</p>
+<p>Salida esperada (observa tanto la indentación de 4 espacios COMO la transformación hello→helo):</p>
 
 <pre><code class="language-go">package main
 
@@ -338,7 +338,7 @@ func main() {
 
 <ol>
 <li>Todas las instancias de &ldquo;hello&rdquo; se reemplazaron por &ldquo;helo&rdquo;</li>
-<li>La indentacion usa 4 espacios en lugar de tabulaciones</li>
+<li>La indentación usa 4 espacios en lugar de tabulaciones</li>
 </ol>
 
 <h2>Paso 8: Probar el Formateo In-Place</h2>
@@ -350,46 +350,46 @@ func main() {
 cat hello_test.go
 </code></pre>
 
-<p>El archivo ahora esta permanentemente transformado con &ldquo;helo&rdquo; en lugar de &ldquo;hello&rdquo; y usando indentacion de 4 espacios.</p>
+<p>¡El archivo ahora está permanentemente transformado con &ldquo;helo&rdquo; en lugar de &ldquo;hello&rdquo; y usando indentación de 4 espacios!</p>
 
-<h2>Que Hicimos</h2>
+<h2>Qué Hicimos</h2>
 
 <ol>
-<li><strong>Modificamos la Configuracion del Printer</strong>: Cambiamos tabWidth y printerMode para usar 4 espacios</li>
+<li><strong>Modificamos la Configuración del Printer</strong>: Cambiamos tabWidth y printerMode para usar 4 espacios</li>
 <li><strong>Sincronizamos Dos Paquetes</strong>: Actualizamos tanto gofmt como go/format para mantener la consistencia</li>
-<li><strong>Anadimos un Visitante del AST</strong>: Creamos una funcion para recorrer y modificar los nodos del AST</li>
+<li><strong>Añadimos un Visitante del AST</strong>: Creamos una función para recorrer y modificar los nodos del AST</li>
 <li><strong>Coincidencia de Patrones</strong>: Identificamos cadenas de texto y comentarios</li>
 <li><strong>Reemplazo de Texto</strong>: Modificamos los valores de los nodos para reemplazar &ldquo;hello&rdquo; por &ldquo;helo&rdquo;</li>
-<li><strong>Integracion</strong>: Llamamos a la transformacion durante el procesamiento de gofmt</li>
-<li><strong>Pruebas</strong>: Verificamos los cambios tanto de indentacion como de transformacion</li>
+<li><strong>Integración</strong>: Llamamos a la transformación durante el procesamiento de gofmt</li>
+<li><strong>Pruebas</strong>: Verificamos los cambios tanto de indentación como de transformación</li>
 </ol>
 
 <h2>Lo que Aprendimos</h2>
 
 <ul>
-<li><strong>Configuracion del Printer</strong>: Como gofmt controla la indentacion mediante tabWidth y printerMode</li>
-<li><strong>Consistencia entre Paquetes</strong>: Por que gofmt y go/format deben mantenerse sincronizados</li>
-<li><strong>Manipulacion del AST</strong>: Como recorrer y modificar el Abstract Syntax Tree de Go</li>
-<li><strong>Modificacion de Herramientas</strong>: Como extender herramientas existentes de Go con multiples cambios</li>
-<li><strong>Transformacion de Codigo</strong>: Implementar cambios sistematicos en el codigo fuente</li>
-<li><strong>Proceso de Compilacion</strong>: Recompilar componentes de la cadena de herramientas de Go</li>
+<li><strong>Configuración del Printer</strong>: Cómo gofmt controla la indentación mediante tabWidth y printerMode</li>
+<li><strong>Consistencia entre Paquetes</strong>: Por qué gofmt y go/format deben mantenerse sincronizados</li>
+<li><strong>Manipulación del AST</strong>: Cómo recorrer y modificar el Abstract Syntax Tree de Go</li>
+<li><strong>Modificación de Herramientas</strong>: Cómo extender herramientas existentes de Go con múltiples cambios</li>
+<li><strong>Transformación de Código</strong>: Implementar cambios sistemáticos en el código fuente</li>
+<li><strong>Proceso de Compilación</strong>: Recompilar componentes de la cadena de herramientas de Go</li>
 <li><strong>Pruebas</strong>: Verificar el comportamiento de herramientas personalizadas</li>
 </ul>
 
-<h2>Ideas de Extension</h2>
+<h2>Ideas de Extensión</h2>
 
 <p>Prueba estas modificaciones adicionales:</p>
 
 <ol>
-<li>Anadir un flag de linea de comandos para activar/desactivar la transformacion</li>
-<li>Soportar multiples reemplazos de palabras (hello→helo, world→universe)</li>
-<li>Anadir opcion de sensibilidad a mayusculas/minusculas</li>
+<li>Añadir un flag de línea de comandos para activar/desactivar la transformación</li>
+<li>Soportar múltiples reemplazos de palabras (hello→helo, world→universe)</li>
+<li>Añadir opción de sensibilidad a mayúsculas/minúsculas</li>
 <li>Reemplazar solo palabras completas (no subcadenas dentro de palabras)</li>
-<li>Hacer tabWidth configurable mediante un flag de linea de comandos</li>
-<li>Anadir opcion para alternar entre tabulaciones y espacios</li>
+<li>Hacer tabWidth configurable mediante un flag de línea de comandos</li>
+<li>Añadir opción para alternar entre tabulaciones y espacios</li>
 </ol>
 
-<p>Ejemplo de adicion de flag:</p>
+<p>Ejemplo de adición de flag:</p>
 
 <pre><code class="language-go">var replaceHello = flag.Bool(&quot;helo&quot;, false, &quot;replace hello with helo&quot;)
 
@@ -413,21 +413,21 @@ cd ../../../src
 
 <h2>Resumen</h2>
 
-<p>Has modificado gofmt con exito de dos formas poderosas.</p>
+<p>¡Has modificado gofmt con éxito de dos formas poderosas!</p>
 
-<pre><code>Indentacion:     tabulaciones (ancho 8) → 4 espacios
-Transformacion:  &quot;hello world&quot;  → &quot;helo world&quot;
+<pre><code>Indentación:     tabulaciones (ancho 8) → 4 espacios
+Transformación:  &quot;hello world&quot;  → &quot;helo world&quot;
                  // Say hello    → // Say helo
 
 Cambios:  tabWidth=4 + eliminar flag TabIndent
          + ast.Inspect() → coincidencia de patrones → reemplazar texto
 </code></pre>
 
-<p>Ahora entiendes como herramientas como <code>gofmt</code>, <code>goimports</code> y <code>go fix</code> funcionan tanto a nivel del printer como del AST.</p>
+<p>Ahora entiendes cómo herramientas como <code>gofmt</code>, <code>goimports</code> y <code>go fix</code> funcionan tanto a nivel del printer como del AST.</p>
 
 <hr />
 
-<p><em>Continua con el <a href="06-ssa-power-of-two-detector.html">Ejercicio 6</a> o vuelve al <a href="index.html">taller principal</a></em></p>
+<p><em>Continúa con el <a href="06-ssa-power-of-two-detector.html">Ejercicio 6</a> o vuelve al <a href="index.html">taller principal</a></em></p>
 
         </article>
 
