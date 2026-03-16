@@ -1,6 +1,6 @@
 # Ejercicio 5: Modificacion de gofmt - Indentacion y Transformacion del AST
 
-> 📖 **¿Quieres aprender mas?** Lee [The Parser](https://internals-for-interns.com/posts/the-go-parser/) en Internals for Interns para profundizar en como Go construye y trabaja con los Arboles de Sintaxis Abstracta (AST).
+> 📖 **¿Quieres aprender más?** Lee [The Parser](https://internals-for-interns.com/es/posts/the-go-parser/) en Internals for Interns para profundizar en cómo Go construye y trabaja con los Árboles de Sintaxis Abstracta (AST).
 
 En este ejercicio, modificaras la herramienta de formateo de Go `gofmt` para que use 4 espacios en lugar de tabulaciones, y luego anadiras una transformacion personalizada del AST para reemplazar automaticamente la palabra "hello" por "helo" en cadenas de texto y comentarios. Esto te ensenara como funciona el formateador de Go, como los modos del printer controlan la indentacion y como anadir transformaciones personalizadas al pipeline de procesamiento del AST.
 

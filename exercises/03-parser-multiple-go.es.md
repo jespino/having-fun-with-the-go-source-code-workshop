@@ -1,6 +1,6 @@
 # Ejercicio 3: Multiples Palabras Clave "go" - Mejora del Parser
 
-> 📖 **Quieres saber mas?** Lee [The Parser](https://internals-for-interns.com/posts/the-go-parser/) en Internals for Interns para una explicacion detallada de como el parser de Go construye Arboles de Sintaxis Abstracta.
+> 📖 **¿Quieres saber más?** Lee [The Parser](https://internals-for-interns.com/es/posts/the-go-parser/) en Internals for Interns para una explicación detallada de cómo el parser de Go construye Árboles de Sintaxis Abstracta.
 
 En este ejercicio, modificaras el parser de Go para aceptar multiples palabras clave "go" consecutivas al iniciar goroutines. Esto te ensenara como mejorar la logica del parser para manejar patrones de sintaxis repetitivos manteniendo el mismo comportamiento semantico.
 

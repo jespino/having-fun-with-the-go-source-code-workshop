@@ -1,6 +1,6 @@
 # Ejercicio 4: Parametros de Inlining del Compilador - Ajuste para el Control del Tamanio del Binario
 
-> 📖 **¿Quieres aprender mas?** Lee [The IR](https://internals-for-interns.com/posts/the-go-ir/) en Internals for Interns para profundizar en la representacion intermedia de Go, incluyendo como se toman las decisiones de inlining de funciones.
+> 📖 **¿Quieres aprender más?** Lee [The IR](https://internals-for-interns.com/es/posts/the-go-ir/) en Internals for Interns para profundizar en la representación intermedia de Go, incluyendo cómo se toman las decisiones de inlining de funciones.
 
 En este ejercicio, exploraras y modificaras los parametros de inlining de Go para ver sus efectos dramaticos en el tamanio del binario. Esto te ensenara como el compilador de Go decide cuando hacer inline de funciones y como ajustar estos parametros puede cambiar significativamente tus programas compilados.
 

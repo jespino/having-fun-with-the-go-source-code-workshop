@@ -1,6 +1,6 @@
 # Ejercicio 2: Anadir el Operador Flecha "=>" para Goroutines
 
-> 📖 **Quieres saber mas?** Lee [The Scanner](https://internals-for-interns.com/posts/the-go-lexer/) en Internals for Interns para una explicacion detallada de como funciona el lexer/scanner de Go.
+> 📖 **¿Quieres saber más?** Lee [The Scanner](https://internals-for-interns.com/es/posts/the-go-lexer/) en Internals for Interns para una explicación detallada de cómo funciona el lexer/scanner de Go.
 
 En este ejercicio, anadiras un nuevo operador flecha "=>" a Go que funciona como una sintaxis alternativa para iniciar goroutines. Esto te ensenara como modificar el scanner de Go para reconocer nuevos operadores y mapearlos a funcionalidad existente.
 

@@ -13,7 +13,7 @@ Al finalizar este ejercicio, seras capaz de:
 
 ## Paso 1: Entender el Proceso de Bootstrap
 
-Go esta escrito en Go. Esto crea un problema del "huevo y la gallina": como compilas Go sin tener Go? La solucion es el bootstrapping:
+Go está escrito en Go. Esto crea un problema del "huevo y la gallina": ¿cómo compilas Go sin tener Go? La solución es el bootstrapping:
 
 1. El equipo de Go proporciona binarios precompilados
 2. Estos binarios compilan el codigo fuente actual de Go

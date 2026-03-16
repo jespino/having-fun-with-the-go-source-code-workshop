@@ -1,6 +1,6 @@
 # Ejercicio 8: Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime
 
-> 📖 **¿Quieres saber más?** Lee [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) en Internals for Interns para una exploración en profundidad de la planificación de goroutines y las transiciones de estado en Go.
+> 📖 **¿Quieres saber más?** Lee [The Scheduler](https://internals-for-interns.com/es/posts/go-runtime-scheduler/) en Internals for Interns para una exploración en profundidad de la planificación de goroutines y las transiciones de estado en Go.
 
 En este ejercicio, modificarás el scheduler del runtime de Go para registrar las transiciones de estado de las goroutines. Cada vez que una goroutine se duerma esperando algo, se anunciará: "Hello, I'm goroutine 42, going to sleep waiting for channel receive".
 

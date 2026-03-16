@@ -58,7 +58,7 @@
             <h1>Ejercicio 7: Go Paciente - Haciendo que Go Espere a las Goroutines</h1>
 
 <blockquote>
-<p>📖 <strong>¿Quieres aprender mas?</strong> Lee <a href="https://internals-for-interns.com/posts/understanding-go-runtime/">The Bootstrap</a> y <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para profundizar en el arranque del runtime de Go y la planificacion de goroutines.</p>
+<p>📖 <strong>¿Quieres aprender más?</strong> Lee <a href="https://internals-for-interns.com/es/posts/understanding-go-runtime/">The Bootstrap</a> y <a href="https://internals-for-interns.com/es/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para profundizar en el arranque del runtime de Go y la planificación de goroutines.</p>
 </blockquote>
 
 <p>En este ejercicio, modificaras el runtime de Go para que espere a que todas las goroutines terminen antes de que el programa finalice. Actualmente, cuando <code>main()</code> retorna, Go termina inmediatamente incluso si hay goroutines todavia en ejecucion. Haremos que Go sea &ldquo;paciente&rdquo; esperando a que todas las goroutines terminen.</p>

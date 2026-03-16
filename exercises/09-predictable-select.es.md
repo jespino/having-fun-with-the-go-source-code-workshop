@@ -1,6 +1,6 @@
 # Ejercicio 9: Select Predecible - Haciendo las Sentencias Select Deterministas
 
-> 📖 **¿Quieres saber más?** Lee [The Scheduler](https://internals-for-interns.com/posts/go-runtime-scheduler/) en Internals for Interns para una exploración en profundidad del runtime y la planificación de goroutines en Go.
+> 📖 **¿Quieres saber más?** Lee [The Scheduler](https://internals-for-interns.com/es/posts/go-runtime-scheduler/) en Internals for Interns para una exploración en profundidad del runtime y la planificación de goroutines en Go.
 
 En este ejercicio, modificarás la sentencia `select` de Go para que sea determinista en lugar de aleatoria. Por defecto, Go aleatoriza qué caso se elige cuando varios channels están listos. Nosotros lo cambiaremos para que siempre elija los casos en el mismo orden.
 

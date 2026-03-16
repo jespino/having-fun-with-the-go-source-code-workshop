@@ -1,6 +1,6 @@
 # Ejercicio 6: Pasada SSA - Deteccion de Divisiones por Potencias de Dos
 
-> 📖 **¿Quieres aprender mas?** Lee [The SSA Phase](https://internals-for-interns.com/posts/the-go-ssa/) en Internals for Interns para profundizar en las pasadas de optimizacion SSA de Go.
+> 📖 **¿Quieres aprender más?** Lee [The SSA Phase](https://internals-for-interns.com/es/posts/the-go-ssa/) en Internals for Interns para profundizar en las pasadas de optimización SSA de Go.
 
 En este ejercicio, aprenderas como funcionan las pasadas del compilador SSA (Static Single Assignment) de Go creando una pasada de optimizacion personalizada que detecta operaciones de division por potencias de dos.
 
