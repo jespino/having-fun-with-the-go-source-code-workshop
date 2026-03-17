@@ -13,6 +13,17 @@ By the end of this exercise, you will:
 - Modify the runtime's channel selection algorithm
 - Test deterministic vs. random selection behavior
 
+## Introduction: How Does Select Work Internally?
+
+The `select` statement is implemented in the runtime function `selectgo()` in `runtime/select.go`. When your code reaches a `select` with multiple cases, the runtime needs to decide which case to execute. It does this using two arrays:
+
+- **`pollorder`**: Determines the order in which cases are **checked** for readiness. By default, this order is randomized using `cheaprandn()` to ensure fairness — no single channel gets priority over others.
+- **`lockorder`**: Determines the order in which channel locks are **acquired** (sorted by address to prevent deadlocks).
+
+The runtime first shuffles the cases into `pollorder`, then iterates through them in that order. If a case's channel is ready (has data to receive or space to send), that case is selected. If no case is ready and there's a `default`, the default runs. Otherwise, the goroutine parks itself on all the channels' wait queues and waits until one becomes ready.
+
+The randomization in `pollorder` is what makes `select` non-deterministic — running the same `select` with the same ready channels will pick different cases each time. This is a deliberate design choice to prevent programs from accidentally depending on case ordering.
+
 ## Background: Go Randomizes Select
 
 By default, when multiple channels are ready, Go randomizes which case executes:

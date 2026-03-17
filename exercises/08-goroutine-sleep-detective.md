@@ -12,6 +12,16 @@ By the end of this exercise, you will:
 - Know where goroutines block in the runtime
 - Modify the scheduler for debugging insights
 
+## Introduction: How Does the Scheduler Work?
+
+Go's scheduler uses the **GMP model** (Goroutines, Machines, Processors) to map potentially thousands of goroutines onto a small number of OS threads. The key insight is that when an OS thread blocks (e.g., on a syscall), the scheduling resources (the P) can detach and move to another thread, keeping work flowing.
+
+Goroutines don't have a dedicated scheduler thread managing them. Instead, they manage their own transitions through a **self-service pattern**: when a goroutine needs to wait (for a channel, mutex, sleep, etc.), it calls `gopark()` which parks itself, adds itself to the appropriate wait queue, and then calls `schedule()` to find the next runnable goroutine. When the wait condition is satisfied, `goready()` moves the goroutine back to a runnable state.
+
+The scheduler picks the next goroutine to run following a priority order: GC work first, then the local `runnext` slot, then the local run queue, then the global queue (checked every 61st call to prevent starvation), then network poller results, and finally work-stealing from other Ps.
+
+Understanding this scheduling flow is essential because in this exercise we'll be adding logging at the exact point where goroutines transition to the waiting state.
+
 ## Background: Goroutine States
 
 Go manages goroutines through different states:

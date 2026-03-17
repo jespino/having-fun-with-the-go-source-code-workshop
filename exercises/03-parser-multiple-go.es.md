@@ -12,6 +12,16 @@ Al finalizar este ejercicio, serás capaz de:
 - Saber cómo modificar la lógica del parser para extensiones de sintaxis
 - Probar modificaciones del parser con código funcional
 
+## Introducción: ¿Qué es un Parser?
+
+El parser es la segunda fase del compilador, justo después del scanner. Mientras el scanner produce un flujo plano de tokens, el trabajo del parser es darle **estructura** a ese flujo construyendo un **Árbol de Sintaxis Abstracta (AST)** — un árbol que representa las relaciones jerárquicas en tu código.
+
+Por ejemplo, una sentencia `go sayHello()` se convierte en un nodo del árbol de tipo `CallStmt` con `Tok: _Go` y un nodo hijo que representa la llamada a la función `sayHello()`. El parser sabe que después de ver un token `go`, debe seguir una expresión de llamada a función — esto es la gramática del lenguaje.
+
+El parser de Go usa una técnica llamada **descenso recursivo**: tiene una función para cada regla gramatical (archivo, declaración, sentencia, expresión), y estas funciones se llaman entre sí de arriba hacia abajo. El punto de entrada `fileOrNil()` parsea la cláusula del paquete, luego los imports, luego las declaraciones. Cada declaración puede contener sentencias, y cada sentencia puede contener expresiones.
+
+El parser consume tokens uno a uno usando `p.next()`, y comprueba el token actual con `p.tok`. El parser se encuentra en `go/src/cmd/compile/internal/syntax/parser.go`.
+
 ## Paso 1: Navegar al Parser
 
 ```bash

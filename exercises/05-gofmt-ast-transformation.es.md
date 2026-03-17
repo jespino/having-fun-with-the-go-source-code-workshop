@@ -15,6 +15,14 @@ Al finalizar este ejercicio, serás capaz de:
 - Explorar la estructura del AST (Abstract Syntax Tree) de Go
 - Crear transformaciones de código fuente personalizadas
 
+## Introducción: ¿Qué es un AST?
+
+Un **Árbol de Sintaxis Abstracta (AST)** es una representación en forma de árbol de tu código fuente donde cada nodo representa una construcción del lenguaje — funciones, declaraciones, expresiones, sentencias. El árbol captura las relaciones jerárquicas: un nodo de función contiene nodos de sentencias, que contienen nodos de expresiones, y así sucesivamente.
+
+El parser (cubierto en los ejercicios 2-3) construye este árbol a partir del flujo de tokens. Pero el AST no solo lo usa el compilador — herramientas como `gofmt`, `goimports` y `go vet` también parsean código a un AST, lo manipulan y lo imprimen de vuelta.
+
+Go expone su AST a través del paquete `go/ast` (en `src/go/`), que es independiente del AST interno del compilador. Este paquete público proporciona tipos como `*ast.File` (un archivo fuente completo), `*ast.FuncDecl` (una declaración de función), `*ast.BasicLit` (un literal como una cadena o número), y `*ast.Comment`. La función `ast.Inspect()` te permite recorrer todo el árbol, visitando cada nodo — que es exactamente lo que usaremos para encontrar y modificar cadenas de texto y comentarios.
+
 ## Contexto: Cómo Funciona gofmt
 
 gofmt opera a través de estas etapas:

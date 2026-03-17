@@ -13,6 +13,18 @@ By the end of this exercise, you will:
 - Modify the main runtime function to change program behavior
 - Understand the trade-offs of automatic goroutine waiting
 
+## Introduction: How Does a Go Program Start?
+
+A Go binary doesn't begin at your `main()` function. The OS first runs architecture-specific assembly code (`_rt0_amd64_linux` or similar), which sets up the foundational runtime infrastructure. This bootstrap process initializes three core abstractions that the Go runtime uses to manage execution:
+
+- **G (Goroutine)**: A lightweight execution unit with its own stack (starting at 2KB). Every `go` statement creates a new G.
+- **M (Machine)**: An OS thread that actually executes goroutines. Each M has a special `g0` goroutine used for runtime management tasks.
+- **P (Processor)**: A logical scheduling context that connects goroutines to threads. Each P has its own queue of runnable goroutines and a memory cache. The number of Ps is controlled by `GOMAXPROCS`.
+
+The bootstrap sequence goes: assembly setup → scheduler initialization (stack pools, memory allocator, garbage collector) → `runtime.main()` → start system monitor thread → enable GC → run package `init()` functions → finally call your `main.main()`.
+
+When your `main()` returns, control goes back to `runtime.main()`, which proceeds with the tear-down process. This is the exact point we'll modify.
+
 ## Background: Go's Current Termination Behavior
 
 Currently, when you write:

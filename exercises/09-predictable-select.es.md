@@ -13,6 +13,17 @@ Al finalizar este ejercicio, serás capaz de:
 - Modificar el algoritmo de selección de channels en el runtime
 - Probar el comportamiento de selección determinista vs. aleatorio
 
+## Introducción: ¿Cómo Funciona Select Internamente?
+
+La sentencia `select` está implementada en la función del runtime `selectgo()` en `runtime/select.go`. Cuando tu código llega a un `select` con múltiples casos, el runtime necesita decidir qué caso ejecutar. Lo hace usando dos arrays:
+
+- **`pollorder`**: Determina el orden en que los casos se **comprueban** para ver si están listos. Por defecto, este orden se aleatoriza usando `cheaprandn()` para asegurar la equidad — ningún channel tiene prioridad sobre los demás.
+- **`lockorder`**: Determina el orden en que se **adquieren** los locks de los channels (ordenados por dirección para prevenir deadlocks).
+
+El runtime primero mezcla los casos en `pollorder`, luego los recorre en ese orden. Si el channel de un caso está listo (tiene datos para recibir o espacio para enviar), se selecciona ese caso. Si ningún caso está listo y hay un `default`, se ejecuta el default. De lo contrario, la goroutine se aparca en las colas de espera de todos los channels y espera hasta que uno esté listo.
+
+La aleatorización en `pollorder` es lo que hace que `select` sea no determinista — ejecutar el mismo `select` con los mismos channels listos elegirá casos diferentes cada vez. Esta es una decisión de diseño deliberada para evitar que los programas dependan accidentalmente del orden de los casos.
+
 ## Contexto: Go Aleatoriza el Select
 
 Por defecto, cuando varios channels están listos, Go aleatoriza cuál se ejecuta:

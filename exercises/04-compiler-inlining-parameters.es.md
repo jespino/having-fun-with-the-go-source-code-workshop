@@ -13,6 +13,16 @@ Al finalizar este ejercicio, serás capaz de:
 - Modificar los umbrales de inlining para controlar el comportamiento de optimización
 - Medir el impacto en el tamaño del binario
 
+## Introducción: ¿Qué es la IR?
+
+Después del parseo y la verificación de tipos, el compilador convierte el AST en una **Representación Intermedia (IR)**. Mientras el AST refleja lo que escribiste en tu código fuente, la IR es una representación diferente optimizada para el análisis y la transformación por parte del compilador.
+
+La IR representa cada operación en tu código usando ~150 códigos de operación (como `OADD`, `OCALL`, `OIF`). Cada nodo de la IR lleva información de tipos y está organizado por paquete. Esta es la fase donde el compilador toma decisiones de optimización importantes — y una de las más impactantes es el **inlining de funciones**.
+
+El compilador recorre el árbol IR con un "hairiness visitor" que asigna un coste a cada nodo. Si el coste total de una función se mantiene dentro del **presupuesto de inlining** (por defecto: 80 nodos), la función es candidata para el inlining. Las llamadas a funciones cuestan 57 nodos, las sentencias simples cuestan 1 nodo. Cuando se hace inline de una función en un punto de llamada, el compilador copia su cuerpo y reemplaza los parámetros por los argumentos.
+
+Puedes observar las decisiones de inlining con `go build -gcflags='-m'` (o `-m=2` para las razones detalladas).
+
 ## Contexto: Inlining de Funciones en Go
 
 El inlining de funciones es una optimización del compilador donde las llamadas a funciones se reemplazan por el cuerpo real de la función. Esto intercambia tamaño del binario por rendimiento:

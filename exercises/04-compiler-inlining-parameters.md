@@ -13,6 +13,16 @@ By the end of this exercise, you will:
 - Modify inlining thresholds to control optimization behavior
 - Measure the impact on binary size
 
+## Introduction: What is the IR?
+
+After parsing and type-checking, the compiler converts the AST into an **Intermediate Representation (IR)**. While the AST mirrors what you wrote in your source code, the IR is a different representation optimized for analysis and transformation by the compiler.
+
+The IR represents every operation in your code using ~150 operation codes (like `OADD`, `OCALL`, `OIF`). Each IR node carries type information and is organized by package. This is the stage where the compiler makes important optimization decisions — and one of the most impactful is **function inlining**.
+
+The compiler walks the IR tree with a "hairiness visitor" that assigns a cost to each node. If a function's total cost stays within the **inlining budget** (default: 80 nodes), the function is eligible for inlining. Function calls cost 57 nodes, simple statements cost 1 node. When a function is inlined at a call site, the compiler copies its body and replaces parameters with arguments.
+
+You can observe inlining decisions with `go build -gcflags='-m'` (or `-m=2` for detailed reasons).
+
 ## Background: Function Inlining in Go
 
 Function inlining is a compiler optimization where function calls are replaced by the actual function body. This trades binary size for performance:

@@ -13,6 +13,18 @@ Al finalizar este ejercicio, serás capaz de:
 - Modificar la función principal del runtime para cambiar el comportamiento del programa
 - Entender los compromisos de la espera automática de goroutines
 
+## Introducción: ¿Cómo Arranca un Programa Go?
+
+Un binario de Go no empieza en tu función `main()`. El sistema operativo primero ejecuta código ensamblador específico de la arquitectura (`_rt0_amd64_linux` o similar), que prepara la infraestructura fundamental del runtime. Este proceso de bootstrap inicializa tres abstracciones centrales que el runtime de Go usa para gestionar la ejecución:
+
+- **G (Goroutine)**: Una unidad de ejecución ligera con su propia pila (empezando en 2KB). Cada sentencia `go` crea un nuevo G.
+- **M (Machine)**: Un hilo del sistema operativo que realmente ejecuta las goroutines. Cada M tiene una goroutine especial `g0` usada para tareas de gestión del runtime.
+- **P (Processor)**: Un contexto de planificación lógico que conecta goroutines con hilos. Cada P tiene su propia cola de goroutines ejecutables y una caché de memoria. El número de Ps se controla con `GOMAXPROCS`.
+
+La secuencia de bootstrap es: setup en ensamblador → inicialización del scheduler (pools de pilas, asignador de memoria, recolector de basura) → `runtime.main()` → iniciar hilo del monitor del sistema → activar GC → ejecutar las funciones `init()` de los paquetes → finalmente llamar a tu `main.main()`.
+
+Cuando tu `main()` retorna, el control vuelve a `runtime.main()`, que procede con el proceso de desmontaje. Este es el punto exacto que vamos a modificar.
+
 ## Contexto: Comportamiento Actual de Terminación de Go
 
 Actualmente, cuando escribes:

@@ -14,6 +14,19 @@ Al finalizar este ejercicio, serás capaz de:
 - Integrar tu pasada en el pipeline del compilador
 - Usar los volcados SSA para verificar que tu pasada funciona
 
+## Introducción: ¿Qué es SSA?
+
+**Static Single Assignment (SSA)** es una representación del compilador donde cada variable se asigna exactamente una vez. En lugar de reutilizar variables como `x = 1; x = x + 2`, SSA crea nuevas versiones: `x1 = 1; x2 = x1 + 2`. Esta restricción elimina la ambigüedad — al analizar un valor, el compilador sabe que exactamente una definición lo produjo, lo que permite optimizaciones potentes.
+
+El código SSA se organiza en dos estructuras clave:
+
+- **Values (Valores)**: Computaciones individuales como `v3 = Add64 v1 v2`. Cada valor tiene una operación (Add64, Div32, Const64...), un tipo y referencias a sus entradas.
+- **Blocks (Bloques)**: Secuencias de valores sin ramificaciones en el medio. Los bloques están conectados por aristas de flujo de control, formando el grafo de flujo de la función.
+
+Cuando los caminos de flujo de control se fusionan (como después de un `if/else`), SSA usa **nodos PHI** para reconciliar diferentes valores: `v5 = Phi v3 v4` significa "v5 es v3 o v4, dependiendo de qué rama se ejecutó".
+
+El compilador ejecuta más de 30 **pasadas** sobre el grafo SSA en secuencia. Cada pasada recorre los bloques y valores para analizarlos o transformarlos. Las pasadas se ejecutan antes y después del **lowering** — el paso que convierte las operaciones genéricas (como `Add64`) en instrucciones específicas de la arquitectura (como `AMD64ADDQ`).
+
 ## Contexto: Pasadas del Compilador SSA
 
 El compilador de Go transforma tu código a través de múltiples pasadas:

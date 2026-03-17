@@ -14,6 +14,16 @@ By the end of this exercise, you will:
 - Test your scanner modification with working code
 - Successfully extend Go's operator vocabulary
 
+## Introduction: What is a Scanner?
+
+The scanner (also called lexer) is the very first phase of the compiler. It reads your source code character by character and groups those characters into **tokens** — the smallest meaningful units of the language, like keywords (`func`, `go`, `return`), operators (`+`, `==`, `=>`), identifiers (`myVariable`), and literals (`"hello"`, `42`).
+
+For example, when the scanner sees `go sayHello()`, it produces the tokens: `_Go`, `_Name("sayHello")`, `_Lparen`, `_Rparen`.
+
+The scanner works through a big `switch` statement on the current character. When it sees `=`, it peeks at the next character: if it's another `=`, it produces the `==` (equality) token; otherwise it produces `=` (assignment). This lookahead mechanism is exactly what we'll extend to recognize `=>` as a new operator.
+
+The scanner lives in `go/src/cmd/compile/internal/syntax/scanner.go`.
+
 ## Background: How This Scanner Modification Works
 
 This exercise demonstrates **scanner-level modifications** to add new operator syntax to Go. We'll modify the scanner logic to recognize a new operator sequence "=>" and map it to an existing token. Here's what we'll accomplish:

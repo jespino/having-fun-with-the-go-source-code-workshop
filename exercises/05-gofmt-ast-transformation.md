@@ -15,6 +15,14 @@ By the end of this exercise, you will:
 - Explore Go's AST (Abstract Syntax Tree) structure
 - Create custom source code transformations
 
+## Introduction: What is an AST?
+
+An **Abstract Syntax Tree (AST)** is a tree representation of your source code where each node represents a language construct — functions, declarations, expressions, statements. The tree captures the hierarchical relationships: a function node contains statement nodes, which contain expression nodes, and so on.
+
+The parser (covered in exercises 2-3) builds this tree from the token stream. But the AST isn't just used by the compiler — tools like `gofmt`, `goimports`, and `go vet` also parse code into an AST, manipulate it, and print it back.
+
+Go exposes its AST through the `go/ast` package (in `src/go/`), which is separate from the compiler's internal AST. This public package provides types like `*ast.File` (a whole source file), `*ast.FuncDecl` (a function declaration), `*ast.BasicLit` (a literal like a string or number), and `*ast.Comment`. The `ast.Inspect()` function lets you walk the entire tree, visiting every node — which is exactly what we'll use to find and modify string literals and comments.
+
 ## Background: How gofmt Works
 
 gofmt operates through these stages:
