@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 11: D&amp;D Work Stealing - Rolling for Goroutines - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="es/11-dnd-work-stealing.html" class="lang-switch"><i class="fas fa-globe"></i> Español</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>Exercise 11: D&amp;D Work Stealing - Rolling for Goroutines</h1>
+
+<blockquote>
+<p><strong>Want to learn more?</strong> Read <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> on Internals for Interns for a deep dive into Go&rsquo;s runtime and goroutine scheduling.</p>
+</blockquote>
+
+<p>In this exercise, you&rsquo;ll add a d20 dice roll to the Go scheduler&rsquo;s work stealing algorithm. When a processor (P) tries to steal goroutines from another P&rsquo;s run queue, it must first roll above 10 on a twenty-sided die. Failed rolls mean the steal is blocked, making the scheduler&rsquo;s work distribution visible and entertaining.</p>
+
+<h2>Learning Objectives</h2>
+
+<p>By the end of this exercise, you will:</p>
+
+<ul>
+<li>Understand how Go&rsquo;s work stealing scheduler distributes goroutines across processors</li>
+<li>Know where the <code>stealWork</code> function lives and how it iterates over other P&rsquo;s</li>
+<li>Modify the steal logic to add a randomized gate</li>
+<li>Observe work stealing attempts in real time</li>
+</ul>
+
+<h2>Background: Work Stealing</h2>
+
+<p>Go&rsquo;s scheduler uses work stealing to balance load across processors. When a P runs out of goroutines to execute, it looks at other P&rsquo;s queues and steals half their work:</p>
+
+<pre><code>Before (current behavior):
+  P0: [g1, g2, g3, g4]    P1: []  (idle)
+  P1 tries to steal from P0 → always succeeds
+  P0: [g1, g2]             P1: [g3, g4]
+
+After (our modification):
+  P0: [g1, g2, g3, g4]    P1: []  (idle)
+  P1 rolls d20 to steal from P0 → rolled 7, failed!
+  P1 rolls d20 to steal from P0 → rolled 16, stole!
+  P0: [g1, g2]             P1: [g3, g4]
+</code></pre>
+
+<h2>Step 1: Understanding the Steal Mechanism</h2>
+
+<p>The work stealing logic lives in the <code>stealWork</code> function in <code>proc.go</code>:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+grep -n &quot;func stealWork&quot; proc.go
+</code></pre>
+
+<p>You&rsquo;ll find <code>stealWork</code> around line 3828. This function is called by <code>findRunnable</code> when a P has no local work. It iterates over other P&rsquo;s in a randomized order, trying to steal goroutines from their run queues.</p>
+
+<h2>Step 2: Find the Steal Attempt</h2>
+
+<p>Inside <code>stealWork</code>, look for the actual steal attempt around line 3883:</p>
+
+<pre><code class="language-bash">grep -n &quot;runqsteal&quot; proc.go | head -5
+</code></pre>
+
+<p>You&rsquo;ll see this code block (around line 3883-3887):</p>
+
+<pre><code class="language-go">// go/src/runtime/proc.go:3883-3887
+// Don't bother to attempt to steal if p2 is idle.
+if !idlepMask.read(enum.position()) {
+    if gp := runqsteal(pp, p2, stealTimersOrRunNextG); gp != nil {
+        return gp, false, now, pollUntil, ranTimer
+    }
+}
+</code></pre>
+
+<p>Key variables at this point:
+- <strong><code>pp</code></strong> - The current P (the thief), type <code>*p</code>, has field <code>pp.id</code> (int32)
+- <strong><code>p2</code></strong> - The target P (the victim), type <code>*p</code>, has field <code>p2.id</code>
+- <strong><code>runqsteal(pp, p2, ...)</code></strong> - Moves goroutines from p2&rsquo;s queue to pp&rsquo;s queue</p>
+
+<h2>Step 3: Add the D&amp;D Dice Roll</h2>
+
+<p>Replace lines 3883-3887 with our dice-gated version:</p>
+
+<pre><code class="language-go">// go/src/runtime/proc.go:3883-3887
+// Don't bother to attempt to steal if p2 is idle.
+if !idlepMask.read(enum.position()) {
+    if mainStarted &amp;&amp; gogetenv(&quot;GODND&quot;) != &quot;&quot; {
+        // D&amp;D Work Stealing: Roll a d20 to attempt stealing!
+        roll := cheaprandn(20) + 1 // Roll 1-20
+        if roll &gt; 10 {
+            if gp := runqsteal(pp, p2, stealTimersOrRunNextG); gp != nil {
+                println(&quot;🎲 [P&quot;, pp.id, &quot;] Rolling to steal from P&quot;, p2.id, &quot;... rolled&quot;, roll, &quot;. Stole!&quot;)
+                return gp, false, now, pollUntil, ranTimer
+            }
+        } else {
+            println(&quot;🎲 [P&quot;, pp.id, &quot;] Rolling to steal from P&quot;, p2.id, &quot;... rolled&quot;, roll, &quot;. Failed!&quot;)
+        }
+    } else {
+        if gp := runqsteal(pp, p2, stealTimersOrRunNextG); gp != nil {
+            return gp, false, now, pollUntil, ranTimer
+        }
+    }
+}
+</code></pre>
+
+<h3>Understanding the Code</h3>
+
+<ul>
+<li><strong><code>mainStarted</code></strong> - A boolean already in <code>proc.go</code> that flips to <code>true</code> early in the main goroutine&rsquo;s startup — before <code>sysmon</code>, GC, and <code>init()</code> run. It cuts out the very earliest scheduler noise, but some pre-main prints will still appear (see the callout below)</li>
+<li><strong><code>gogetenv(&quot;GODND&quot;)</code></strong> - The runtime&rsquo;s internal env var reader (equivalent of <code>os.Getenv</code> — the runtime can&rsquo;t import <code>os</code>). Gates everything behind <code>GODND=1</code> so the scheduler behaves normally unless you opt in</li>
+<li><strong><code>cheaprandn(20) + 1</code></strong> - Rolls 1-20. <code>cheaprandn(20)</code> returns 0-19, the <code>+ 1</code> shifts it to a proper d20 range</li>
+<li><strong><code>roll &gt; 10</code></strong> - 50% success rate (rolls 11-20 succeed, rolls 1-10 fail)</li>
+<li><strong><code>println(...)</code></strong> - Runtime&rsquo;s builtin print function, writes to stderr via raw syscall, no imports needed</li>
+<li><strong><code>pp.id</code> / <code>p2.id</code></strong> - The processor ID fields (int32), defined in the <code>p</code> struct in <code>runtime2.go</code></li>
+<li>We only print &ldquo;Stole!&rdquo; when <code>runqsteal</code> returns non-nil (the target queue might have emptied between the idle check and the steal)</li>
+</ul>
+
+<blockquote>
+<p><strong>🐉 Fun fact: The scheduler already rolls with advantage — times four!</strong></p>
+
+<p>Look at the outer loop in <code>stealWork</code>: <code>const stealTries = 4</code>. The scheduler doesn&rsquo;t just try to steal once — it loops <strong>4 times</strong> over all P&rsquo;s, re-shuffling the order with <code>cheaprand()</code> each pass. So your d20 gate doesn&rsquo;t just get rolled once per steal attempt — a determined P gets up to 4 chances per target. In D&amp;D terms, that&rsquo;s rolling with advantage&hellip; squared.</p>
+
+<p>And the 4th pass is special: it sets <code>stealTimersOrRunNextG = true</code>, which unlocks stealing the victim&rsquo;s <code>runnext</code> goroutine — the one it was about to run next. The source code comment literally says <em>&ldquo;stealing from the other P&rsquo;s runnext should be the last resort.&rdquo;</em> So the final pass is the desperate, gloves-off round where everything is fair game.</p>
+
+<p>The Go scheduler was already playing D&amp;D before you got here. You&rsquo;re just making the dice visible.</p>
+</blockquote>
+
+<h2>Step 4: Rebuild Go Toolchain</h2>
+
+<pre><code class="language-bash">cd ../  # back to go/src
+./make.bash
+</code></pre>
+
+<h2>Step 5: Test the D&amp;D Scheduler</h2>
+
+<p>Create the <code>dnd_steal_demo.go</code> file:</p>
+
+<pre><code class="language-bash"># Create the file
+touch /tmp/dnd_steal_demo.go
+</code></pre>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;runtime&quot;
+    &quot;sync&quot;
+)
+
+func busyWork(id int, wg *sync.WaitGroup) {
+    defer wg.Done()
+    sum := 0
+    for i := 0; i &lt; 1_000_000; i++ {
+        sum += i
+    }
+    println(&quot;Goroutine&quot;, id, &quot;finished&quot;)
+}
+
+func main() {
+    runtime.GOMAXPROCS(4) // 4 P's for visible stealing
+    println(&quot;=== D&amp;D Work Stealing Demo ===&quot;)
+    println()
+
+    var wg sync.WaitGroup
+    for i := 1; i &lt;= 20; i++ {
+        wg.Add(1)
+        go busyWork(i, &amp;wg)
+    }
+    wg.Wait()
+    println()
+    println(&quot;=== All goroutines completed! ===&quot;)
+}
+</code></pre>
+
+<p>Build and run with D&amp;D mode enabled:</p>
+
+<pre><code class="language-bash">../go/bin/go build -o dnd_steal_demo /tmp/dnd_steal_demo.go
+GODND=1 ./dnd_steal_demo
+</code></pre>
+
+<p><strong>Why <code>GODND=1</code>?</strong> Without it, the scheduler runs normally — no dice rolls, no prints. This keeps <code>./make.bash</code> and <code>go build</code> clean and silent. Note that some pre-main and post-main prints will still appear even with <code>GODND=1</code> — see the callouts below for why.</p>
+
+<p><strong>Why build first then run?</strong> The <code>go build</code> command itself uses your modified Go. Building separately (without <code>GODND=1</code>) keeps the compiler&rsquo;s work stealing silent.</p>
+
+<p>Expected output (varies every run):</p>
+
+<pre><code>🎲 [P 3 ] Rolling to steal from P 0 ... rolled 13 . Stole!
+=== D&amp;D Work Stealing Demo ===
+
+🎲 [P 2 ] Rolling to steal from P 0 ... rolled 15 . Stole!
+🎲 [P 3 ] Rolling to steal from P 0 ... rolled 12 . Stole!
+🎲 [P 1 ] Rolling to steal from P 0 ... rolled 11 . Stole!
+Goroutine 15 finished
+🎲 [P 0 ] Rolling to steal from P 2 ... rolled 7 . Failed!
+🎲 [P 0 ] Rolling to steal from P 3 ... rolled 20 . Stole!
+Goroutine 1 finished
+Goroutine 12 finished
+...
+=== All goroutines completed! ===
+🎲 [P %
+</code></pre>
+
+<p>You&rsquo;ll see the dice rolls interleaved with goroutine completion messages. Rolls of 1-10 fail, rolls of 11-20 succeed. Notice how a P with no work keeps retrying different targets until it rolls high enough!</p>
+
+<blockquote>
+<p><strong>📖 Why are there dice rolls before <code>=== D&amp;D Work Stealing Demo ===</code>?</strong></p>
+
+<p>You didn&rsquo;t write those — the Go runtime did. Between <code>mainStarted</code> flipping to <code>true</code> and your first <code>println</code>, the runtime starts <code>sysmon</code>, enables the GC, and runs all <code>init()</code> functions — each spawning goroutines that idle P&rsquo;s immediately try to steal. You&rsquo;ve instrumented the scheduler itself, so you&rsquo;re now seeing activity that was always there, just silent.</p>
+
+<p><strong>📖 Why is there a truncated <code>🎲 [P %</code> after <code>=== All goroutines completed! ===</code>?</strong></p>
+
+<p>Same story, other end. After <code>wg.Wait()</code> returns, the idle P&rsquo;s are still spinning in <code>stealWork</code> looking for more work. One starts a <code>println</code> just as <code>main()</code> returns and the process exits — the print never finishes. The <code>%</code> is your shell saying the output didn&rsquo;t end with a newline. The scheduler doesn&rsquo;t stop for you on the way out either.</p>
+
+<p>Welcome to the inside of Go!</p>
+</blockquote>
+
+<h2>Understanding What We Did</h2>
+
+<ol>
+<li><strong>Found the Steal Logic</strong>: Located <code>stealWork</code> in <code>proc.go</code> where P&rsquo;s steal goroutines from each other</li>
+<li><strong>Added a Dice Gate</strong>: Used <code>cheaprandn(20) + 1</code> to generate a d20 roll (1-20) before each steal attempt</li>
+<li><strong>Logged the Rolls</strong>: Added <code>println()</code> calls showing which P is stealing from which, the roll result, and whether it succeeded</li>
+<li><strong>Observed the Effect</strong>: Saw work stealing attempts in real time, with some failing due to low rolls</li>
+</ol>
+
+<h2>What We Learned</h2>
+
+<ul>
+<li><strong>Work Stealing</strong>: How Go distributes goroutines across processors when queues are imbalanced</li>
+<li><strong><code>stealWork</code> Function</strong>: The core loop that iterates over P&rsquo;s looking for work to steal</li>
+<li><strong><code>cheaprandn</code></strong>: The runtime&rsquo;s fast pseudo-random number generator, used throughout the scheduler</li>
+<li><strong>Scheduler Observability</strong>: How to add logging to the scheduler without breaking its behavior</li>
+<li><strong>P Identity</strong>: Each processor has a unique <code>id</code> field that identifies it in scheduling decisions</li>
+</ul>
+
+<h2>Extension Ideas</h2>
+
+<ol>
+<li>Make the difficulty configurable: roll must beat 15 instead of 10 (harder steals)</li>
+<li>Add a &ldquo;critical hit&rdquo; on natural 20: steal ALL goroutines from target, not just half</li>
+<li>Add a &ldquo;fumble&rdquo; on natural 1: the stealing P yields for one cycle with <code>Gosched()</code></li>
+<li>Track and print total rolls, successes, and failures at program exit</li>
+</ol>
+
+<h2>Cleanup</h2>
+
+<p>To remove the dice roll:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+git checkout proc.go
+cd ../
+./make.bash
+</code></pre>
+
+<h2>Summary</h2>
+
+<p>You&rsquo;ve turned Go&rsquo;s work stealing scheduler into a tabletop RPG encounter:</p>
+
+<pre><code>Before:  P tries to steal -&gt; always succeeds if target has work
+After:   P tries to steal -&gt; must roll &gt; 10 on a d20 first
+
+Changes: runtime/proc.go stealWork() function (~14 lines)
+Result:  The scheduler now plays D&amp;D!
+</code></pre>
+
+<hr />
+
+<p><em>Congratulations on completing all workshop exercises! Return to the <a href="index.html">main workshop</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="10-java-style-stack-traces.html" class="nav-button">← Previous</a>
+            
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Having fun with the Go Source Code</p>
+            <p>Created by <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

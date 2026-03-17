@@ -235,4 +235,4 @@ Exception in thread "main" go.runtime.Panic: ...
 
 ---
 
-*Congratulations on completing all workshop exercises! Return to the [main workshop](../README.md)*
+*Continue to [Exercise 11](11-dnd-work-stealing.md) or return to the [main workshop](../README.md)*
