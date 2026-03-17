@@ -212,5 +212,6 @@ Puedes continuar con cualquiera de los siguientes ejercicios para aprender sobre
 - [Ejercicio 8: Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime](./08-goroutine-sleep-detective.md) - Monitoreo del scheduler
 - [Ejercicio 9: Select Predecible - Eliminar la Aleatoriedad del Select de Go](./09-predictable-select.md) - Comportamiento del select
 - [Ejercicio 10: Stack Traces al Estilo Java - Hacer que los Panics de Go se Vean Familiares](./10-java-style-stack-traces.md) - Formato de errores
+- [Ejercicio 11: D&D Work Stealing - Tirando Dados por Goroutines](./11-dnd-work-stealing.md) - Work stealing del scheduler
 
 O vuelve al [taller principal](../README.md) para elegir un ejercicio.
