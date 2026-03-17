@@ -59,9 +59,8 @@ make.bat
 This script will:
 
 1. Build the Go toolchain (compiler, linker, runtime, standard library)
-2. Take approximately 2-10 minutes depending on your system
-
-**Note:** The first time you run this, it will take longer as it needs to compile everything from scratch.
+2. The first build compiles everything from scratch, so it will take approximately 2-10 minutes depending on your system
+3. Subsequent builds will be much faster, since only the modified files and their dependencies need to be recompiled
 
 ### What about `all.bash` and `run.bash`?
 
@@ -93,16 +92,16 @@ ls -la
 Key directories you should see:
 
 - **`src/`**: Contains the Go source code
-  - `src/cmd/`: Command-line tools (go, gofmt, etc.)
+  - `src/cmd/`: Command-line tools (go, gofmt, etc.) — includes `cmd/compile/`, the actual compiler code we'll be modifying
   - `src/runtime/`: Go runtime system
-  - `src/go/`: Go language packages (parser, AST, etc.)
+  - `src/go/`: Go language packages (parser, AST, etc.) exposed for developers to use in their own tools — not used by the compiler itself
 - **`test/`**: Test files for the Go language
 - **`api/`**: API compatibility data
 - **`doc/`**: Documentation
 
 ### Examine the Go Compiler Structure
 
-The Go compiler is located in `src/cmd/compile/`. Let's explore it:
+Let's take a closer look at `src/cmd/compile/`:
 
 ```bash
 cd src/cmd/compile
@@ -113,10 +112,11 @@ Key files and directories:
 
 - **`main.go`**: Entry point of the compiler
 - **`internal/`**: Internal compiler packages
-  - `internal/syntax/`: Lexer/parser (scanner, parser)
-  - `internal/types2/`: Type checker
-  - `internal/ir/`: Intermediate representation
-  - `internal/gc/`: Code generation
+  - `internal/syntax/`: Turns source code into tokens (scanner) and builds a syntax tree (parser)
+  - `internal/types2/`: Checks that types are used correctly (e.g., you can't add a string to an int)
+  - `internal/ir/`: Intermediate representation — the compiler's internal model of your program after parsing and type-checking, used for analysis and optimization before generating machine code
+  - `internal/ssa/`: Static Single Assignment form — transforms the IR into a lower-level representation where each variable is assigned exactly once, enabling powerful optimizations like dead code elimination and constant propagation
+  - `internal/gc/`: Orchestrates the compilation pipeline, coordinating all the phases from parsing through to machine code generation
 
 ## Step 5: Understanding the Build Output
 
@@ -131,12 +131,19 @@ Building Go toolchain3 using go_bootstrap and Go toolchain2.
 Building packages and commands for darwin/amd64.
 ```
 
-This shows the multi-stage bootstrap process:
+Let's break down what each line means:
 
-- The compiler is build with the go version installed in your system (toolchain1)
-- Then the compiler is built again using the toolchain1 to produce the toolchain2
-- Finally the toolchain3 is generated using the toolchain2.
-- The toolchain3 and toolchain2 should be identical
+1. **`Building Go cmd/dist using /usr/local/go`**: First, it builds `dist`, a small helper tool that manages the rest of the build process. It uses your system Go (`/usr/local/go`) to compile it.
+
+2. **`Building Go toolchain1 using /usr/local/go`**: Your system Go compiles the Go 1.26.1 compiler source code, producing `toolchain1` — a first version of the new compiler, but built by an older Go version.
+
+3. **`Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1`**: Using `toolchain1`, it builds `go_bootstrap`, a minimal version of the `go` command needed to manage the next build steps.
+
+4. **`Building Go toolchain2 using go_bootstrap and Go toolchain1`**: Now `toolchain1` compiles itself — the Go 1.26.1 compiler source is compiled again, but this time using the new compiler instead of your system Go. The result is `toolchain2`.
+
+5. **`Building Go toolchain3 using go_bootstrap and Go toolchain2`**: `toolchain2` compiles the same source one more time to produce `toolchain3`. Since both `toolchain2` and `toolchain3` were built from the same source by equivalent compilers, they should produce identical binaries — this verifies the build is reproducible.
+
+6. **`Building packages and commands for darwin/amd64`**: Finally, it uses the verified toolchain to compile the standard library and all the Go tools (`go`, `gofmt`, etc.) for your platform.
 
 ## Step 6: Locate Your Compiled Go Binary
 
@@ -150,7 +157,6 @@ You should see:
 
 - `go` - The main Go command
 - `gofmt` - Go formatter
-- Other Go tools
 
 ## Step 7: Test Your Custom Go Build
 
