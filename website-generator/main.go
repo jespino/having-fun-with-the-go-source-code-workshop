@@ -188,6 +188,7 @@ var spanishConfig = LangConfig{
 		{"08-goroutine-sleep-detective", "Detective de Goroutines Dormidas - Monitoreo del Estado del Runtime", "Añade logging al scheduler de Go para monitorear goroutines que se van a dormir."},
 		{"09-predictable-select", "Select Predecible - Eliminando la Aleatoriedad del Select de Go", "Modifica la implementación del select de Go para que sea determinista en lugar de aleatorio."},
 		{"10-java-style-stack-traces", "Stack Traces Estilo Java - Haciendo los Panics de Go Familiares", "Transforma los stack traces verbosos de Go al formato estilo Java."},
+		{"11-dnd-work-stealing", "D&D Work Stealing - Tirando Dados por Goroutines", "Añade una tirada de dado d20 al algoritmo de work stealing del planificador de Go para controlar los robos de goroutines entre procesadores."},
 	},
 	UIStrings: UIStrings{
 		Home:            "Inicio",
