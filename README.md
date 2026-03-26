@@ -14,7 +14,7 @@ Welcome to an interactive workshop where you'll learn how to modify and experime
 
 ## Workshop Overview
 
-This workshop consists of 10 exercises that will take you through the process from building Go from source, and making modifications at different places in the compiler, tooling and runtime. You'll gain some insights about the Go internals, from things like the lexer or parser, to runtime behaviors:
+This workshop consists of 11 exercises that will take you through the process from building Go from source, and making modifications at different places in the compiler, tooling and runtime. You'll gain some insights about the Go internals, from things like the lexer or parser, to runtime behaviors:
 
 ### [Exercise 0: Introduction and Setup](./exercises/00-introduction-setup.md)
 
@@ -59,6 +59,10 @@ Modify Go's select statement implementation to be deterministic instead of rando
 ### [Exercise 10: Java-Style Stack Traces - Making Go Panics Look Familiar](./exercises/10-java-style-stack-traces.md)
 
 Transform Go's verbose stack traces into Java-style formatting.
+
+### [Exercise 11: D&D Work Stealing - Rolling for Goroutines](./exercises/11-dnd-work-stealing.md)
+
+Add a dice roll to the scheduler's work stealing algorithm - P's must roll above 10 on a d20 to steal goroutines.
 
 ## Getting Started
 

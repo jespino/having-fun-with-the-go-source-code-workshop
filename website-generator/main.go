@@ -53,38 +53,38 @@ type LangConfig struct {
 }
 
 type UIStrings struct {
-	Home              string
-	Previous          string
-	Next              string
-	Exercise          string
-	HeroTitle         string
-	HeroLead          string
-	HeroVersionNote   string
-	Prerequisites     string
-	PrereqItems       []string
-	Overview          string
-	OverviewText      string
-	GettingStarted    string
+	Home                string
+	Previous            string
+	Next                string
+	Exercise            string
+	HeroTitle           string
+	HeroLead            string
+	HeroVersionNote     string
+	Prerequisites       string
+	PrereqItems         []string
+	Overview            string
+	OverviewText        string
+	GettingStarted      string
 	GettingStartedItems []string
-	Tips              string
-	TipItems          []string
-	Resources         string
-	VideoReferences   string
-	VideoRefsIntro    string
-	VideoCompiler     string
-	VideoCompilerDesc string
-	VideoRuntime      string
-	VideoRuntimeDesc  string
-	Completion        string
-	CompletionIntro   string
-	CompletionItems   []string
-	CompletionCongrats string
-	CompletionEnables []string
-	Contributing      string
-	ContributingText  string
-	CTAButton         string
-	FooterTitle       string
-	FooterCreatedBy   string
+	Tips                string
+	TipItems            []string
+	Resources           string
+	VideoReferences     string
+	VideoRefsIntro      string
+	VideoCompiler       string
+	VideoCompilerDesc   string
+	VideoRuntime        string
+	VideoRuntimeDesc    string
+	Completion          string
+	CompletionIntro     string
+	CompletionItems     []string
+	CompletionCongrats  string
+	CompletionEnables   []string
+	Contributing        string
+	ContributingText    string
+	CTAButton           string
+	FooterTitle         string
+	FooterCreatedBy     string
 }
 
 var englishConfig = LangConfig{
@@ -105,16 +105,17 @@ var englishConfig = LangConfig{
 		{"08-goroutine-sleep-detective", "Goroutine Sleep Detective - Runtime State Monitoring", "Add logging to the Go scheduler to monitor goroutines going to sleep."},
 		{"09-predictable-select", "Predictable Select - Removing Randomness from Go's Select Statement", "Modify Go's select statement implementation to be deterministic instead of random."},
 		{"10-java-style-stack-traces", "Java-Style Stack Traces - Making Go Panics Look Familiar", "Transform Go's verbose stack traces into Java-style formatting."},
+		{"11-dnd-work-stealing", "D&D Work Stealing - Rolling for Goroutines", "Add a d20 dice roll to Go's work stealing scheduler to gate goroutine theft between processors."},
 	},
 	UIStrings: UIStrings{
-		Home:              "Home",
-		Previous:          "Previous",
-		Next:              "Next",
-		Exercise:          "Exercise",
-		HeroTitle:         "Having fun with the Go Source Code",
-		HeroLead:          "Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime.",
-		HeroVersionNote:   "<strong>This workshop uses Go version 1.26.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.",
-		Prerequisites:     "Prerequisites",
+		Home:            "Home",
+		Previous:        "Previous",
+		Next:            "Next",
+		Exercise:        "Exercise",
+		HeroTitle:       "Having fun with the Go Source Code",
+		HeroLead:        "Welcome to an interactive workshop where you'll learn how to modify and experiment with the Go programming language source code! This hands-on workshop will guide you through understanding, building, and making changes to the Go compiler and runtime.",
+		HeroVersionNote: "<strong>This workshop uses Go version 1.26.1</strong> - we'll check out the specific release tag to ensure consistency across all exercises.",
+		Prerequisites:   "Prerequisites",
 		PrereqItems: []string{
 			"Basic knowledge of Go programming",
 			"Familiarity with command line tools",
@@ -122,8 +123,8 @@ var englishConfig = LangConfig{
 			"<strong>Go compiler version 1.24 or newer</strong> (required for bootstrapping the build process)",
 			"At least 4GB of free disk space",
 		},
-		Overview:     "Workshop Overview",
-		OverviewText: "This workshop consists of %d exercises that will take you through the process from building Go from source, and making modifications at different places in the compiler, tooling and runtime. You'll gain some insights about the Go internals, from things like the lexer or parser, to runtime behaviors:",
+		Overview:       "Workshop Overview",
+		OverviewText:   "This workshop consists of %d exercises that will take you through the process from building Go from source, and making modifications at different places in the compiler, tooling and runtime. You'll gain some insights about the Go internals, from things like the lexer or parser, to runtime behaviors:",
 		GettingStarted: "Getting Started",
 		GettingStartedItems: []string{
 			`Start with <a href="%s00-introduction-setup.html">Exercise 0</a> to set up your environment`,
@@ -189,14 +190,14 @@ var spanishConfig = LangConfig{
 		{"10-java-style-stack-traces", "Stack Traces Estilo Java - Haciendo los Panics de Go Familiares", "Transforma los stack traces verbosos de Go al formato estilo Java."},
 	},
 	UIStrings: UIStrings{
-		Home:              "Inicio",
-		Previous:          "Anterior",
-		Next:              "Siguiente",
-		Exercise:          "Ejercicio",
-		HeroTitle:         "Divirtiéndonos con el Código Fuente de Go",
-		HeroLead:          "¡Bienvenido a un taller interactivo donde aprenderás a modificar y experimentar con el código fuente del lenguaje de programación Go! Este taller práctico te guiará a través de la comprensión, compilación y modificación del compilador y runtime de Go.",
-		HeroVersionNote:   "<strong>Este taller usa Go versión 1.26.1</strong> - haremos checkout del tag de release específico para asegurar consistencia en todos los ejercicios.",
-		Prerequisites:     "Prerrequisitos",
+		Home:            "Inicio",
+		Previous:        "Anterior",
+		Next:            "Siguiente",
+		Exercise:        "Ejercicio",
+		HeroTitle:       "Divirtiéndonos con el Código Fuente de Go",
+		HeroLead:        "¡Bienvenido a un taller interactivo donde aprenderás a modificar y experimentar con el código fuente del lenguaje de programación Go! Este taller práctico te guiará a través de la comprensión, compilación y modificación del compilador y runtime de Go.",
+		HeroVersionNote: "<strong>Este taller usa Go versión 1.26.1</strong> - haremos checkout del tag de release específico para asegurar consistencia en todos los ejercicios.",
+		Prerequisites:   "Prerrequisitos",
 		PrereqItems: []string{
 			"Conocimientos básicos de programación en Go",
 			"Familiaridad con herramientas de línea de comandos",
@@ -204,8 +205,8 @@ var spanishConfig = LangConfig{
 			"<strong>Compilador de Go versión 1.24 o superior</strong> (necesario para el proceso de bootstrapping)",
 			"Al menos 4GB de espacio libre en disco",
 		},
-		Overview:     "Descripción General del Taller",
-		OverviewText: "Este taller consta de %d ejercicios que te llevarán a través del proceso desde compilar Go desde el código fuente hasta hacer modificaciones en diferentes partes del compilador, herramientas y runtime. Obtendrás conocimientos sobre los internos de Go, desde cosas como el lexer o parser, hasta comportamientos del runtime:",
+		Overview:       "Descripción General del Taller",
+		OverviewText:   "Este taller consta de %d ejercicios que te llevarán a través del proceso desde compilar Go desde el código fuente hasta hacer modificaciones en diferentes partes del compilador, herramientas y runtime. Obtendrás conocimientos sobre los internos de Go, desde cosas como el lexer o parser, hasta comportamientos del runtime:",
 		GettingStarted: "Cómo Empezar",
 		GettingStartedItems: []string{
 			`Comienza con el <a href="%s00-introduction-setup.html">Ejercicio 0</a> para configurar tu entorno`,
@@ -273,7 +274,7 @@ func main() {
 	}
 
 	// Create output directory if it doesn't exist
-	if err := os.MkdirAll(*outputDir, 0755); err != nil {
+	if err := os.MkdirAll(*outputDir, 0o755); err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating output directory: %v\n", err)
 		os.Exit(1)
 	}
@@ -284,7 +285,7 @@ func main() {
 		langOutputDir := *outputDir
 		if lang.OutputPrefix != "" {
 			langOutputDir = filepath.Join(*outputDir, lang.OutputPrefix)
-			if err := os.MkdirAll(langOutputDir, 0755); err != nil {
+			if err := os.MkdirAll(langOutputDir, 0o755); err != nil {
 				fmt.Fprintf(os.Stderr, "Error creating output directory for %s: %v\n", lang.Code, err)
 				os.Exit(1)
 			}
@@ -468,7 +469,7 @@ func copyCSSFile(outputDir string) error {
 	cssContent := cssTemplate
 	outputPath := filepath.Join(outputDir, "style.css")
 
-	if err := os.WriteFile(outputPath, []byte(cssContent), 0644); err != nil {
+	if err := os.WriteFile(outputPath, []byte(cssContent), 0o644); err != nil {
 		return fmt.Errorf("writing CSS file: %w", err)
 	}
 
