@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 11: D&amp;D Work Stealing - Tirando Dados por Goroutines - Go Source Code Workshop</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+
+            
+            document.querySelectorAll('pre').forEach(function(pre) {
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<i class="far fa-copy"></i>';
+                button.title = 'Copy to clipboard';
+
+                button.addEventListener('click', function() {
+                    const code = pre.querySelector('code');
+                    const text = code.textContent;
+
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.innerHTML = '<i class="fas fa-check"></i>';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<i class="far fa-copy"></i>';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+
+                pre.appendChild(button);
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-home">Having fun with the Go Source Code</a>
+            <div class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="../11-dnd-work-stealing.html" class="lang-switch"><i class="fas fa-globe"></i> English</a>
+                <a href="https://github.com/jespino/having-fun-with-the-go-source-code-workshop" target="_blank"><i class="fab fa-github"></i> Repository</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <article class="exercise-content">
+            <h1>Ejercicio 11: D&amp;D Work Stealing - Tirando Dados por Goroutines</h1>
+
+<blockquote>
+<p><strong>¿Quieres aprender más?</strong> Lee <a href="https://internals-for-interns.com/posts/go-runtime-scheduler/">The Scheduler</a> en Internals for Interns para una inmersión profunda en el runtime de Go y la planificación de goroutines.</p>
+</blockquote>
+
+<p>En este ejercicio, añadirás una tirada de dado d20 al algoritmo de work stealing del planificador de Go. Cuando un procesador (P) intenta robar goroutines de la cola de ejecución de otro P, primero debe sacar más de 10 en un dado de veinte caras. Las tiradas fallidas significan que el robo se bloquea, haciendo visible y entretenida la distribución de trabajo del planificador.</p>
+
+<h2>Objetivos de Aprendizaje</h2>
+
+<p>Al finalizar este ejercicio, serás capaz de:</p>
+
+<ul>
+<li>Comprender cómo el planificador de work stealing de Go distribuye goroutines entre procesadores</li>
+<li>Saber dónde se encuentra la función <code>stealWork</code> y cómo itera sobre los demás P&rsquo;s</li>
+<li>Modificar la lógica de robo para añadir una puerta aleatoria</li>
+<li>Observar los intentos de work stealing en tiempo real</li>
+</ul>
+
+<h2>Contexto: Work Stealing</h2>
+
+<p>El planificador de Go utiliza work stealing para equilibrar la carga entre procesadores. Cuando un P se queda sin goroutines que ejecutar, mira las colas de otros P&rsquo;s y roba la mitad de su trabajo:</p>
+
+<pre><code>Antes (comportamiento actual):
+  P0: [g1, g2, g3, g4]    P1: []  (idle)
+  P1 intenta robar de P0 → siempre tiene éxito
+  P0: [g1, g2]             P1: [g3, g4]
+
+Después (nuestra modificación):
+  P0: [g1, g2, g3, g4]    P1: []  (idle)
+  P1 tira d20 para robar de P0 → sacó 7, ¡falló!
+  P1 tira d20 para robar de P0 → sacó 16, ¡robó!
+  P0: [g1, g2]             P1: [g3, g4]
+</code></pre>
+
+<h2>Paso 1: Entender el Mecanismo de Robo</h2>
+
+<p>La lógica de work stealing se encuentra en la función <code>stealWork</code> en <code>proc.go</code>:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+grep -n &quot;func stealWork&quot; proc.go
+</code></pre>
+
+<p>Encontrarás <code>stealWork</code> alrededor de la línea 3828. Esta función es llamada por <code>findRunnable</code> cuando un P no tiene trabajo local. Itera sobre los demás P&rsquo;s en orden aleatorio, intentando robar goroutines de sus colas de ejecución.</p>
+
+<h2>Paso 2: Encontrar el Intento de Robo</h2>
+
+<p>Dentro de <code>stealWork</code>, busca el intento de robo real alrededor de la línea 3883:</p>
+
+<pre><code class="language-bash">grep -n &quot;runqsteal&quot; proc.go | head -5
+</code></pre>
+
+<p>Verás este bloque de código (alrededor de las líneas 3883-3887):</p>
+
+<pre><code class="language-go">// go/src/runtime/proc.go:3883-3887
+// Don't bother to attempt to steal if p2 is idle.
+if !idlepMask.read(enum.position()) {
+    if gp := runqsteal(pp, p2, stealTimersOrRunNextG); gp != nil {
+        return gp, false, now, pollUntil, ranTimer
+    }
+}
+</code></pre>
+
+<p>Variables clave en este punto:
+- <strong><code>pp</code></strong> - El P actual (el ladrón), tipo <code>*p</code>, tiene el campo <code>pp.id</code> (int32)
+- <strong><code>p2</code></strong> - El P objetivo (la víctima), tipo <code>*p</code>, tiene el campo <code>p2.id</code>
+- <strong><code>runqsteal(pp, p2, ...)</code></strong> - Mueve goroutines de la cola de p2 a la cola de pp</p>
+
+<h2>Paso 3: Añadir la Tirada de Dado de D&amp;D</h2>
+
+<p>Reemplaza las líneas 3883-3887 con nuestra versión con puerta de dado:</p>
+
+<pre><code class="language-go">// go/src/runtime/proc.go:3883-3887
+// Don't bother to attempt to steal if p2 is idle.
+if !idlepMask.read(enum.position()) {
+    if mainStarted &amp;&amp; gogetenv(&quot;GODND&quot;) != &quot;&quot; {
+        // D&amp;D Work Stealing: Roll a d20 to attempt stealing!
+        roll := cheaprandn(20) + 1 // Roll 1-20
+        if roll &gt; 10 {
+            if gp := runqsteal(pp, p2, stealTimersOrRunNextG); gp != nil {
+                println(&quot;🎲 [P&quot;, pp.id, &quot;] Rolling to steal from P&quot;, p2.id, &quot;... rolled&quot;, roll, &quot;. Stole!&quot;)
+                return gp, false, now, pollUntil, ranTimer
+            }
+        } else {
+            println(&quot;🎲 [P&quot;, pp.id, &quot;] Rolling to steal from P&quot;, p2.id, &quot;... rolled&quot;, roll, &quot;. Failed!&quot;)
+        }
+    } else {
+        if gp := runqsteal(pp, p2, stealTimersOrRunNextG); gp != nil {
+            return gp, false, now, pollUntil, ranTimer
+        }
+    }
+}
+</code></pre>
+
+<h3>Entendiendo el Código</h3>
+
+<ul>
+<li><strong><code>mainStarted</code></strong> - Un booleano que ya existe en <code>proc.go</code> y cambia a <code>true</code> al inicio de la goroutine principal — antes de que se ejecuten <code>sysmon</code>, GC e <code>init()</code>. Elimina el ruido más temprano del planificador, pero algunos prints pre-main seguirán apareciendo (ver la nota más abajo)</li>
+<li><strong><code>gogetenv(&quot;GODND&quot;)</code></strong> - El lector interno de variables de entorno del runtime (equivalente a <code>os.Getenv</code> — el runtime no puede importar <code>os</code>). Todo queda protegido detrás de <code>GODND=1</code> para que el planificador se comporte normalmente a menos que lo actives</li>
+<li><strong><code>cheaprandn(20) + 1</code></strong> - Tira 1-20. <code>cheaprandn(20)</code> devuelve 0-19, el <code>+ 1</code> lo desplaza al rango correcto de un d20</li>
+<li><strong><code>roll &gt; 10</code></strong> - 50% de probabilidad de éxito (tiradas 11-20 tienen éxito, tiradas 1-10 fallan)</li>
+<li><strong><code>println(...)</code></strong> - La función print integrada del runtime, escribe a stderr mediante syscall directo, no necesita imports</li>
+<li><strong><code>pp.id</code> / <code>p2.id</code></strong> - Los campos de ID del procesador (int32), definidos en el struct <code>p</code> en <code>runtime2.go</code></li>
+<li>Solo imprimimos &ldquo;Stole!&rdquo; cuando <code>runqsteal</code> devuelve non-nil (la cola objetivo podría haberse vaciado entre la comprobación de idle y el robo)</li>
+</ul>
+
+<blockquote>
+<p><strong>🐉 Dato curioso: ¡El planificador ya tira con ventaja — multiplicada por cuatro!</strong></p>
+
+<p>Mira el bucle exterior en <code>stealWork</code>: <code>const stealTries = 4</code>. El planificador no intenta robar solo una vez — hace un bucle <strong>4 veces</strong> sobre todos los P&rsquo;s, reordenándolos con <code>cheaprand()</code> en cada pasada. Así que tu puerta de d20 no se tira solo una vez por intento de robo — un P determinado tiene hasta 4 oportunidades por objetivo. En términos de D&amp;D, eso es tirar con ventaja&hellip; al cuadrado.</p>
+
+<p>Y la 4ª pasada es especial: establece <code>stealTimersOrRunNextG = true</code>, lo que desbloquea el robo de la goroutine <code>runnext</code> de la víctima — la que estaba a punto de ejecutar. El comentario del código fuente dice literalmente <em>&ldquo;stealing from the other P&rsquo;s runnext should be the last resort.&rdquo;</em> Así que la pasada final es la ronda desesperada, sin guantes, donde todo vale.</p>
+
+<p>El planificador de Go ya estaba jugando a D&amp;D antes de que llegaras. Tú solo estás haciendo visibles los dados.</p>
+</blockquote>
+
+<h2>Paso 4: Recompilar el Toolchain de Go</h2>
+
+<pre><code class="language-bash">cd ../  # volver a go/src
+./make.bash
+</code></pre>
+
+<h2>Paso 5: Probar el Planificador D&amp;D</h2>
+
+<p>Crea el archivo <code>dnd_steal_demo.go</code>:</p>
+
+<pre><code class="language-bash"># Crear el archivo
+touch /tmp/dnd_steal_demo.go
+</code></pre>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;runtime&quot;
+    &quot;sync&quot;
+)
+
+func busyWork(id int, wg *sync.WaitGroup) {
+    defer wg.Done()
+    sum := 0
+    for i := 0; i &lt; 1_000_000; i++ {
+        sum += i
+    }
+    println(&quot;Goroutine&quot;, id, &quot;finished&quot;)
+}
+
+func main() {
+    runtime.GOMAXPROCS(4) // 4 P's para que el robo sea visible
+    println(&quot;=== D&amp;D Work Stealing Demo ===&quot;)
+    println()
+
+    var wg sync.WaitGroup
+    for i := 1; i &lt;= 20; i++ {
+        wg.Add(1)
+        go busyWork(i, &amp;wg)
+    }
+    wg.Wait()
+    println()
+    println(&quot;=== All goroutines completed! ===&quot;)
+}
+</code></pre>
+
+<p>Compila y ejecuta con el modo D&amp;D activado:</p>
+
+<pre><code class="language-bash">../go/bin/go build -o dnd_steal_demo /tmp/dnd_steal_demo.go
+GODND=1 ./dnd_steal_demo
+</code></pre>
+
+<p><strong>¿Por qué <code>GODND=1</code>?</strong> Sin esta variable, el planificador funciona normalmente — sin tiradas de dados, sin prints. Esto mantiene <code>./make.bash</code> y <code>go build</code> limpios y silenciosos. Ten en cuenta que algunos prints pre-main y post-main seguirán apareciendo incluso con <code>GODND=1</code> — consulta las notas más abajo para saber por qué.</p>
+
+<p><strong>¿Por qué compilar primero y luego ejecutar?</strong> El comando <code>go build</code> en sí mismo usa tu Go modificado. Compilar por separado (sin <code>GODND=1</code>) mantiene silencioso el work stealing del compilador.</p>
+
+<p>Salida esperada (varía en cada ejecución):</p>
+
+<pre><code>🎲 [P 3 ] Rolling to steal from P 0 ... rolled 13 . Stole!
+=== D&amp;D Work Stealing Demo ===
+
+🎲 [P 2 ] Rolling to steal from P 0 ... rolled 15 . Stole!
+🎲 [P 3 ] Rolling to steal from P 0 ... rolled 12 . Stole!
+🎲 [P 1 ] Rolling to steal from P 0 ... rolled 11 . Stole!
+Goroutine 15 finished
+🎲 [P 0 ] Rolling to steal from P 2 ... rolled 7 . Failed!
+🎲 [P 0 ] Rolling to steal from P 3 ... rolled 20 . Stole!
+Goroutine 1 finished
+Goroutine 12 finished
+...
+=== All goroutines completed! ===
+🎲 [P %
+</code></pre>
+
+<p>Verás las tiradas de dados intercaladas con los mensajes de finalización de goroutines. Las tiradas de 1-10 fallan, las tiradas de 11-20 tienen éxito. ¡Observa cómo un P sin trabajo sigue reintentando con diferentes objetivos hasta que saca una tirada suficientemente alta!</p>
+
+<blockquote>
+<p><strong>📖 ¿Por qué hay tiradas de dados antes de <code>=== D&amp;D Work Stealing Demo ===</code>?</strong></p>
+
+<p>Tú no las escribiste — lo hizo el runtime de Go. Entre que <code>mainStarted</code> cambia a <code>true</code> y tu primer <code>println</code>, el runtime inicia <code>sysmon</code>, activa el GC y ejecuta todas las funciones <code>init()</code> — cada una lanzando goroutines que los P&rsquo;s ociosos intentan robar inmediatamente. Has instrumentado el planificador en sí, así que ahora estás viendo actividad que siempre estuvo ahí, solo que en silencio.</p>
+
+<p><strong>📖 ¿Por qué hay un <code>🎲 [P %</code> truncado después de <code>=== All goroutines completed! ===</code>?</strong></p>
+
+<p>La misma historia, pero al revés. Después de que <code>wg.Wait()</code> retorna, los P&rsquo;s ociosos siguen girando en <code>stealWork</code> buscando más trabajo. Uno empieza un <code>println</code> justo cuando <code>main()</code> retorna y el proceso termina — el print nunca se completa. El <code>%</code> es tu shell indicando que la salida no terminó con un salto de línea. El planificador tampoco se detiene por ti a la salida.</p>
+
+<p>¡Bienvenido al interior de Go!</p>
+</blockquote>
+
+<h2>Entendiendo lo que Hicimos</h2>
+
+<ol>
+<li><strong>Encontramos la Lógica de Robo</strong>: Localizamos <code>stealWork</code> en <code>proc.go</code> donde los P&rsquo;s roban goroutines entre sí</li>
+<li><strong>Añadimos una Puerta de Dado</strong>: Usamos <code>cheaprandn(20) + 1</code> para generar una tirada de d20 (1-20) antes de cada intento de robo</li>
+<li><strong>Registramos las Tiradas</strong>: Añadimos llamadas a <code>println()</code> mostrando qué P está robando de cuál, el resultado de la tirada y si tuvo éxito</li>
+<li><strong>Observamos el Efecto</strong>: Vimos los intentos de work stealing en tiempo real, con algunos fallando debido a tiradas bajas</li>
+</ol>
+
+<h2>Lo que Aprendimos</h2>
+
+<ul>
+<li><strong>Work Stealing</strong>: Cómo Go distribuye goroutines entre procesadores cuando las colas están desequilibradas</li>
+<li><strong>Función <code>stealWork</code></strong>: El bucle principal que itera sobre los P&rsquo;s buscando trabajo que robar</li>
+<li><strong><code>cheaprandn</code></strong>: El generador de números pseudoaleatorios rápido del runtime, usado en todo el planificador</li>
+<li><strong>Observabilidad del Planificador</strong>: Cómo añadir logging al planificador sin romper su comportamiento</li>
+<li><strong>Identidad de P</strong>: Cada procesador tiene un campo <code>id</code> único que lo identifica en las decisiones de planificación</li>
+</ul>
+
+<h2>Ideas de Extensión</h2>
+
+<ol>
+<li>Hacer la dificultad configurable: la tirada debe superar 15 en lugar de 10 (robos más difíciles)</li>
+<li>Añadir un &ldquo;golpe crítico&rdquo; con un 20 natural: robar TODAS las goroutines del objetivo, no solo la mitad</li>
+<li>Añadir una &ldquo;pifia&rdquo; con un 1 natural: el P que roba cede un ciclo con <code>Gosched()</code></li>
+<li>Registrar e imprimir el total de tiradas, éxitos y fallos al finalizar el programa</li>
+</ol>
+
+<h2>Limpieza</h2>
+
+<p>Para eliminar la tirada de dado:</p>
+
+<pre><code class="language-bash">cd go/src/runtime
+git checkout proc.go
+cd ../
+./make.bash
+</code></pre>
+
+<h2>Resumen</h2>
+
+<p>Has convertido el planificador de work stealing de Go en un encuentro de RPG de mesa:</p>
+
+<pre><code>Antes:   P intenta robar -&gt; siempre tiene éxito si el objetivo tiene trabajo
+Después: P intenta robar -&gt; debe sacar &gt; 10 en un d20 primero
+
+Cambios: runtime/proc.go función stealWork() (~14 líneas)
+Resultado: ¡El planificador ahora juega a D&amp;D!
+</code></pre>
+
+<hr />
+
+<p><em>¡Felicidades por completar todos los ejercicios del taller! Vuelve al <a href="index.html">taller principal</a></em></p>
+
+        </article>
+
+        <nav class="exercise-nav">
+            
+            <a href="10-java-style-stack-traces.html" class="nav-button">← Anterior</a>
+            
+            
+        </nav>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Having fun with the Go Source Code</p>
+            <p>Creado por <strong>Jesús Espino</strong></p>
+            <div class="footer-links">
+                <a href="https://github.com/jespino" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://x.com/jespinog" target="_blank"><i class="fab fa-x-twitter"></i> @jespinog</a>
+                <a href="https://linkedin.com/in/jesus-espino" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
