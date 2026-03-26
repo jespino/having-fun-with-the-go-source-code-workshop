@@ -73,6 +73,16 @@
 <li>Test parser modifications with working code</li>
 </ul>
 
+<h2>Introduction: What is a Parser?</h2>
+
+<p>The parser is the second phase of the compiler, right after the scanner. While the scanner produces a flat stream of tokens, the parser&rsquo;s job is to give that stream <strong>structure</strong> by building an <strong>Abstract Syntax Tree (AST)</strong> — a tree that represents the hierarchical relationships in your code.</p>
+
+<p>For example, a <code>go sayHello()</code> statement becomes a tree node of type <code>CallStmt</code> with <code>Tok: _Go</code> and a child node representing the function call <code>sayHello()</code>. The parser knows that after seeing a <code>go</code> token, a function call expression must follow — this is the grammar of the language.</p>
+
+<p>Go&rsquo;s parser uses a technique called <strong>recursive descent</strong>: it has a function for each grammar rule (file, declaration, statement, expression), and these functions call each other top-down. The entry point <code>fileOrNil()</code> parses the package clause, then imports, then declarations. Each declaration can contain statements, and each statement can contain expressions.</p>
+
+<p>The parser consumes tokens one at a time using <code>p.next()</code>, and checks the current token with <code>p.tok</code>. The parser lives in <code>go/src/cmd/compile/internal/syntax/parser.go</code>.</p>
+
 <h2>Step 1: Navigate to the Parser</h2>
 
 <pre><code class="language-bash">cd go/src/cmd/compile/internal/syntax

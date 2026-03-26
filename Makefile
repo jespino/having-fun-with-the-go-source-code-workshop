@@ -1,4 +1,4 @@
-.PHONY: website clean help publish
+.PHONY: website clean help publish iximiuz
 
 help: ## Show this help message
 	@echo "Available targets:"
@@ -17,3 +17,8 @@ clean: ## Remove generated website files
 
 serve: ## Serve the website locally with live reload
 	@cd website-generator && go run . -exercises ../exercises -output ../website -serve
+
+iximiuz: ## Generate the iximiuz Labs tutorial from markdown exercises
+	@echo "🚀 Generating iximiuz Labs tutorial..."
+	@cd iximiuz-generator && go run . -exercises ../exercises -output ../fun-with-go-code-8fc2f532
+	@echo "✅ iximiuz tutorial generated in ./fun-with-go-code-8fc2f532/"

@@ -117,10 +117,9 @@ git describe --tags
 
 <ol>
 <li>Compilar la toolchain de Go (compilador, enlazador, runtime, biblioteca estándar)</li>
-<li>Tardará aproximadamente entre 2 y 10 minutos dependiendo de tu sistema</li>
+<li>La primera compilación compila todo desde cero, por lo que tardará aproximadamente entre 2 y 10 minutos dependiendo de tu sistema</li>
+<li>Las compilaciones posteriores serán mucho más rápidas, ya que solo es necesario recompilar los archivos modificados y sus dependencias</li>
 </ol>
-
-<p><strong>Nota:</strong> La primera vez que ejecutes esto, tardará más ya que necesita compilar todo desde cero.</p>
 
 <h3>¿Qué pasa con <code>all.bash</code> y <code>run.bash</code>?</h3>
 
@@ -158,9 +157,9 @@ ls -la
 <li><strong><code>src/</code></strong>: Contiene el código fuente de Go
 
 <ul>
-<li><code>src/cmd/</code>: Herramientas de línea de comandos (go, gofmt, etc.)</li>
+<li><code>src/cmd/</code>: Herramientas de línea de comandos (go, gofmt, etc.) — incluye <code>cmd/compile/</code>, el código del compilador que modificaremos</li>
 <li><code>src/runtime/</code>: Sistema de runtime de Go</li>
-<li><code>src/go/</code>: Paquetes del lenguaje Go (parser, AST, etc.)</li>
+<li><code>src/go/</code>: Paquetes del lenguaje Go (parser, AST, etc.) expuestos para que los desarrolladores los usen en sus propias herramientas — no son los que usa el compilador internamente</li>
 </ul></li>
 <li><strong><code>test/</code></strong>: Archivos de test del lenguaje Go</li>
 <li><strong><code>api/</code></strong>: Datos de compatibilidad de la API</li>
@@ -169,7 +168,7 @@ ls -la
 
 <h3>Examinar la Estructura del Compilador de Go</h3>
 
-<p>El compilador de Go se encuentra en <code>src/cmd/compile/</code>. Vamos a explorarlo:</p>
+<p>Veamos más de cerca <code>src/cmd/compile/</code>:</p>
 
 <pre><code class="language-bash">cd src/cmd/compile
 ls -la
@@ -182,10 +181,11 @@ ls -la
 <li><strong><code>internal/</code></strong>: Paquetes internos del compilador
 
 <ul>
-<li><code>internal/syntax/</code>: Lexer/parser (scanner, parser)</li>
-<li><code>internal/types2/</code>: Verificador de tipos</li>
-<li><code>internal/ir/</code>: Representación intermedia</li>
-<li><code>internal/gc/</code>: Generación de código</li>
+<li><code>internal/syntax/</code>: Convierte el código fuente en tokens (scanner) y construye un árbol sintáctico (parser)</li>
+<li><code>internal/types2/</code>: Verifica que los tipos se usen correctamente (por ejemplo, no puedes sumar un string con un int)</li>
+<li><code>internal/ir/</code>: Representación intermedia — el modelo interno del compilador de tu programa después del análisis sintáctico y la verificación de tipos, usado para análisis y optimización antes de generar código máquina</li>
+<li><code>internal/ssa/</code>: Forma Static Single Assignment — transforma la IR en una representación de más bajo nivel donde cada variable se asigna exactamente una vez, permitiendo optimizaciones potentes como la eliminación de código muerto y la propagación de constantes</li>
+<li><code>internal/gc/</code>: Orquesta el pipeline de compilación, coordinando todas las fases desde el análisis sintáctico hasta la generación de código máquina</li>
 </ul></li>
 </ul>
 
@@ -201,14 +201,21 @@ Building Go toolchain3 using go_bootstrap and Go toolchain2.
 Building packages and commands for darwin/amd64.
 </code></pre>
 
-<p>Esto muestra el proceso de bootstrap en múltiples etapas:</p>
+<p>Veamos qué significa cada línea:</p>
 
-<ul>
-<li>El compilador se compila con la versión de Go instalada en tu sistema (toolchain1)</li>
-<li>Luego el compilador se vuelve a compilar usando la toolchain1 para producir la toolchain2</li>
-<li>Finalmente la toolchain3 se genera usando la toolchain2</li>
-<li>La toolchain3 y la toolchain2 deberían ser idénticas</li>
-</ul>
+<ol>
+<li><p><strong><code>Building Go cmd/dist using /usr/local/go</code></strong>: Primero, compila <code>dist</code>, una pequeña herramienta auxiliar que gestiona el resto del proceso de compilación. Usa el Go de tu sistema (<code>/usr/local/go</code>) para compilarla.</p></li>
+
+<li><p><strong><code>Building Go toolchain1 using /usr/local/go</code></strong>: El Go de tu sistema compila el código fuente del compilador de Go 1.26.1, produciendo <code>toolchain1</code> — una primera versión del nuevo compilador, pero compilada por una versión anterior de Go.</p></li>
+
+<li><p><strong><code>Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1</code></strong>: Usando <code>toolchain1</code>, compila <code>go_bootstrap</code>, una versión mínima del comando <code>go</code> necesaria para gestionar los siguientes pasos de la compilación.</p></li>
+
+<li><p><strong><code>Building Go toolchain2 using go_bootstrap and Go toolchain1</code></strong>: Ahora <code>toolchain1</code> se compila a sí mismo — el código fuente del compilador de Go 1.26.1 se compila de nuevo, pero esta vez usando el nuevo compilador en lugar del Go de tu sistema. El resultado es <code>toolchain2</code>.</p></li>
+
+<li><p><strong><code>Building Go toolchain3 using go_bootstrap and Go toolchain2</code></strong>: <code>toolchain2</code> compila el mismo código fuente una vez más para producir <code>toolchain3</code>. Como tanto <code>toolchain2</code> como <code>toolchain3</code> fueron compilados desde el mismo código fuente por compiladores equivalentes, deberían producir binarios idénticos — esto verifica que la compilación es reproducible.</p></li>
+
+<li><p><strong><code>Building packages and commands for darwin/amd64</code></strong>: Finalmente, usa la toolchain verificada para compilar la biblioteca estándar y todas las herramientas de Go (<code>go</code>, <code>gofmt</code>, etc.) para tu plataforma.</p></li>
+</ol>
 
 <h2>Paso 6: Localizar tu Binario de Go Compilado</h2>
 
@@ -222,7 +229,6 @@ Building packages and commands for darwin/amd64.
 <ul>
 <li><code>go</code> - El comando principal de Go</li>
 <li><code>gofmt</code> - Formateador de Go</li>
-<li>Otras herramientas de Go</li>
 </ul>
 
 <h2>Paso 7: Probar tu Compilación Personalizada de Go</h2>

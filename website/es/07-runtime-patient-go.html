@@ -74,6 +74,20 @@
 <li>Entender los compromisos de la espera automática de goroutines</li>
 </ul>
 
+<h2>Introducción: ¿Cómo Arranca un Programa Go?</h2>
+
+<p>Un binario de Go no empieza en tu función <code>main()</code>. El sistema operativo primero ejecuta código ensamblador específico de la arquitectura (<code>_rt0_amd64_linux</code> o similar), que prepara la infraestructura fundamental del runtime. Este proceso de bootstrap inicializa tres abstracciones centrales que el runtime de Go usa para gestionar la ejecución:</p>
+
+<ul>
+<li><strong>G (Goroutine)</strong>: Una unidad de ejecución ligera con su propia pila (empezando en 2KB). Cada sentencia <code>go</code> crea un nuevo G.</li>
+<li><strong>M (Machine)</strong>: Un hilo del sistema operativo que realmente ejecuta las goroutines. Cada M tiene una goroutine especial <code>g0</code> usada para tareas de gestión del runtime.</li>
+<li><strong>P (Processor)</strong>: Un contexto de planificación lógico que conecta goroutines con hilos. Cada P tiene su propia cola de goroutines ejecutables y una caché de memoria. El número de Ps se controla con <code>GOMAXPROCS</code>.</li>
+</ul>
+
+<p>La secuencia de bootstrap es: setup en ensamblador → inicialización del scheduler (pools de pilas, asignador de memoria, recolector de basura) → <code>runtime.main()</code> → iniciar hilo del monitor del sistema → activar GC → ejecutar las funciones <code>init()</code> de los paquetes → finalmente llamar a tu <code>main.main()</code>.</p>
+
+<p>Cuando tu <code>main()</code> retorna, el control vuelve a <code>runtime.main()</code>, que procede con el proceso de desmontaje. Este es el punto exacto que vamos a modificar.</p>
+
 <h2>Contexto: Comportamiento Actual de Terminación de Go</h2>
 
 <p>Actualmente, cuando escribes:</p>

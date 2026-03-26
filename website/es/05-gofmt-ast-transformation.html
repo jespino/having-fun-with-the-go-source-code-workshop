@@ -76,6 +76,14 @@
 <li>Crear transformaciones de código fuente personalizadas</li>
 </ul>
 
+<h2>Introducción: ¿Qué es un AST?</h2>
+
+<p>Un <strong>Árbol de Sintaxis Abstracta (AST)</strong> es una representación en forma de árbol de tu código fuente donde cada nodo representa una construcción del lenguaje — funciones, declaraciones, expresiones, sentencias. El árbol captura las relaciones jerárquicas: un nodo de función contiene nodos de sentencias, que contienen nodos de expresiones, y así sucesivamente.</p>
+
+<p>El parser (cubierto en los ejercicios 2-3) construye este árbol a partir del flujo de tokens. Pero el AST no solo lo usa el compilador — herramientas como <code>gofmt</code>, <code>goimports</code> y <code>go vet</code> también parsean código a un AST, lo manipulan y lo imprimen de vuelta.</p>
+
+<p>Go expone su AST a través del paquete <code>go/ast</code> (en <code>src/go/</code>), que es independiente del AST interno del compilador. Este paquete público proporciona tipos como <code>*ast.File</code> (un archivo fuente completo), <code>*ast.FuncDecl</code> (una declaración de función), <code>*ast.BasicLit</code> (un literal como una cadena o número), y <code>*ast.Comment</code>. La función <code>ast.Inspect()</code> te permite recorrer todo el árbol, visitando cada nodo — que es exactamente lo que usaremos para encontrar y modificar cadenas de texto y comentarios.</p>
+
 <h2>Contexto: Cómo Funciona gofmt</h2>
 
 <p>gofmt opera a través de estas etapas:</p>

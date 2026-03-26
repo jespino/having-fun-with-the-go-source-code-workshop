@@ -75,6 +75,21 @@
 <li>Use SSA dumps to verify your pass works</li>
 </ul>
 
+<h2>Introduction: What is SSA?</h2>
+
+<p><strong>Static Single Assignment (SSA)</strong> is a compiler representation where every variable is assigned exactly once. Instead of reusing variables like <code>x = 1; x = x + 2</code>, SSA creates new versions: <code>x1 = 1; x2 = x1 + 2</code>. This constraint eliminates ambiguity — when analyzing a value, the compiler knows exactly one definition produced it, enabling powerful optimizations.</p>
+
+<p>SSA code is organized into two key structures:</p>
+
+<ul>
+<li><strong>Values</strong>: Individual computations like <code>v3 = Add64 v1 v2</code>. Each value has an operation (Add64, Div32, Const64&hellip;), a type, and references to its inputs.</li>
+<li><strong>Blocks</strong>: Sequences of values with no branching in the middle. Blocks are connected by control flow edges, forming the function&rsquo;s flow graph.</li>
+</ul>
+
+<p>When control flow paths merge (like after an <code>if/else</code>), SSA uses <strong>PHI nodes</strong> to reconcile different values: <code>v5 = Phi v3 v4</code> means &ldquo;v5 is v3 or v4, depending on which branch we came from&rdquo;.</p>
+
+<p>The compiler runs 30+ <strong>passes</strong> over the SSA graph in sequence. Each pass traverses the blocks and values to analyze or transform them. Passes run before and after <strong>lowering</strong> — the step that converts generic operations (like <code>Add64</code>) into architecture-specific instructions (like <code>AMD64ADDQ</code>).</p>
+
 <h2>Background: SSA Compiler Passes</h2>
 
 <p>The Go compiler transforms your code through multiple passes:</p>

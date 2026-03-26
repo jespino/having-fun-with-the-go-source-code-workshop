@@ -117,10 +117,9 @@ git describe --tags
 
 <ol>
 <li>Build the Go toolchain (compiler, linker, runtime, standard library)</li>
-<li>Take approximately 2-10 minutes depending on your system</li>
+<li>The first build compiles everything from scratch, so it will take approximately 2-10 minutes depending on your system</li>
+<li>Subsequent builds will be much faster, since only the modified files and their dependencies need to be recompiled</li>
 </ol>
-
-<p><strong>Note:</strong> The first time you run this, it will take longer as it needs to compile everything from scratch.</p>
 
 <h3>What about <code>all.bash</code> and <code>run.bash</code>?</h3>
 
@@ -158,9 +157,9 @@ ls -la
 <li><strong><code>src/</code></strong>: Contains the Go source code
 
 <ul>
-<li><code>src/cmd/</code>: Command-line tools (go, gofmt, etc.)</li>
+<li><code>src/cmd/</code>: Command-line tools (go, gofmt, etc.) — includes <code>cmd/compile/</code>, the actual compiler code we&rsquo;ll be modifying</li>
 <li><code>src/runtime/</code>: Go runtime system</li>
-<li><code>src/go/</code>: Go language packages (parser, AST, etc.)</li>
+<li><code>src/go/</code>: Go language packages (parser, AST, etc.) exposed for developers to use in their own tools — not used by the compiler itself</li>
 </ul></li>
 <li><strong><code>test/</code></strong>: Test files for the Go language</li>
 <li><strong><code>api/</code></strong>: API compatibility data</li>
@@ -169,7 +168,7 @@ ls -la
 
 <h3>Examine the Go Compiler Structure</h3>
 
-<p>The Go compiler is located in <code>src/cmd/compile/</code>. Let&rsquo;s explore it:</p>
+<p>Let&rsquo;s take a closer look at <code>src/cmd/compile/</code>:</p>
 
 <pre><code class="language-bash">cd src/cmd/compile
 ls -la
@@ -182,10 +181,11 @@ ls -la
 <li><strong><code>internal/</code></strong>: Internal compiler packages
 
 <ul>
-<li><code>internal/syntax/</code>: Lexer/parser (scanner, parser)</li>
-<li><code>internal/types2/</code>: Type checker</li>
-<li><code>internal/ir/</code>: Intermediate representation</li>
-<li><code>internal/gc/</code>: Code generation</li>
+<li><code>internal/syntax/</code>: Turns source code into tokens (scanner) and builds a syntax tree (parser)</li>
+<li><code>internal/types2/</code>: Checks that types are used correctly (e.g., you can&rsquo;t add a string to an int)</li>
+<li><code>internal/ir/</code>: Intermediate representation — the compiler&rsquo;s internal model of your program after parsing and type-checking, used for analysis and optimization before generating machine code</li>
+<li><code>internal/ssa/</code>: Static Single Assignment form — transforms the IR into a lower-level representation where each variable is assigned exactly once, enabling powerful optimizations like dead code elimination and constant propagation</li>
+<li><code>internal/gc/</code>: Orchestrates the compilation pipeline, coordinating all the phases from parsing through to machine code generation</li>
 </ul></li>
 </ul>
 
@@ -201,14 +201,21 @@ Building Go toolchain3 using go_bootstrap and Go toolchain2.
 Building packages and commands for darwin/amd64.
 </code></pre>
 
-<p>This shows the multi-stage bootstrap process:</p>
+<p>Let&rsquo;s break down what each line means:</p>
 
-<ul>
-<li>The compiler is build with the go version installed in your system (toolchain1)</li>
-<li>Then the compiler is built again using the toolchain1 to produce the toolchain2</li>
-<li>Finally the toolchain3 is generated using the toolchain2.</li>
-<li>The toolchain3 and toolchain2 should be identical</li>
-</ul>
+<ol>
+<li><p><strong><code>Building Go cmd/dist using /usr/local/go</code></strong>: First, it builds <code>dist</code>, a small helper tool that manages the rest of the build process. It uses your system Go (<code>/usr/local/go</code>) to compile it.</p></li>
+
+<li><p><strong><code>Building Go toolchain1 using /usr/local/go</code></strong>: Your system Go compiles the Go 1.26.1 compiler source code, producing <code>toolchain1</code> — a first version of the new compiler, but built by an older Go version.</p></li>
+
+<li><p><strong><code>Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1</code></strong>: Using <code>toolchain1</code>, it builds <code>go_bootstrap</code>, a minimal version of the <code>go</code> command needed to manage the next build steps.</p></li>
+
+<li><p><strong><code>Building Go toolchain2 using go_bootstrap and Go toolchain1</code></strong>: Now <code>toolchain1</code> compiles itself — the Go 1.26.1 compiler source is compiled again, but this time using the new compiler instead of your system Go. The result is <code>toolchain2</code>.</p></li>
+
+<li><p><strong><code>Building Go toolchain3 using go_bootstrap and Go toolchain2</code></strong>: <code>toolchain2</code> compiles the same source one more time to produce <code>toolchain3</code>. Since both <code>toolchain2</code> and <code>toolchain3</code> were built from the same source by equivalent compilers, they should produce identical binaries — this verifies the build is reproducible.</p></li>
+
+<li><p><strong><code>Building packages and commands for darwin/amd64</code></strong>: Finally, it uses the verified toolchain to compile the standard library and all the Go tools (<code>go</code>, <code>gofmt</code>, etc.) for your platform.</p></li>
+</ol>
 
 <h2>Step 6: Locate Your Compiled Go Binary</h2>
 
@@ -222,7 +229,6 @@ Building packages and commands for darwin/amd64.
 <ul>
 <li><code>go</code> - The main Go command</li>
 <li><code>gofmt</code> - Go formatter</li>
-<li>Other Go tools</li>
 </ul>
 
 <h2>Step 7: Test Your Custom Go Build</h2>

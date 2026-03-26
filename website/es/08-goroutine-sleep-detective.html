@@ -73,6 +73,16 @@
 <li>Modificar el scheduler para obtener información de depuración</li>
 </ul>
 
+<h2>Introducción: ¿Cómo Funciona el Scheduler?</h2>
+
+<p>El scheduler de Go usa el <strong>modelo GMP</strong> (Goroutines, Machines, Processors) para mapear potencialmente miles de goroutines sobre un pequeño número de hilos del sistema operativo. La idea clave es que cuando un hilo del SO se bloquea (por ejemplo, en una syscall), los recursos de planificación (el P) pueden desacoplarse y moverse a otro hilo, manteniendo el flujo de trabajo.</p>
+
+<p>Las goroutines no tienen un hilo de scheduler dedicado que las gestione. En su lugar, gestionan sus propias transiciones mediante un <strong>patrón de autoservicio</strong>: cuando una goroutine necesita esperar (por un channel, mutex, sleep, etc.), llama a <code>gopark()</code> que se aparca a sí misma, se añade a la cola de espera apropiada, y luego llama a <code>schedule()</code> para encontrar la siguiente goroutine ejecutable. Cuando la condición de espera se satisface, <code>goready()</code> mueve la goroutine de vuelta al estado ejecutable.</p>
+
+<p>El scheduler elige la siguiente goroutine a ejecutar siguiendo un orden de prioridad: primero trabajo del GC, luego el slot local <code>runnext</code>, luego la cola local de ejecución, luego la cola global (comprobada cada 61 llamadas para prevenir la inanición), luego resultados del network poller, y finalmente work-stealing de otros Ps.</p>
+
+<p>Entender este flujo de planificación es esencial porque en este ejercicio añadiremos registros en el punto exacto donde las goroutines transicionan al estado de espera.</p>
+
 <h2>Contexto: Estados de una Goroutine</h2>
 
 <p>Go gestiona las goroutines a través de diferentes estados:</p>

@@ -74,6 +74,19 @@
 <li>Probar el comportamiento de selección determinista vs. aleatorio</li>
 </ul>
 
+<h2>Introducción: ¿Cómo Funciona Select Internamente?</h2>
+
+<p>La sentencia <code>select</code> está implementada en la función del runtime <code>selectgo()</code> en <code>runtime/select.go</code>. Cuando tu código llega a un <code>select</code> con múltiples casos, el runtime necesita decidir qué caso ejecutar. Lo hace usando dos arrays:</p>
+
+<ul>
+<li><strong><code>pollorder</code></strong>: Determina el orden en que los casos se <strong>comprueban</strong> para ver si están listos. Por defecto, este orden se aleatoriza usando <code>cheaprandn()</code> para asegurar la equidad — ningún channel tiene prioridad sobre los demás.</li>
+<li><strong><code>lockorder</code></strong>: Determina el orden en que se <strong>adquieren</strong> los locks de los channels (ordenados por dirección para prevenir deadlocks).</li>
+</ul>
+
+<p>El runtime primero mezcla los casos en <code>pollorder</code>, luego los recorre en ese orden. Si el channel de un caso está listo (tiene datos para recibir o espacio para enviar), se selecciona ese caso. Si ningún caso está listo y hay un <code>default</code>, se ejecuta el default. De lo contrario, la goroutine se aparca en las colas de espera de todos los channels y espera hasta que uno esté listo.</p>
+
+<p>La aleatorización en <code>pollorder</code> es lo que hace que <code>select</code> sea no determinista — ejecutar el mismo <code>select</code> con los mismos channels listos elegirá casos diferentes cada vez. Esta es una decisión de diseño deliberada para evitar que los programas dependan accidentalmente del orden de los casos.</p>
+
 <h2>Contexto: Go Aleatoriza el Select</h2>
 
 <p>Por defecto, cuando varios channels están listos, Go aleatoriza cuál se ejecuta:</p>

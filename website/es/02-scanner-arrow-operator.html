@@ -75,6 +75,16 @@
 <li>Extender con éxito el vocabulario de operadores de Go</li>
 </ul>
 
+<h2>Introducción: ¿Qué es un Scanner?</h2>
+
+<p>El scanner (también llamado lexer) es la primera fase del compilador. Lee tu código fuente carácter por carácter y agrupa esos caracteres en <strong>tokens</strong> — las unidades significativas más pequeñas del lenguaje, como palabras clave (<code>func</code>, <code>go</code>, <code>return</code>), operadores (<code>+</code>, <code>==</code>, <code>=&gt;</code>), identificadores (<code>myVariable</code>) y literales (<code>&quot;hello&quot;</code>, <code>42</code>).</p>
+
+<p>Por ejemplo, cuando el scanner ve <code>go sayHello()</code>, produce los tokens: <code>_Go</code>, <code>_Name(&quot;sayHello&quot;)</code>, <code>_Lparen</code>, <code>_Rparen</code>.</p>
+
+<p>El scanner funciona mediante un gran <code>switch</code> sobre el carácter actual. Cuando ve <code>=</code>, mira el siguiente carácter: si es otro <code>=</code>, produce el token <code>==</code> (igualdad); si no, produce <code>=</code> (asignación). Este mecanismo de lookahead es exactamente lo que vamos a extender para reconocer <code>=&gt;</code> como un nuevo operador.</p>
+
+<p>El scanner se encuentra en <code>go/src/cmd/compile/internal/syntax/scanner.go</code>.</p>
+
 <h2>Contexto: Cómo Funciona esta Modificación del Scanner</h2>
 
 <p>Este ejercicio demuestra <strong>modificaciones a nivel de scanner</strong> para añadir nueva sintaxis de operadores a Go. Modificaremos la lógica del scanner para reconocer una nueva secuencia de operador &ldquo;=&gt;&rdquo; y mapearla a un token existente. Esto es lo que lograremos:</p>
